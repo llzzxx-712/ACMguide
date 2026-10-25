@@ -1,0 +1,5 @@
+---
+import Docs from '../layouts/Docs.astro';
+import { href } from '../data/course';
+---
+<Docs title="这一页暂时找不到" description="链接可能发生了变化，可以从课程目录继续学习。" section="404"><p>回到首页，或查看完整的 30 天学习路线。</p><div class="action-row"><a class="button-primary" href={href()}>回到首页 →</a><a class="button-secondary" href={href('roadmap/')}>查看路线</a></div></Docs>

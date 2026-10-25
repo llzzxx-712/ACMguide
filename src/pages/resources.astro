@@ -1,0 +1,20 @@
+---
+import Docs from '../layouts/Docs.astro';
+import { chapters } from '../data/course';
+const headings=[{depth:2,slug:'practice',text:'洛谷基础题单'},{depth:2,slug:'tools',text:'工具与补充资源'},{depth:2,slug:'sources',text:'本网站参考来源'}];
+---
+<Docs title="题单与学习资源" description="先把手边的材料用好。教程负责讲清楚，题单负责把知识练熟。" section="学习资源" headings={headings}>
+  <h2 id="practice">洛谷基础题单</h2>
+  <p>以下链接指向洛谷官方题单，保留原题单内容；我们的日程会从中选择适合当前阶段的题目。<strong>题单里的难题可以先标记，不必在第一次学习时全部完成。</strong></p>
+  <table><thead><tr><th>课程章节</th><th>原题单</th><th>学习范围</th></tr></thead><tbody>{chapters.filter(chapter=>chapter.training).map(chapter=><tr><td>第{chapter.id}章 · {chapter.title}</td><td>{chapter.training?.map((id,i)=><Fragment>{i>0?' / ':''}<a href={`https://www.luogu.com.cn/training/${id}`} target="_blank" rel="noopener noreferrer">#{id}</a></Fragment>)}</td><td>{chapter.id===2?'模拟保留，高精度排除':'按基础与进阶分层选做'}</td></tr>)}</tbody></table>
+  <div class="callout"><strong>原题单目录与本次范围有区别</strong><p>高精度、二叉树、集合、图的基本应用不在本次安排。循环题单中的 P1009“阶乘之和”等题涉及高精度，第一轮跳过。简单动态规划和简单博弈论单独补充。</p></div>
+  <h2 id="tools">工具与补充资源</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href="https://github.com/Embarcadero/Dev-Cpp/releases" target="_blank" rel="noopener noreferrer"><h3>Dev-C++ 官方发布页 ↗</h3><p>Windows 入门环境，选择附带编译器的完整安装包。</p></a>
+    <a class="resource-card" href="https://www.luogu.com.cn/" target="_blank" rel="noopener noreferrer"><h3>洛谷 ↗</h3><p>中文题目与在线评测，第一章的主要练习平台。</p></a>
+    <a class="resource-card" href="https://codeforces.com/" target="_blank" rel="noopener noreferrer"><h3>Codeforces ↗</h3><p>后续用于分难度练习与比赛，零基础可以先从洛谷开始。</p></a>
+    <a class="resource-card" href="https://oi-wiki.org/" target="_blank" rel="noopener noreferrer"><h3>OI Wiki ↗</h3><p>用作补充查阅。先按本指南顺序学，不必一开始通读。</p></a>
+  </div>
+  <h2 id="sources">本网站参考来源</h2>
+  <ul><li>考察范围：发起者提供的招新要求与<a href="https://www.luogu.com.cn/training/list" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》目录</a>。</li><li>竞赛信息：<a href="https://icpc.global/" target="_blank" rel="noopener noreferrer">ICPC 官网</a>。校内赛制以本校通知为准。</li><li>页面形式与风格：<a href="https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/" target="_blank" rel="noopener noreferrer">AIInfraGuide 学习路线</a>，本网站独立实现页面与教程。</li><li>发布方式：<a href="https://docs.astro.build/en/guides/deploy/github/" target="_blank" rel="noopener noreferrer">Astro 官方 GitHub Pages 部署说明</a>。</li></ul>
+</Docs>

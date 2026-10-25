@@ -1,0 +1,48 @@
+---
+import Docs from '../layouts/Docs.astro';
+import { href } from '../data/course';
+const headings = [
+  { depth: 2, slug: 'what-is-acm', text: 'ACM 竞赛是什么' },
+  { depth: 2, slug: 'why-learn', text: '为什么值得花时间' },
+  { depth: 2, slug: 'this-month', text: '这一个月，学到哪里' },
+  { depth: 2, slug: 'how-to-learn', text: '怎么使用这份指南' },
+  { depth: 2, slug: 'start', text: '从第一天开始' }
+];
+---
+<Docs title="写给刚入学的你" description="从第一行 C++ 代码出发，用一个月认识算法竞赛，准备你的第一场招新赛。" section="前言" headings={headings}>
+  <div class="tags"><span class="tag">零基础起步</span><span class="tag">30 天学习路线</span><span class="tag">C++17</span></div>
+  <p class="lead">你好，欢迎来到大学，也欢迎认识算法竞赛。<br />你不需要提前学过编程，更不需要一开始就很厉害。先把环境装好，写出一个能运行的程序，再慢慢学会用代码解决问题。</p>
+  <p>这份指南由一位校 ACM-ICPC 集训队前队长发起，希望把新生入门时最容易迷路的那段路整理清楚：<strong>今天学什么、去哪里练、做到什么程度，就可以继续往前走。</strong></p>
+  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>开始第 1 天 <span>→</span></a><a class="button-secondary" href={href('roadmap/')}>先看 30 天路线</a></div>
+  <div class="stat-strip"><div><strong>30<small>天</small></strong><p>把入门知识串起来</p></div><div><strong>9<small>章</small></strong><p>语言、算法与赛前练习</p></div><div><strong>2<small>条练习线</small></strong><p>新生组 / 提高组</p></div></div>
+
+  <h2 id="what-is-acm">ACM 竞赛是什么</h2>
+  <p>大家口中的“ACM 竞赛”，通常指以 ICPC（International Collegiate Programming Contest，国际大学生程序设计竞赛）为代表的算法竞赛。你需要读懂题目，设计算法，再用程序在规定的时间和内存限制内算出正确答案。</p>
+  <p>ICPC 的典型赛制是三人组队、共用一台计算机，在限时比赛中合作解题。校内招新赛的组队方式、时长和规则由学校单独安排，请以本校通知为准。入门阶段，我们先把重心放在独立读题、思考和编程上。你也可以通过 <a href="https://icpc.global/" target="_blank" rel="noopener noreferrer">ICPC 官网</a>继续了解这项竞赛。</p>
+  <div class="callout"><strong>它确实有难度，但起点并不高。</strong><p>难度在于持续思考、调试和复盘。第一次遇到报错、一道题想了很久，都是正常的学习过程。我们从最简单的输入输出开始，不要求你第一天就能做难题。</p></div>
+
+  <h2 id="why-learn">为什么值得花时间</h2>
+  <p>算法竞赛需要投入时间，也未必适合每个人长期坚持。但这一段扎实的训练，能在大学的许多地方派上用场。</p>
+  <table><thead><tr><th>方向</th><th>你可能收获什么</th></tr></thead><tbody>
+    <tr><td>专业课程</td><td>提前熟悉程序设计、数据结构与算法，减少从“听懂”到“会写”的距离。</td></tr>
+    <tr><td>实习与就业</td><td>训练编程、调试和解决问题的能力；算法题也常见于技术岗笔试与面试。</td></tr>
+    <tr><td>考研与保研</td><td>程序设计训练有助于应对机试、复试中的相关考察；竞赛成果在部分学校的推免、加分或综合评价中可能发挥作用。</td></tr>
+    <tr><td>综测与奖学金</td><td>符合认定条件的竞赛成绩，可能纳入学校的综测加分和奖学金评定。</td></tr>
+  </tbody></table>
+  <p><small>具体奖项认定、加分、推免和奖学金规则，以所在学校、学院及目标院校当年的正式文件为准。入门训练本身不等于获奖，也不替代课程成绩与项目实践。</small></p>
+
+  <h2 id="this-month">这一个月，学到哪里</h2>
+  <p>目标是<strong>学完招新赛涉及的入门知识，能够独立完成相应的基础题，并开始尝试综合题</strong>。30 天是一份紧凑的学习安排，并不是学完就能稳定解决所有难度题目的保证；如果某节没有掌握，可以多留一天复习。</p>
+  <table><thead><tr><th>组别</th><th>洛谷大致范围</th><th>Codeforces 大致范围</th><th>练习重心</th></tr></thead><tbody><tr><td>新生组</td><td>红色—黄色</td><td>800—1500</td><td>基础题做稳，逐步尝试综合运用。</td></tr><tr><td>提高组</td><td>红色—绿色</td><td>800—1800</td><td>在基础上提高推理、效率分析与综合解题能力。</td></tr></tbody></table>
+  <p>以上范围来自本次招新要求，用作选题参考。洛谷颜色和 CF 评分并非一一对应，实际比赛难度也需要结合具体题目判断。</p>
+  <p>知识范围按<a href="https://www.luogu.com.cn/training/list" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》题单</a>组织：语言基础、模拟、排序、暴力枚举、递推与递归、贪心、二分、搜索、线性表和基础数学，另加简单动态规划、简单博弈论。</p>
+  <p>本轮不安排<strong>高精度、二叉树、集合、图的基本应用</strong>。保留“模拟与高精度”中的模拟部分；搜索中的网格与状态 BFS 仍在范围内，不展开图论章节。</p>
+
+  <h2 id="how-to-learn">怎么使用这份指南</h2>
+  <ol><li><strong>先跟着写，再关掉教程重写。</strong>复制运行是检查环境，独立写出来才是掌握。</li><li><strong>每天给练习留出时间。</strong>可先按每天 2—4 小时预留，阅读、动手、刷题和复盘都要有；具体速度按自己的基础调整。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>学习进度可以标记，但“打勾”不代替独立完成一道题。</li></ol>
+  <div class="callout blue"><strong>网站正在逐章完善</strong><p>目前已提供前言、30 天路线和第一章的 9 节教程草稿。第 2—9 章已列出章节与日程，正文会在后续打磨后补齐；你看到的“规划中”就是尚未发布的部分。</p></div>
+
+  <h2 id="start">从第一天开始</h2>
+  <p>今天只需要完成一件事：准备好能写 C++ 的环境。明天，我们一起写下 <code>Hello,World!</code>。</p>
+  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>1.1 编辑器下载与环境准备 →</a><a class="button-secondary" href={href('chapter/1/')}>查看第一章</a></div>
+</Docs>

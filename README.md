@@ -1,2 +1,58 @@
-# ACMguide
-ACM 入门指南：面向零基础新生的 30 天 C++ 与算法竞赛入门路线。
+# ACM 入门指南
+
+面向零基础新生的 30 天算法竞赛入门网站。使用 C++17 + Dev-C++，为校内 ACM-ICPC 招新赛准备基础知识。
+
+- 网站：<https://llzzxx-712.github.io/ACMguide/>
+- 第一版：前言、30 天路线、第一章 9 节教程草稿；第 2—9 章为标题与日程规划。
+- 参考布局：[AIInfraGuide](https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/)，本项目独立实现页面与内容。
+
+## 内容范围
+
+洛谷《深入浅出基础篇》中的语言基础、模拟、排序、暴力枚举、递推与递归、贪心、二分、搜索、线性表、基础数学，补充简单动态规划、简单博弈论。
+
+排除高精度、二叉树、集合及图的基本应用。模拟保留；搜索中的网格 / 状态 BFS 保留。题单中跨范围的题不作为首轮必做题。
+
+新生组参考洛谷红—黄、CF 800—1500；提高组参考洛谷红—绿、CF 800—1800。它们是目标难度范围，不是难度平台之间的精确换算，也不是 30 天后的能力保证。
+
+## 本地运行
+
+需要 Node.js 24 或更高版本。
+
+```sh
+npm ci
+npm run dev
+```
+
+打开终端显示的 `http://127.0.0.1:4321/ACMguide/`。
+
+```sh
+npm run build
+npm run preview
+```
+
+`build` 会进行类型检查、静态构建、内部链接与锚点校验。搜索索引随构建生成，全部为静态文件，不需要后端。
+
+已安装支持 C++17 的 g++ 时，运行 `node scripts/check-examples.mjs` 可从教程原文提取并验证全部完整 C++ 示例。它也会在 GitHub Actions 中自动运行，覆盖样例、分界值、零、单元素与同分等情况。
+
+## 怎样改内容
+
+| 文件 | 用途 |
+| --- | --- |
+| `src/content/language/*.md` | 第一章的 9 节教程，每节一个 Markdown 文件 |
+| `src/data/course.ts` | 所有章节标题、日程与提纲 |
+| `src/pages/index.astro` | 前言 |
+| `src/pages/roadmap.astro` | 30 天路线与两组目标 |
+| `src/styles/global.css` | 全站样式和移动端布局 |
+| `astro.config.mjs` | GitHub Pages 账号、仓库子路径 |
+
+后续发布新章节时，将正文放入合适的内容目录，并相应扩展 `src/pages/learn/[slug].astro` 与 `src/pages/search.json.ts` 的内容加载规则。正文存在才发布为可学习状态；不要仅删除“规划中”字样。
+
+学习进度与主题只保存在读者的本地浏览器，不创建账号、不跨设备同步。
+
+## GitHub Pages
+
+仓库 Settings → Pages → Build and deployment → Source 选择 **GitHub Actions**。推送到 `main` 后，`.github/workflows/deploy.yml` 自动构建并发布；拉取请求只构建检查，不发布。
+
+部署使用 Astro 官方 Action。更改账号或仓库名时，同步修改 `astro.config.mjs` 的 `site`、`base` 和 `src/data/course.ts` 的仓库链接，并重新构建。
+
+教程内容是可继续编辑的初稿。练习仅链接原平台，不复制题目全文；本指南自编练习已在正文标注。

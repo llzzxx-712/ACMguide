@@ -1,0 +1,17 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import { chapters, href, dayLabel } from '../../data/course';
+export function getStaticPaths() { return chapters.map(chapter=>({params:{id:String(chapter.id)},props:{chapter}})); }
+const { chapter } = Astro.props;
+const headings=[{depth:2,slug:'goals',text:'本章目标'},{depth:2,slug:'lessons',text:'章节与日程'},{depth:2,slug:'practice',text:'对应题单'}];
+---
+<Docs title={`第${chapter.id}章 · ${chapter.title}`} description={`${chapter.range} · ${chapter.id===1?'从安装环境开始，写出能独立解决基础问题的 C++ 程序。':'章节规划已整理，详细教程将在后续发布。'}`} section={`第${chapter.id}章`} headings={headings} planned={chapter.id>1}>
+  {chapter.id===1 ? <p>这一章不要求你有任何编程基础。我们用 C++17，从编辑器、第一行输出开始，逐步学会读入数据、判断、重复执行和组织数据。<strong>不要急着背模板，每个例子都亲手运行一次。</strong></p> : <div class="callout blue"><strong>本章正文尚未发布</strong><p>当前仅展示章节标题、学习日程与知识点提纲，具体讲解和练习会逐节补充。</p></div>}
+  <h2 id="goals">本章目标</h2>
+  {chapter.id===1 ? <ul><li>能创建、保存、编译、运行一个 C++ 程序，并在洛谷提交。</li><li>会使用输入输出、变量、分支、循环、数组和字符串。</li><li>理解基础函数与结构体，能独立完成入门语言题。</li><li>遇到报错时知道从哪里查，能用小数据检查自己的代码。</li></ul> : <ul>{chapter.lessons.map(item=><li>{item.summary}</li>)}</ul>}
+  <h2 id="lessons">章节与日程</h2>
+  <div class="lesson-list">{chapter.lessons.map(item=><a class="lesson-card" href={href(`learn/${item.slug}/`)}><span class="day-number">{dayLabel(item.days)}</span><div><h3>{item.title}</h3><p>{item.summary}</p></div><span class="arrow">→</span></a>)}</div>
+  <h2 id="practice">对应题单</h2>
+  {chapter.training ? <p>对应洛谷《深入浅出基础篇》：{chapter.training.map((id,i)=><Fragment>{i>0?'、':''}<a href={`https://www.luogu.com.cn/training/${id}`} target="_blank" rel="noopener noreferrer">题单 #{id}</a></Fragment>)}。题单中的题目按当前学习范围选择，不要求一次全部刷完。{chapter.id===2?'“模拟与高精度”中仅学习模拟，高精度不在本次范围。':''}</p> : <p>这是招新要求额外补充的部分，后续将单独整理练习题。</p>}
+  {chapter.id===1 && <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>进入 1.1 · 准备环境 →</a></div>}
+</Docs>

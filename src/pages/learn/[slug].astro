@@ -1,0 +1,20 @@
+---
+import type { MarkdownInstance } from 'astro';
+import Docs from '../../layouts/Docs.astro';
+import { lessons, href, dayLabel } from '../../data/course';
+export function getStaticPaths() {
+  const content=import.meta.glob<MarkdownInstance<Record<string,unknown>>>('../../content/language/*.md',{eager:true});
+  return lessons.map(item=>({params:{slug:item.slug},props:{item,doc:content[`../../content/language/${item.slug}.md`]}}));
+}
+const {item,doc}=Astro.props;
+const planned=!doc;
+const Content=doc?.Content;
+const headings=doc ? doc.getHeadings() : [{depth:2,slug:'outline',text:'计划讲哪些内容'},{depth:2,slug:'schedule',text:'日程安排'}];
+const index=lessons.findIndex(lesson=>lesson.slug===item.slug);
+const prev=lessons[index-1];
+const next=lessons[index+1];
+---
+<Docs title={item.title} description={`${dayLabel(item.days)} · ${item.summary}`} section={`第${item.chapter.id}章 · ${item.chapter.title}`} headings={headings} lesson={item.slug} planned={planned}>
+  {Content ? <Content/> : <Fragment><div class="callout blue"><strong>这节课还在准备中</strong><p>目前只公布章节标题和学习安排，详细讲解、例题与验收标准将在后续补充。</p></div><h2 id="outline">计划讲哪些内容</h2><ul>{item.topics?.map(topic=><li>{topic}</li>)}</ul><h2 id="schedule">日程安排</h2><p>{dayLabel(item.days)}，属于第{item.chapter.id}章“{item.chapter.title}”。</p><div class="action-row"><a class="button-primary" href={href('chapter/1/')}>先学习已发布的第一章 →</a><a class="button-secondary" href={href('roadmap/')}>查看完整路线</a></div></Fragment>}
+  <nav class="page-links" aria-label="前后章节">{prev?<a href={href(`learn/${prev.slug}/`)}><small>← 上一节</small>{prev.title}</a>:<a href={href()}><small>← 开始之前</small>前言 · 写给刚入学的你</a>}{next&&<a href={href(`learn/${next.slug}/`)}><small>下一节 →{next.chapter.id>1?' · 规划中':''}</small>{next.title}</a>}</nav>
+</Docs>
