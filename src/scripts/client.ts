@@ -1,5 +1,5 @@
 export {};
-document.querySelectorAll<HTMLIFrameElement>('.binary-animation-frame').forEach(frame => {
+document.querySelectorAll<HTMLIFrameElement>('.binary-animation-frame, .lesson-animation-frame').forEach(frame => {
   let observer: ResizeObserver | undefined;
   const fitAnimation = () => {
     observer?.disconnect();

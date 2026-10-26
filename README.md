@@ -49,6 +49,7 @@ npm run preview
 | `src/content/binary-search/*.md` | 第四章的二分查找与二分答案教程 |
 | `src/content/linear-tables/*.md` | 第五章的线性表、栈与队列教程 |
 | `src/content/search/*.md` | 第六章的 DFS 与 BFS 教程 |
+| `public/animations/dfs-enumeration/` | DFS 枚举、调用与返回的交互动图，含两层、三层与四皇后三种模式 |
 | `src/data/content.ts` | 自动加载正文，并为目录、搜索和进度提供发布状态 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/pages/index.astro` | 前言 |

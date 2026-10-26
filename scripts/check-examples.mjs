@@ -215,6 +215,11 @@ const cases = {
       translationCase(100,Array.from({length:1000},(_,i)=>i%101)),...randomTranslationCases]
   ],
   dfs: [
+    [[1,1],[2,2],[3,2],[4,1],[1,4],[4,4]].map(([rows,cols])=>{
+      const answers=Array.from({length:cols**rows},(_,value)=>
+        Array.from({length:rows},(_,index)=>Math.floor(value/cols**(rows-1-index))%cols+1).join(' '));
+      return [rows+' '+cols+'\n',answers.join('\n')+'\n'];
+    }),
     [selectionCase([3,7,12,19],3),selectionCase([1,1,1],2),selectionCase([1,1,1],1),selectionCase([2,2],1),
       selectionCase(Array(20).fill(1),19),selectionCase(Array(20).fill(2),10),
       ['20 19\n'+'5000000 '.repeat(19)+'5000000\n','0\n'],...randomSelectionCases],

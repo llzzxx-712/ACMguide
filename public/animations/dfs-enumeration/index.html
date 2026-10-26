@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DFS 暴力枚举与递归动图</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7fafc;color:#24354a;font-family:Arial,sans-serif;font-size:14px;line-height:1.65}button,select,input{font:inherit}button{border:1px solid #cbd5e1;border-radius:6px;padding:7px 11px;background:white;color:#334155;cursor:pointer}button:hover{background:#eef5f8}button:disabled{opacity:.4;cursor:default}button[aria-pressed=true]{border-color:#087f71;color:#07695d;background:#e5f4ee}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #78b8ed;outline-offset:2px}#demo{max-width:900px;margin:auto;padding:22px}.eyebrow{margin:0;color:#087f71;font-size:12px}h1{margin:4px 0 8px;font-size:22px;line-height:1.45}.intro{margin:0 0 15px;color:#53667b;font-size:13px}.modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}.modes button{font-size:12px}.upper{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px}.panel{min-width:0;padding:13px;background:white;border:1px solid #dfE7ee;border-radius:8px}h2{font-size:14px;margin:0 0 8px;font-weight:700}svg{width:100%;height:auto;display:block}svg text{text-anchor:middle;font-family:Arial,sans-serif}.coordinate{font-size:17px;fill:#64748b}#prefix{margin:6px 0 0;min-height:25px;color:#087f71;font-weight:700;font-size:13px}.legend{margin:3px 0 0;font-size:11px;color:#64748b}.stack-frame{border:1px solid #e2e8f0;border-left:3px solid #cbd5e1;border-radius:5px;padding:7px 9px;margin-top:6px;min-height:42px;display:flex;flex-direction:column;font-size:12px;line-height:1.5}.stack-frame strong{font-family:monospace;font-size:13px}.stack-frame span{color:#536379}.stats{display:flex;gap:18px;flex-wrap:wrap;margin:13px 0 8px;font-size:12px}.stats b{font-family:monospace;font-size:16px;color:#087f71}#note{min-height:74px;margin:0 0 12px;padding:12px 14px;background:#eaf5f1;border-left:3px solid #087f71;border-radius:0 6px 6px 0;font-size:14px}.lower{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px}.code{margin:0;overflow-x:auto;font:12px/1.8 monospace;white-space:pre}.code span{display:block;border-radius:3px;padding:0 6px}.outputs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.output{border:1px solid #e1e8ef;border-radius:5px;padding:5px 7px;font:13px/1.6 monospace;min-height:31px}#output-help{margin:9px 0 0;color:#64748b;font-size:12px}.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:15px}.controls button,.controls label{font-size:12px}#play{background:#087f71;border-color:#087f71;color:white;min-width:62px}select{border:1px solid #cbd5e1;border-radius:5px;background:white;color:#334155;padding:5px}.scrub{display:flex;align-items:center;gap:10px;margin-top:11px;font-size:12px;color:#64748b}.scrub input{flex:1;min-width:0;accent-color:#087f71}#phase{font-size:12px;color:#64748b;margin:8px 0 0}.track{height:3px;background:#dce7ed;margin-top:13px}#progress{width:100%;height:100%;background:#087f71;transform-origin:0 50%}.help{font-size:11px;color:#64748b;margin:8px 0 0}@media(max-width:560px){#demo{padding:16px 12px}h1{font-size:19px}.upper,.lower{grid-template-columns:1fr}.panel{padding:11px}.stack-frame{flex-direction:row;justify-content:space-between;gap:8px;min-height:34px;padding:6px 8px}.stack-frame strong{white-space:nowrap}.stack-frame span{text-align:right}.code{font-size:11px}#note{min-height:119px;font-size:13px}.modes button{padding:7px 8px}.stats{gap:12px}.outputs{grid-template-columns:repeat(4,1fr)}.output{font-size:12px;padding:5px 3px}}
+.workspace{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px}.column{display:flex;flex-direction:column;gap:12px}.stack-frame{flex-direction:row;justify-content:space-between;gap:7px;min-height:33px;padding:5px 8px}.stack-frame strong{white-space:nowrap}.stack-frame span{text-align:right}.code{line-height:1.6}.controls{margin-top:0}.stats{margin-top:8px}#note{margin-bottom:12px}@media(max-width:560px){.workspace{grid-template-columns:1fr}.stack-frame{font-size:11px}.stack-frame strong{font-size:12px}}
+</style>
+</head>
+<body>
+<div data-composition-id="dfs-enumeration" data-width="900" data-height="1020" data-duration="58.5">
+<section id="search-scene" class="clip" data-start="0" data-duration="58.5" data-track-index="0" data-track-kind="graphics">
+<div id="demo">
+<p class="eyebrow">搜索，就是把候选情况有顺序地逐个试过</p>
+<h1>递归，让同一个 for 负责不同层的选择</h1>
+<p class="intro">看当前摆法，也看每层函数停在哪里。切换两层、三层后，源码里的 for 没增加，枚举层数会随 n 改变。</p>
+<div class="modes" role="group" aria-label="选择枚举模式">
+<button type="button" data-mode="two" aria-pressed="true">两层 · 4 种摆法</button>
+<button type="button" data-mode="three" aria-pressed="false">三层 · 8 种摆法</button>
+<button type="button" data-mode="queens" aria-pressed="false">四皇后 · 加入冲突检查</button>
+</div>
+<div class="controls">
+<button type="button" id="play">播放</button>
+<button type="button" id="previous">上一步</button>
+<button type="button" id="next">下一步</button>
+<button type="button" id="next-output">下一个完整摆法</button>
+<button type="button" id="next-return">下一次返回</button>
+<button type="button" id="restart">重来</button>
+<label>速度 <select id="speed" aria-label="播放速度"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+</div>
+<label class="scrub">步骤 <input type="range" id="step" aria-label="枚举动画步骤" min="0" max="38" step="1" value="0"><output id="step-count">1 / 39</output></label>
+<p id="phase">进入函数</p>
+<div class="stats"><span>候选尝试 <b id="attempts">0</b></span><span>排除冲突 <b id="pruned">0</b></span><span>完整摆法 <b id="complete">0</b></span></div>
+<p id="note">进入 dfs(1)：从第一行开始枚举。</p>
+<div class="workspace"><div class="column">
+<div class="panel">
+<h2 id="diagram-title">搜索树：每条边是一层的选择</h2>
+<svg viewBox="0 0 640 300" role="img" aria-labelledby="diagram-title">
+<g id="tree-view"><g id="tree-root"><circle cx="320" cy="30" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="320" y="37" font-size="17" fill="#475569">开始</text></g><path id="edge-1" d="M320 48 L160 90" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-1"><circle cx="160" cy="108" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="160" y="115" font-size="23" fill="#475569">1</text></g><path id="edge-2" d="M320 48 L480 90" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-2"><circle cx="480" cy="108" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="480" y="115" font-size="23" fill="#475569">2</text></g><path id="edge-11" d="M160 126 L80 168" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-11"><circle cx="80" cy="186" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="80" y="193" font-size="23" fill="#475569">1</text></g><path id="edge-12" d="M160 126 L240 168" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-12"><circle cx="240" cy="186" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="240" y="193" font-size="23" fill="#475569">2</text></g><path id="edge-21" d="M480 126 L400 168" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-21"><circle cx="400" cy="186" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="400" y="193" font-size="23" fill="#475569">1</text></g><path id="edge-22" d="M480 126 L560 168" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-22"><circle cx="560" cy="186" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="560" y="193" font-size="23" fill="#475569">2</text></g><path id="edge-111" d="M80 204 L40 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-111"><circle cx="40" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="40" y="271" font-size="23" fill="#475569">1</text></g><path id="edge-112" d="M80 204 L120 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-112"><circle cx="120" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="120" y="271" font-size="23" fill="#475569">2</text></g><path id="edge-121" d="M240 204 L200 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-121"><circle cx="200" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="200" y="271" font-size="23" fill="#475569">1</text></g><path id="edge-122" d="M240 204 L280 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-122"><circle cx="280" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="280" y="271" font-size="23" fill="#475569">2</text></g><path id="edge-211" d="M400 204 L360 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-211"><circle cx="360" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="360" y="271" font-size="23" fill="#475569">1</text></g><path id="edge-212" d="M400 204 L440 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-212"><circle cx="440" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="440" y="271" font-size="23" fill="#475569">2</text></g><path id="edge-221" d="M560 204 L520 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-221"><circle cx="520" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="520" y="271" font-size="23" fill="#475569">1</text></g><path id="edge-222" d="M560 204 L600 246" fill="none" stroke="#d7e1e9" stroke-width="3"/><g id="tree-222"><circle cx="600" cy="264" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="600" y="271" font-size="23" fill="#475569">2</text></g></g>
+<g id="board-view" opacity="0"><text x="142" y="66" class="coordinate">第 1 行</text><g id="board-1-1"><rect x="190" y="29" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="220" y="69" font-size="31" fill="#087f71"></text></g><g id="board-1-2"><rect x="250" y="29" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="280" y="69" font-size="31" fill="#087f71"></text></g><g id="board-1-3"><rect x="310" y="29" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="340" y="69" font-size="31" fill="#087f71"></text></g><g id="board-1-4"><rect x="370" y="29" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="400" y="69" font-size="31" fill="#087f71"></text></g><text x="142" y="126" class="coordinate">第 2 行</text><g id="board-2-1"><rect x="190" y="89" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="220" y="129" font-size="31" fill="#087f71"></text></g><g id="board-2-2"><rect x="250" y="89" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="280" y="129" font-size="31" fill="#087f71"></text></g><g id="board-2-3"><rect x="310" y="89" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="340" y="129" font-size="31" fill="#087f71"></text></g><g id="board-2-4"><rect x="370" y="89" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="400" y="129" font-size="31" fill="#087f71"></text></g><text x="142" y="186" class="coordinate">第 3 行</text><g id="board-3-1"><rect x="190" y="149" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="220" y="189" font-size="31" fill="#087f71"></text></g><g id="board-3-2"><rect x="250" y="149" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="280" y="189" font-size="31" fill="#087f71"></text></g><g id="board-3-3"><rect x="310" y="149" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="340" y="189" font-size="31" fill="#087f71"></text></g><g id="board-3-4"><rect x="370" y="149" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="400" y="189" font-size="31" fill="#087f71"></text></g><text x="142" y="246" class="coordinate">第 4 行</text><g id="board-4-1"><rect x="190" y="209" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="220" y="249" font-size="31" fill="#087f71"></text></g><g id="board-4-2"><rect x="250" y="209" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="280" y="249" font-size="31" fill="#087f71"></text></g><g id="board-4-3"><rect x="310" y="209" width="60" height="60" fill="#edf3f7" stroke="#cbd5e1"/><text x="340" y="249" font-size="31" fill="#087f71"></text></g><g id="board-4-4"><rect x="370" y="209" width="60" height="60" fill="#fff" stroke="#cbd5e1"/><text x="400" y="249" font-size="31" fill="#087f71"></text></g><text x="220" y="19" class="coordinate">第 1 列</text><text x="280" y="19" class="coordinate">第 2 列</text><text x="340" y="19" class="coordinate">第 3 列</text><text x="400" y="19" class="coordinate">第 4 列</text></g>
+</svg>
+<p id="prefix">当前固定前缀：空</p>
+<p class="legend" id="legend">紫色是当前前缀，绿色走过，灰色尚未尝试。</p>
+</div>
+<div class="panel">
+<h2>已经输出的完整摆法</h2>
+<div class="outputs"><span id="output-0" class="output">—</span><span id="output-1" class="output">—</span><span id="output-2" class="output">—</span><span id="output-3" class="output">—</span><span id="output-4" class="output">—</span><span id="output-5" class="output">—</span><span id="output-6" class="output">—</span><span id="output-7" class="output">—</span></div>
+<p id="output-help">按 DFS 顺序保留结果，每个数字表示一行选中的列。</p>
+</div>
+</div><div class="column">
+<div class="panel">
+<h2>调用栈：下方是当前正在执行的一层</h2>
+<div id="stack-0" class="stack-frame"><strong id="stack-title-0">—</strong><span id="stack-state-0">等待进入</span></div><div id="stack-1" class="stack-frame"><strong id="stack-title-1">—</strong><span id="stack-state-1">等待进入</span></div><div id="stack-2" class="stack-frame"><strong id="stack-title-2">—</strong><span id="stack-state-2">等待进入</span></div><div id="stack-3" class="stack-frame"><strong id="stack-title-3">—</strong><span id="stack-state-3">等待进入</span></div><div id="stack-4" class="stack-frame"><strong id="stack-title-4">—</strong><span id="stack-state-4">等待进入</span></div>
+</div>
+<div class="panel">
+<h2>正在执行哪一步</h2>
+<pre class="code" aria-label="与递归枚举对应的代码"><span id="line-enter">void dfs(int row) {</span><span id="line-base">    if (row == n + 1) {</span><span id="line-output">        output(); return;</span><span>    }</span><span id="line-loop">    for (int c = 1; c &lt;= cols; c++) {</span><span id="line-diagonals">        // 本层 c 只负责当前行</span><span id="line-check">        // 纯枚举：每一列都可以选</span><span id="line-place">        path[row] = c;</span><span id="line-mark">        // 本模式不记录列、斜线占用</span><span id="line-call">        dfs(row + 1);</span><span id="line-after">        // 返回本层，接着执行 c++</span><span id="line-unmark">        // 下一次选择会覆盖 path[row]</span><span id="line-close">    }</span><span id="line-finish">}</span></pre>
+</div>
+</div></div>
+<p class="help">output() 表示输出当前完整摆法，完整程序见教程。前缀外的旧 path 值不再表示当前选择；四皇后模式还要撤销占用标记。</p>
+<div class="track"><div id="progress"></div></div>
+</div>
+</section>
+</div>
+<script src="assets/gsap.min.js"></script>
+<script type="module">
+import {buildTrace} from './trace.mjs';
+const gsap = window.gsap;
+const seconds = 1.5;
+const play = document.querySelector('#play');
+const slider = document.querySelector('#step');
+const speed = document.querySelector('#speed');
+const modes = [...document.querySelectorAll('button[data-mode]')];
+const lineNames = ['enter','base','output','loop','check','place','mark','call','after','unmark','close','finish'];
+const treeNodes = [{"key":"","x":320,"y":30,"depth":0},{"key":"1","x":160,"y":108,"depth":1},{"key":"2","x":480,"y":108,"depth":1},{"key":"11","x":80,"y":186,"depth":2},{"key":"12","x":240,"y":186,"depth":2},{"key":"21","x":400,"y":186,"depth":2},{"key":"22","x":560,"y":186,"depth":2},{"key":"111","x":40,"y":264,"depth":3},{"key":"112","x":120,"y":264,"depth":3},{"key":"121","x":200,"y":264,"depth":3},{"key":"122","x":280,"y":264,"depth":3},{"key":"211","x":360,"y":264,"depth":3},{"key":"212","x":440,"y":264,"depth":3},{"key":"221","x":520,"y":264,"depth":3},{"key":"222","x":600,"y":264,"depth":3}];
+let timeline, frames, config, currentStep = 0, duration;
+
+function nextEvent(event) {
+    return frames.findIndex((frame,index) => index > currentStep && frame.event === event);
+}
+function controls() {
+    currentStep = Math.min(frames.length - 1, Math.floor(timeline.time() / seconds));
+    slider.value = String(currentStep);
+    document.querySelector('#step-count').textContent = (currentStep+1) + ' / ' + frames.length;
+    document.querySelector('#previous').disabled = currentStep === 0;
+    document.querySelector('#next').disabled = currentStep === frames.length - 1;
+    document.querySelector('#next-output').disabled = nextEvent('output') === -1;
+    document.querySelector('#next-return').disabled = nextEvent('back') === -1;
+    play.textContent = timeline.paused() || timeline.time() >= duration ? '播放' : '暂停';
+}
+function create(mode) {
+    timeline?.kill();
+    ({config,frames} = buildTrace(mode));
+    duration = frames.length * seconds;
+    const {queens,rows} = config;
+    slider.max = String(frames.length - 1);
+    document.querySelector('#diagram-title').textContent = queens
+        ? '棋盘：逐行试列，冲突就跳过' : '搜索树：每条边是一层的选择';
+    document.querySelector('#legend').textContent = queens
+        ? 'Q 是已选位置，橙色正在尝试，红色 × 表示冲突。'
+        : '紫色是当前前缀，绿色走过，灰色尚未尝试。';
+    document.querySelector('#line-diagonals').textContent = queens
+        ? '        int d1 = row + c, d2 = row - c + n;'
+        : '        // 本层 c 只负责当前行';
+    document.querySelector('#line-check').textContent = queens
+        ? '        if (col[c] || diag1[d1] || diag2[d2]) continue;'
+        : '        // 纯枚举：每一列都可以选';
+    document.querySelector('#line-mark').textContent = queens
+        ? '        col[c] = diag1[d1] = diag2[d2] = true;'
+        : '        // 本模式不记录列、斜线占用';
+    document.querySelector('#line-after').textContent = queens
+        ? '        // 递归返回后，撤销本次占用标记'
+        : '        // 返回本层，接着执行 c++';
+    document.querySelector('#line-unmark').textContent = queens
+        ? '        col[c] = diag1[d1] = diag2[d2] = false;'
+        : '        // 下一次选择会覆盖 path[row]';
+    document.querySelector('#output-help').textContent = queens
+        ? '只输出合法的完整解；冲突分支提前排除，不再把后面几行全部试一遍。'
+        : '每个数字是一行选择的列。两层得到 4 种，三层得到 8 种，全部都要试过。';
+
+    for (let slot=0;slot<5;slot++) document.querySelector('#stack-'+slot).style.display = slot <= rows ? 'flex' : 'none';
+    for (let slot=0;slot<8;slot++) document.querySelector('#output-'+slot).style.display = slot < (queens ? 2 : 2**rows) ? 'block' : 'none';
+    for (const id of ['line-diagonals','line-check','line-mark','line-unmark']) {
+        document.querySelector('#'+id).style.display = queens ? 'block' : 'none';
+    }
+    document.querySelector('#line-after').style.display = queens ? 'none' : 'block';
+    timeline = gsap.timeline({paused:true,onUpdate:controls,onComplete:controls});
+    timeline.timeScale(Number(speed.value));
+    gsap.set('#progress',{scaleX:0});
+    timeline.to('#progress',{scaleX:1,duration,ease:'none'},0);
+    timeline.set('#tree-view',{opacity:queens ? 0 : 1},0);
+    timeline.set('#board-view',{opacity:queens ? 1 : 0},0);
+    frames.forEach((frame,index) => {
+        const at = index * seconds;
+        timeline.set('#demo',{attr:{'data-mode':mode,'data-step':index}},at);
+        for (const key of ['attempts','pruned']) timeline.set('#'+key,{textContent:String(frame[key])},at);
+        timeline.set('#complete',{textContent:String(frame.outputs.length)},at);
+        timeline.set('#note',{textContent:frame.note},at);
+        const titles = {enter:'进入函数',try:'枚举候选',reject:'排除冲突',place:'记录选择',call:'暂停并调用下一层',back:'返回后继续本层',output:'输出完整摆法',exhausted:'本层 for 结束',done:'全部枚举完成'};
+        timeline.set('#phase',{textContent:titles[frame.event]},at);
+        timeline.set('#prefix',{textContent:'当前固定前缀：' + (frame.prefix.length ? frame.prefix.join(' → ') : '空')},at);
+        const key = frame.prefix.join('');
+        for (const node of treeNodes) {
+            const id = '#tree-' + (node.key || 'root');
+            const shown = !queens && node.depth <= rows;
+            const active = node.key === key;
+            const visited = frame.seen.includes(node.key);
+            timeline.set(id,{opacity:shown ? 1 : 0},at);
+            timeline.to(id+' circle',{attr:{fill:active ? '#eee8fa' : visited ? '#e5f4ee' : '#fff',
+                stroke:active ? '#7544b6' : visited ? '#087f71' : '#cbd5e1'},duration:0.2},at);
+            if(node.key) timeline.set('#edge-'+node.key,{opacity:shown ? 1 : 0,
+                attr:{stroke:key.startsWith(node.key) ? '#087f71' : visited ? '#87b9a8' : '#d7e1e9'}},at);
+        }
+        for(let row=1;row<=4;row++) for(let col=1;col<=4;col++) {
+            const selected = frame.prefix[row-1] === col;
+            const candidate = frame.candidate?.row === row && frame.candidate?.col === col;
+            const rejected = candidate && !frame.candidate.ok;
+            const fill = selected ? '#dff2e8' : candidate ? (rejected ? '#fce9e7' : '#fff0d7') : (row+col)%2 ? '#edf3f7' : '#fff';
+            timeline.to('#board-'+row+'-'+col+' rect',{attr:{fill},duration:0.2},at);
+            timeline.set('#board-'+row+'-'+col+' text',{textContent:selected ? 'Q' : rejected ? '×' : candidate ? '?' : '',
+                attr:{fill:rejected ? '#b83d37' : '#087f71'}},at);
+        }
+        for(let slot=0;slot<5;slot++) {
+            const item=frame.stack[slot];
+            const active=item && slot===frame.stack.length-1;
+            timeline.set('#stack-'+slot,{opacity:item ? 1 : 0,
+                borderLeftColor:active ? '#7544b6' : '#93aca4',
+                backgroundColor:active ? '#f2edfb' : '#fff'},at);
+            timeline.set('#stack-title-'+slot,{textContent:item ? 'dfs('+item.row+') · c='+(item.col ?? '—') : '—'},at);
+            timeline.set('#stack-state-'+slot,{textContent:item ? item.status : '尚未进入'},at);
+        }
+        for(const line of lineNames) {
+            const lit=line===frame.line || (line==='mark' && frame.line==='place' && queens);
+            timeline.set('#line-'+line,{backgroundColor:lit ? '#e5f4ee' : '#fff',color:lit ? '#07695d' : '#334155'},at);
+        }
+        for(let output=0;output<8;output++) {
+            const item=frame.outputs[output];
+            timeline.set('#output-'+output,{textContent:item ? item.join(' ') : '—',
+                backgroundColor:item ? '#eaf5ef' : '#fff',color:item ? '#07695d' : '#64748b'},at);
+        }
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines['dfs-enumeration'] = timeline;
+    timeline.seek(0.01).pause();
+    controls();
+}
+function step(index) {
+    timeline.pause();
+    timeline.seek(Math.max(0,Math.min(frames.length-1,index))*seconds+0.35);
+    controls();
+}
+play.addEventListener('click',()=>{
+    if(timeline.paused() || timeline.time()>=duration) {
+        if(timeline.time()>=duration) timeline.seek(0);
+        timeline.play();
+    } else timeline.pause();
+    controls();
+});
+document.querySelector('#previous').addEventListener('click',()=>step(currentStep-1));
+document.querySelector('#next').addEventListener('click',()=>step(currentStep+1));
+document.querySelector('#restart').addEventListener('click',()=>step(0));
+document.querySelector('#next-output').addEventListener('click',()=>step(nextEvent('output')));
+document.querySelector('#next-return').addEventListener('click',()=>step(nextEvent('back')));
+slider.addEventListener('input',()=>step(Number(slider.value)));
+speed.addEventListener('change',()=>timeline.timeScale(Number(speed.value)));
+modes.forEach(button=>button.addEventListener('click',()=>{
+    modes.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+    create(button.dataset.mode);
+}));
+document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){timeline.pause();controls();}
+});
+create('two');
+</script>
+</body>
+</html>
