@@ -19,9 +19,9 @@ export type Chapter = {
 
 export const chapters: Chapter[] = [
   { id: 1, title: '语言基础', range: '第 1—12 天', training: [100,101,102,103,104,105], lessons: [
-    { slug: 'setup', title: '1.1 编辑器下载与环境准备', days: [1], summary: '安装 Dev-C++，建立自己的代码文件夹。' },
+    { slug: 'setup', title: '1.1 编辑器下载与环境准备', days: [1], summary: '安装 Dev-C++，复制代码运行，确认环境可用。' },
     { slug: 'hello-world', title: '1.2 Hello, World!', days: [2], summary: '写下、运行并提交你的第一个 C++ 程序。' },
-    { slug: 'io', title: '1.3 变量、输入输出与运算', days: [3,4], summary: '从 A+B 开始，把题意翻译成顺序执行的代码。' },
+    { slug: 'io', title: '1.3 变量、输入输出与运算', days: [3,4], summary: '用苹果采购理解变量和输入，掌握整数运算与 printf。' },
     { slug: 'conditions', title: '1.4 分支结构', days: [5], summary: '用条件判断，让程序处理不同情况。' },
     { slug: 'loops', title: '1.5 循环结构', days: [6,7], summary: '理解 for 和 while，练习计数、求和与多重循环。' },
     { slug: 'arrays', title: '1.6 数组', days: [8,9], summary: '用一维、二维数组保存和处理一组数据。' },

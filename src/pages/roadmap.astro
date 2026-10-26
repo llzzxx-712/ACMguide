@@ -7,7 +7,7 @@ const headings = [{depth:2,slug:'choose-track',text:'新生组练习目标'},{de
 <Docs title="30 天学习路线" description="面向新生组，从语言基础到简单算法，按天完成学习、练习与复盘。" section="学习路线" headings={headings}>
   <p>零基础同学从第 1 天开始。已有编程基础的同学可以先做第一章复盘，通过验收后再进入算法部分。<strong>先做稳基础，再增加难度。</strong></p>
   <h2 id="choose-track">新生组练习目标</h2>
-  <div class="track-panel"><p><strong>洛谷红—黄 / CF 800—1500。</strong>先完成每节基础练习和验收，把语言、模拟、枚举等基础题做稳，再尝试组合多个知识点的题。每天留出调试和复盘的时间。</p></div>
+  <div class="track-panel"><p><strong>洛谷红—黄 / CF 800—1500。</strong>每节先独立重做例题，再完成推荐必做题；需要巩固时继续做选做题。把语言、模拟、枚举等基础题做稳，再尝试组合多个知识点的题。每天留出调试和复盘的时间。</p></div>
   <h2 id="daily-plan">30 天安排</h2>
   <p>前 12 天的教程已提供，后续章节暂为规划。连续安排两天的主题，第一天理解并完成基础题，第二天巩固和补题。</p>
   {phases.map(phase => <section class="roadmap-phase"><div class="phase-header"><h3>{phase.title}</h3><span>Day {phase.start}—{phase.end}</span></div>{Array.from({length:phase.end-phase.start+1},(_,i)=>phase.start+i).map(day=>{ const item=lessons.find(lesson=>lesson.days.includes(day))!; const second=item.days[0]!==day;return <div class="day-row"><span class="day">DAY {String(day).padStart(2,'0')}</span><a href={href(`learn/${item.slug}/`)}>{item.title}{second ? ' · 巩固练习' : ''}</a><small>{item.chapter.id===1?'可学习':'规划中'}</small></div>;})}</section>)}
