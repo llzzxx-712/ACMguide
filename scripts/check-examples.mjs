@@ -22,7 +22,97 @@ function gridCounts(n, m) {
   const all = rows * (rows + 1n) / 2n * (cols * (cols + 1n) / 2n);
   return `${squares} ${all - squares}\n`;
 }
+// A different recurrence provides the oracle for the tutorial's sum over all next terms.
+function sequenceCount(n) {
+  const f = Array(n + 1).fill(1n);
+  for (let i = 2; i <= n; i++) {
+    f[i] = f[i - 1] + (i % 2 === 0 ? f[i / 2] : 0n);
+  }
+  return f[n].toString() + '\n';
+}
+const sequenceCases = [1,2,3,4,5,6,7,8,9,10,17,31,32,99,100,127,256,499,500,999,1000]
+  .map(n => [String(n) + '\n', sequenceCount(n)]);
+// Exhaustively try subsets for small interval instances; do not use the greedy strategy as oracle.
+function intervalCase(matches) {
+  let best = 0;
+  for (let mask = 0; mask < 2 ** matches.length; mask++) {
+    const selected = matches.filter((_, i) => mask & (1 << i)).sort((a,b) => a[0] - b[0]);
+    if (selected.every((item,i) => i === 0 || selected[i-1][1] <= item[0])) {
+      best = Math.max(best, selected.length);
+    }
+  }
+  return [matches.length + '\n' + matches.map(item=>item.join(' ')).join('\n') + '\n', best + '\n'];
+}
+function lookupCase(values, queries) {
+  const expected = queries.map(x => {
+    const index = values.indexOf(x);
+    return index === -1 ? -1 : index + 1;
+  });
+  return [values.length + ' ' + queries.length + '\n' + values.join(' ') + '\n' + queries.join(' ') + '\n', expected.join(' ') + '\n'];
+}
+// Enumerate every cut height on small cases, independently of the binary search.
+function treeCase(heights, need) {
+  let best = 0;
+  for (let cut = 0; cut <= Math.max(...heights); cut++) {
+    if (heights.reduce((sum, h) => sum + Math.max(0, h - cut), 0) >= need) best = cut;
+  }
+  return [heights.length + ' ' + need + '\n' + heights.join(' ') + '\n', best + '\n'];
+}
+let randomState = 20261026;
+function randomInt(limit) {
+  randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0;
+  return randomState % limit;
+}
+const randomIntervals = Array.from({length:24}, () => intervalCase(
+  Array.from({length:8}, () => {
+    const start = randomInt(9);
+    return [start, start + 1 + randomInt(5)];
+  })
+));
+const randomLookups = Array.from({length:20}, () => {
+  const values = Array.from({length:30}, () => randomInt(16)).sort((a,b)=>a-b);
+  return lookupCase(values, Array.from({length:20}, () => randomInt(20)));
+});
+const randomTrees = Array.from({length:24}, () => {
+  const heights = Array.from({length:8}, () => 1 + randomInt(20));
+  return treeCase(heights, 1 + randomInt(heights.reduce((a,b)=>a+b,0) - 1));
+});
 const cases = {
+  recursion: [
+    [['0\n','1\n'],['1\n','1\n'],['2\n','2\n'],['3\n','3\n'],['5\n','8\n'],['40\n','165580141\n']],
+    [['0\n','1\n'],['1\n','1\n'],['3\n','6\n'],['4\n','24\n'],['12\n','479001600\n'],['20\n','2432902008176640000\n']],
+    sequenceCases, sequenceCases
+  ],
+  greedy: [[
+    intervalCase([[1,3],[2,4],[3,5],[0,6],[5,7],[7,8]]),
+    intervalCase([[0,10],[1,2],[2,3],[3,4]]),
+    intervalCase([[0,3],[3,6],[6,9],[2,4]]),
+    intervalCase([[0,1]]),
+    intervalCase([[5,9],[0,9],[3,9],[8,9]]),
+    intervalCase([[2,3],[0,1],[1,2],[4,5],[3,4]]),
+    ...randomIntervals,
+    ['1000000\n' + '0 1\n'.repeat(1000000), '1\n']
+  ]],
+  'binary-search': [[
+    lookupCase([1,2,2,2,5],[2,4,1,6,5]),
+    lookupCase([0],[0,1,1000000000]),
+    lookupCase([1000000000],[0,999999999,1000000000]),
+    lookupCase([7,7,7,7],[6,7,8]),
+    lookupCase([0,2,4,6],[0,1,2,3,4,5,6,7]),
+    ...randomLookups,
+    ['1000000 100000\n' + '7 '.repeat(999999) + '7\n' + Array.from({length:100000},(_,i)=>[0,7,8][i%3]).join(' ') + '\n',
+      Array.from({length:100000},(_,i)=>[-1,1,-1][i%3]).join(' ') + '\n']
+  ]],
+  'binary-answer': [[
+    treeCase([20,15,10,17],7),
+    treeCase([1,1],1),
+    treeCase([10],9),
+    treeCase([10],1),
+    treeCase([5,5,5],14),
+    treeCase([0,0,10,0],5),
+    ...randomTrees,
+    ['1000000 2000000000\n' + '400000 '.repeat(999999) + '400000\n','398000\n']
+  ]],
   simulation: [[['6\n20 21 22 19 20 21\n','3\n'],['1\n0\n','1\n'],['3\n5 5 5\n','1\n'],['5\n5 4 3 2 1\n','1\n'],['6\n3 2 1 2 3 4\n','4\n'],['9\n1 2 3 0 1 2 3 2 1\n','4\n'],['1000000\n'+'0 '.repeat(999999)+'0\n','1\n'],['2\n999999999 1000000000\n','2\n']]],
   sorting: [[['4\n4 1 4 2\n','1 2 4 4\n4 4 2 1\n'],['1\n-7\n','-7\n-7\n'],['5\n-3 0 -3 2 1\n','-3 -3 0 1 2\n2 1 0 -3 -3\n'],['1000\n'+'1 '.repeat(999)+'1\n',('1 '.repeat(999)+'1\n').repeat(2)]], [['6\n90 90 90\n95 85 90\n90 95 85\n100 90 90\n80 80 80\n85 95 95\n','4 280\n6 275\n2 270\n1 270\n3 270\n'],['5\n'+'0 0 0\n'.repeat(5),'1 0\n2 0\n3 0\n4 0\n5 0\n'],['6\n100 0 0\n99 100 100\n100 100 100\n100 99 99\n100 100 99\n100 100 99\n','3 300\n5 299\n6 299\n2 299\n4 298\n'],['300\n'+'100 100 100\n'.repeat(300),'1 300\n2 300\n3 300\n4 300\n5 300\n']]],
   enumeration: [[['5 14\n','3 2\n'],['0 0\n','0 0\n'],['5 11\n','-1\n'],['1 5\n','-1\n'],['1000 4000\n','0 1000\n'],['1000 2000\n','1000 0\n'],['5 100\n','-1\n']], [[1,1],[1,5],[2,3],[3,3],[5000,5000],[2,5000],[5000,1]].map(([n,m])=>[`${n} ${m}\n`,gridCounts(n,m)])],

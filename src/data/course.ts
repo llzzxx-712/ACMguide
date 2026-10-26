@@ -30,17 +30,17 @@ export const chapters: Chapter[] = [
     { slug: 'checkpoint', title: '1.9 语言基础复盘', days: [12], summary: '独立完成小测，学会读评测结果与定位错误。' }
   ]},
   { id: 2, title: '模拟、排序与枚举', range: '第 13—16 天', training: [106,107,108], lessons: [
-    { slug: 'simulation', title: '2.1 模拟与复杂度入门', days: [13], summary: '记录状态、按规则更新，用统计天数理解模拟与计算量。', topics: ['题意转流程与边界处理','时间与空间复杂度入门','连续状态的维护'] },
+    { slug: 'simulation', title: '2.1 模拟与复杂度入门', days: [13], summary: '记录状态、按规则更新，代入最大规模估算能否通过，处理百万级输入。', topics: ['题意转流程与边界处理','复杂度、常数与最大规模估算','cin 关闭流同步与连续状态的维护'] },
     { slug: 'sorting', title: '2.2 排序与 sort 的应用', days: [14], summary: '用 sort 完成升降序、多字段排名和排序后的统计。', topics: ['sort 的区间与升降序','比较函数与奖学金排名','排序后的统计与去重'] },
     { slug: 'enumeration', title: '2.3 暴力枚举与优化', days: [15,16], summary: '选定枚举对象与范围，通过减少变量和批量计数降低计算量。', topics: ['枚举对象、范围与检验条件','减少枚举变量与提前排除','统计方形与预处理思路'] }
   ]},
   { id: 3, title: '递推、递归与贪心', range: '第 17—19 天', training: [109,110], lessons: [
-    { slug: 'recursion', title: '3.1 递推与递归', days: [17,18], summary: '从已知推到未知，理解递归的出口和调用过程。', topics: ['递推关系与初始条件','递归调用与终止条件','简单分治与递归展开'] },
-    { slug: 'greedy', title: '3.2 贪心', days: [19], summary: '选择当前最优策略，并说明它为什么成立。', topics: ['贪心策略与反例','交换思路入门','排序与贪心结合'] }
+    { slug: 'recursion', title: '3.1 递推与递归', days: [17,18], summary: '从台阶、阶乘到数的计算，理解递推顺序、递归返回与记忆化。', topics: ['递推关系、初始值与顺序','递归出口、调用栈与返回','重复计算、记忆化与简单分治'] },
+    { slug: 'greedy', title: '3.2 贪心', days: [19], summary: '从反例与交换理由出发，用 sort 安排最多场不冲突的比赛。', topics: ['贪心策略与反例','交换思路入门','排序与线段覆盖'] }
   ]},
   { id: 4, title: '二分查找与二分答案', range: '第 20—21 天', training: [111], lessons: [
-    { slug: 'binary-search', title: '4.1 二分查找', days: [20], summary: '维护有序区间，定位元素与边界。', topics: ['有序性与二分边界','lower_bound / upper_bound','循环不变量与边界测试'] },
-    { slug: 'binary-answer', title: '4.2 二分答案', days: [21], summary: '把最优化问题转换成单调的可行性判断。', topics: ['答案单调性','check 函数','整数答案的左右边界'] }
+    { slug: 'binary-search', title: '4.1 二分查找', days: [20], summary: '找第一次出现的位置，理解左右边界，用两个 bound 统计重复值。', topics: ['有序性与左闭右开区间','lower_bound / upper_bound','循环不变量、重复值与边界检查'] },
+    { slug: 'binary-answer', title: '4.2 二分答案', days: [21], summary: '用砍树理解 check 与单调性，在候选答案里寻找可行边界。', topics: ['答案单调性与 check 函数','最大、最小可行值的分界','每次检查与整体复杂度'] }
   ]},
   { id: 5, title: '搜索', range: '第 22—23 天', training: [112], lessons: [
     { slug: 'dfs', title: '5.1 深度优先搜索与回溯', days: [22], summary: '用状态、选择和回退枚举解。', topics: ['DFS 搜索树','排列、组合与回溯','访问标记与基础剪枝'] },

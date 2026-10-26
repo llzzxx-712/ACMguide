@@ -2,6 +2,7 @@
 import Docs from '../layouts/Docs.astro';
 import { lessons, href } from '../data/course';
 import { isPublished } from '../data/content';
+const lastPublishedDay = Math.max(...lessons.filter(item => isPublished(item.slug)).flatMap(item => item.days));
 const phases = [{ title: '第一阶段 · 语言基础', start: 1, end: 12 },{title: '第二阶段 · 基础算法', start: 13, end: 21 },{title:'第三阶段 · 搜索、线性表与数学', start:22,end:26},{title:'第四阶段 · DP、博弈与赛前练习',start:27,end:30}];
 const headings = [{depth:2,slug:'choose-track',text:'新生组练习目标'},{depth:2,slug:'daily-plan',text:'30 天安排'},{depth:2,slug:'when-stuck',text:'跟不上时怎么调整'}];
 ---
@@ -10,7 +11,7 @@ const headings = [{depth:2,slug:'choose-track',text:'新生组练习目标'},{de
   <h2 id="choose-track">新生组练习目标</h2>
   <div class="track-panel"><p><strong>洛谷红—黄 / CF 800—1500。</strong>每节先独立重做例题，再完成推荐必做题；需要巩固时继续做选做题。把语言、模拟、枚举等基础题做稳，再尝试组合多个知识点的题。每天留出调试和复盘的时间。</p></div>
   <h2 id="daily-plan">30 天安排</h2>
-  <p>第 1—16 天的教程已提供，涵盖语言基础、模拟、排序和枚举。连续安排两天的主题，按教程中的两天安排学习、练习与巩固。</p>
+  <p>第 1—{lastPublishedDay} 天的教程已提供，涵盖语言基础、模拟、排序、枚举、递推递归、贪心和二分。连续安排两天的主题，按教程中的两天安排学习、练习与巩固。</p>
   {phases.map(phase => <section class="roadmap-phase"><div class="phase-header"><h3>{phase.title}</h3><span>Day {phase.start}—{phase.end}</span></div>{Array.from({length:phase.end-phase.start+1},(_,i)=>phase.start+i).map(day=>{ const item=lessons.find(lesson=>lesson.days.includes(day))!; const second=item.days[0]!==day;return <div class="day-row"><span class="day">DAY {String(day).padStart(2,'0')}</span><a href={href(`learn/${item.slug}/`)}>{item.title}{second ? ' · 巩固练习' : ''}</a><small>{isPublished(item.slug)?'可学习':'规划中'}</small></div>;})}</section>)}
   <h2 id="when-stuck">跟不上时怎么调整</h2>
   <ul><li>一道题暂时不会，可以记录卡住的原因；先把本节最基础的题独立做出来。</li><li>连续两天无法达到验收标准，就把后续日程顺延，补齐前面的知识再继续。</li><li>第 30 天模拟赛之后，继续补题和整理错题，把“看过”变成“下次会做”。</li></ul>

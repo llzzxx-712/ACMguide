@@ -6,13 +6,32 @@ export function getStaticPaths() { return chapters.map(chapter=>({params:{id:Str
 const { chapter } = Astro.props;
 const available = chapter.lessons.some(item => isPublished(item.slug));
 const firstPublished = chapter.lessons.find(item => isPublished(item.slug));
-const description = chapter.id===1 ? '从安装环境开始，写出能独立解决基础问题的 C++ 程序。' : chapter.id===2 ? '用模拟维护状态，用 sort 整理顺序，用枚举寻找答案。' : '章节规划已整理，详细教程将在后续发布。';
+const descriptions: Record<number, string> = {
+  1: '从安装环境开始，写出能独立解决基础问题的 C++ 程序。',
+  2: '用模拟维护状态，用 sort 整理顺序，用枚举寻找答案。',
+  3: '从小问题推到大问题，理解函数递归，再说明贪心选择为什么成立。',
+  4: '从有序数组的边界查找到单调的可行性判断，用二分减少尝试次数。'
+};
+const introductions: Record<number, string> = {
+  1: '这一章不要求你有任何编程基础。我们用 C++17，从编辑器、第一行输出开始，逐步学会读入数据、判断、重复执行和组织数据。',
+  2: '第一章准备好了语言工具，这一章开始学习怎样组织解题过程。先把题目的规则翻译成状态变化，再用 sort 完成排序与排名，最后练习枚举与优化。每节都从手算走到代码，再通过独立重做和练习把方法用起来。',
+  3: '这一章练习怎样从更小的问题得到当前答案。先用台阶和阶乘理解递推顺序、递归调用与返回，再用“数的计算”对照两种实现；随后学习贪心，通过反例和交换理由，说明比赛安排中为什么优先选择最早结束的比赛。',
+  4: '这一章围绕寻找前后性质不同的分界展开。先在有序数组中找到目标的第一次出现位置，再把这种思路用到答案范围中：写出 check，说明单调方向，用砍树问题练习寻找最大可行值。'
+};
+const goals: Record<number, string[]> = {
+  1: ['能创建、保存、编译、运行一个 C++ 程序，并在洛谷提交。','会使用输入输出、变量、分支、循环、数组和字符串。','理解基础函数与结构体，能独立完成入门语言题。','遇到报错时知道从哪里查，能用小数据检查自己的代码。'],
+  2: ['能找出初始状态、更新顺序和终止条件，按题意模拟。','能根据数据范围估算时间与空间，比较不同方案的计算量。','会用 sort 排数字和结构体，处理多字段排名、统计与去重。','会确定枚举对象与范围，用减少变量、提前排除、预处理和批量计数优化。'],
+  3: ['能定义递推中的量，写出关系、初始值和计算顺序。','能追踪递归的调用与返回，找到出口，检查调用栈和重复计算。','会用数组记忆已经求出的答案。','会用反例检验策略，并用交换思路解释贪心选择。','会把 sort 与贪心扫描结合，处理相等条件和边界。'],
+  4: ['能在有序数组中找第一个满足条件的位置。','会维护二分边界，处理重复值、查找失败和末尾位置。','会用 lower_bound、upper_bound 查找与统计。','能把优化问题改写成 check，说明可行性的单调方向。','会确定答案范围，计算每次 check 与整体算法的复杂度。']
+};
+const description = descriptions[chapter.id] ?? '章节规划已整理，详细教程将在后续发布。';
+const chapterGoals = goals[chapter.id] ?? chapter.lessons.map(item=>item.summary);
 const headings=[{depth:2,slug:'goals',text:'本章目标'},{depth:2,slug:'lessons',text:'章节与日程'},{depth:2,slug:'practice',text:'对应题单'}];
 ---
 <Docs title={`第${chapter.id}章 · ${chapter.title}`} description={`${chapter.range} · ${description}`} section={`第${chapter.id}章`} headings={headings} planned={!available}>
-  {chapter.id===1 ? <p>这一章不要求你有任何编程基础。我们用 C++17，从编辑器、第一行输出开始，逐步学会读入数据、判断、重复执行和组织数据。<strong>不要急着背模板，每个例子都亲手运行一次。</strong></p> : chapter.id===2 ? <p>第一章准备好了语言工具，这一章开始学习怎样组织解题过程。先把题目的规则翻译成状态变化，再用 <strong>sort 完成排序与排名</strong>，最后练习枚举与优化。每节都从手算走到代码，再通过独立重做和练习把方法用起来。</p> : <div class="callout blue"><strong>本章正文尚未发布</strong><p>当前仅展示章节标题、学习日程与知识点提纲，具体讲解和练习会逐节补充。</p></div>}
+  {available ? <p>{introductions[chapter.id]}{chapter.id===1 && <strong>不要急着背模板，每个例子都亲手运行一次。</strong>}</p> : <div class="callout blue"><strong>本章正文尚未发布</strong><p>当前仅展示章节标题、学习日程与知识点提纲，具体讲解和练习会逐节补充。</p></div>}
   <h2 id="goals">本章目标</h2>
-  {chapter.id===1 ? <ul><li>能创建、保存、编译、运行一个 C++ 程序，并在洛谷提交。</li><li>会使用输入输出、变量、分支、循环、数组和字符串。</li><li>理解基础函数与结构体，能独立完成入门语言题。</li><li>遇到报错时知道从哪里查，能用小数据检查自己的代码。</li></ul> : chapter.id===2 ? <ul><li>能找出初始状态、更新顺序和终止条件，按题意模拟。</li><li>能根据数据范围估算时间与空间，比较不同方案的计算量。</li><li>会用 sort 排数字和结构体，处理多字段排名、统计与去重。</li><li>会确定枚举对象与范围，用减少变量、提前排除、预处理和批量计数优化。</li></ul> : <ul>{chapter.lessons.map(item=><li>{item.summary}</li>)}</ul>}
+  <ul>{chapterGoals.map(goal=><li>{goal}</li>)}</ul>
   <h2 id="lessons">章节与日程</h2>
   <div class="lesson-list">{chapter.lessons.map(item=><a class="lesson-card" href={href(`learn/${item.slug}/`)}><span class="day-number">{dayLabel(item.days)}</span><div><h3>{item.title}</h3><p>{item.summary}</p></div><span class="arrow">→</span></a>)}</div>
   <h2 id="practice">对应题单</h2>

@@ -1,6 +1,9 @@
 ---
 import Docs from '../layouts/Docs.astro';
-import { href } from '../data/course';
+import { href, lessons } from '../data/course';
+import { isPublished } from '../data/content';
+const publishedLessons = lessons.filter(item => isPublished(item.slug));
+const lastPublishedDay = Math.max(...publishedLessons.flatMap(item => item.days));
 const headings = [
   { depth: 2, slug: 'what-is-acm', text: 'ACM 竞赛是什么' },
   { depth: 2, slug: 'why-learn', text: '为什么值得花时间' },
@@ -40,7 +43,7 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
 
   <h2 id="how-to-learn">怎么使用这份指南</h2>
   <ol><li><strong>先跟着写，再关掉教程重写。</strong>复制运行是检查环境，独立写出来才是掌握。</li><li><strong>每天给练习留出时间。</strong>可先按每天 2—4 小时预留，阅读、动手、刷题和复盘都要有；具体速度按自己的基础调整。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
-  <div class="callout blue"><strong>网站正在逐章完善</strong><p>目前已提供前言、30 天路线，以及第一、二章的 12 节教程，覆盖第 1—16 天。第 3—9 章已列出章节与日程，正文会在后续打磨后补齐；你看到的“规划中”就是尚未发布的部分。</p></div>
+  <div class="callout blue"><strong>网站正在逐章完善</strong><p>目前已提供前言、30 天路线与 {publishedLessons.length} 节教程，覆盖第 1—{lastPublishedDay} 天。后续章节已列出标题与日程，正文会继续打磨补齐；你看到的“规划中”就是尚未发布的部分。</p></div>
 
   <h2 id="learning-channels">更多学习方式/渠道</h2>
   <p>这份指南给出了学习顺序，下面这些渠道可以配合使用：让 AI 陪你学，用百科和书籍补充知识，在题单里练习，遇到具体问题就去搜索或提问。</p>
