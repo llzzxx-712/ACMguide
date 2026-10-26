@@ -20,9 +20,13 @@ for (const [file, source] of html) {
     const [pathname, hash] = value.split('#');
     let target = file;
     if (pathname) {
-      if (!pathname.startsWith(`${base}/`)) { errors.push(`Missing GitHub Pages base: ${value} in ${file}`); continue; }
-      const relative = decodeURIComponent(pathname.slice(base.length)).replace(/^\//, '');
-      target = path.resolve(root, relative);
+      if (pathname.startsWith('/')) {
+        if (!pathname.startsWith(`${base}/`)) { errors.push(`Missing GitHub Pages base: ${value} in ${file}`); continue; }
+        const relative = decodeURIComponent(pathname.slice(base.length)).replace(/^\//, '');
+        target = path.resolve(root, relative);
+      } else {
+        target = path.resolve(path.dirname(file), decodeURIComponent(pathname));
+      }
       if (!(target === root || target.startsWith(root + path.sep))) { errors.push(`Unsafe internal path: ${value}`); continue; }
       try { if ((await stat(target)).isDirectory()) target = path.join(target, 'index.html'); await stat(target); }
       catch { errors.push(`Broken internal link: ${value} in ${file}`); continue; }

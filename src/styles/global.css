@@ -8,3 +8,4 @@
 .article-content pre.learning-prompt code{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
 .loop-flow{margin:22px 0;max-width:480px}.loop-flow img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.loop-flow figcaption{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.8}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+.binary-animation-frame{display:block;width:100%;height:790px;border:1px solid var(--line);border-radius:8px;margin:24px 0;background:#f7fafc}@media(max-width:450px){.binary-animation-frame{height:730px}}

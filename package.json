@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "check": "astro check",
-    "build": "astro check && astro build && node scripts/check-site.mjs",
+    "build": "astro check && astro build && node scripts/check-site.mjs && node scripts/check-animation.mjs",
     "preview": "astro preview --host 127.0.0.1"
   },
   "dependencies": {

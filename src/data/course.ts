@@ -34,32 +34,32 @@ export const chapters: Chapter[] = [
     { slug: 'sorting', title: '2.2 排序与 sort 的应用', days: [14], summary: '用 sort 完成升降序、多字段排名和排序后的统计。', topics: ['sort 的区间与升降序','比较函数与奖学金排名','排序后的统计与去重'] },
     { slug: 'enumeration', title: '2.3 暴力枚举与优化', days: [15,16], summary: '选定枚举对象与范围，通过减少变量和批量计数降低计算量。', topics: ['枚举对象、范围与检验条件','减少枚举变量与提前排除','统计方形与预处理思路'] }
   ]},
-  { id: 3, title: '递推、递归与贪心', range: '第 17—19 天', training: [109,110], lessons: [
-    { slug: 'recursion', title: '3.1 递推与递归', days: [17,18], summary: '从台阶、阶乘到数的计算，理解递推顺序、递归返回与记忆化。', topics: ['递推关系、初始值与顺序','递归出口、调用栈与返回','重复计算、记忆化与简单分治'] },
-    { slug: 'greedy', title: '3.2 贪心', days: [19], summary: '从反例与交换理由出发，用 sort 安排最多场不冲突的比赛。', topics: ['贪心策略与反例','交换思路入门','排序与线段覆盖'] }
+  { id: 3, title: '递推、递归与贪心', range: '第 17—20 天', training: [109,110], lessons: [
+    { slug: 'recurrence', title: '3.1 递推与前缀和', days: [17], summary: '从已知推到未知，用数的计算练递推，用前缀和快速回答区间和。', topics: ['递推关系、初始值与顺序','数的计算','前缀和与区间查询'] },
+    { slug: 'recursion', title: '3.2 递归', days: [18], summary: '追踪阶乘的调用与返回，用 Function 学会递归与记忆化。', topics: ['递归出口、调用栈与返回','重复计算与记忆化','Function 与简单分治'] },
+    { slug: 'greedy', title: '3.3 贪心', days: [19,20], summary: '从反例与交换理由出发，用 sort 安排比赛，再完成采购、分组等练习。', topics: ['贪心策略与反例','交换思路与排序扫描','两天练习：4 道必做、4 道选做'] }
   ]},
-  { id: 4, title: '二分查找与二分答案', range: '第 20—21 天', training: [111], lessons: [
-    { slug: 'binary-search', title: '4.1 二分查找', days: [20], summary: '找第一次出现的位置，理解左右边界，用两个 bound 统计重复值。', topics: ['有序性与左闭右开区间','lower_bound / upper_bound','循环不变量、重复值与边界检查'] },
-    { slug: 'binary-answer', title: '4.2 二分答案', days: [21], summary: '用砍树理解 check 与单调性，在候选答案里寻找可行边界。', topics: ['答案单调性与 check 函数','最大、最小可行值的分界','每次检查与整体复杂度'] }
+  { id: 4, title: '二分查找与二分答案', range: '第 21—22 天', training: [111], lessons: [
+    { slug: 'binary-search', title: '4.1 二分查找', days: [21], summary: '用闭区间和 ans 查找第一次出现的位置，通过动图观察左右边界变化。', topics: ['闭区间、ans 与边界动图','lower_bound / upper_bound','重复值、查找失败与越界检查'] },
+    { slug: 'binary-answer', title: '4.2 二分答案', days: [22], summary: '用砍树理解 check 与单调性，使用闭区间和 ans 求最优答案。', topics: ['答案单调性与 check 函数','用 ans 记录最大、最小可行值','每次检查与整体复杂度'] }
   ]},
-  { id: 5, title: '搜索', range: '第 22—23 天', training: [112], lessons: [
-    { slug: 'dfs', title: '5.1 深度优先搜索与回溯', days: [22], summary: '用状态、选择和回退枚举解。', topics: ['DFS 搜索树','排列、组合与回溯','访问标记与基础剪枝'] },
-    { slug: 'bfs', title: '5.2 广度优先搜索', days: [23], summary: '用队列逐层扩展状态，求无权步数。', topics: ['BFS 与队列','网格、状态搜索与最少步数','入队标记与边界判断（不展开图论章节）'] }
+  { id: 5, title: '搜索', range: '第 23—24 天', training: [112], lessons: [
+    { slug: 'dfs', title: '5.1 深度优先搜索与回溯', days: [23], summary: '用状态、选择和回退枚举解。', topics: ['DFS 搜索树','排列、组合与回溯','访问标记与基础剪枝'] },
+    { slug: 'bfs', title: '5.2 广度优先搜索', days: [24], summary: '用队列逐层扩展状态，求无权步数。', topics: ['BFS 与队列','网格、状态搜索与最少步数','入队标记与边界判断（不展开图论章节）'] }
   ]},
-  { id: 6, title: '线性表', range: '第 24 天', training: [113], lessons: [
-    { slug: 'linear', title: '6.1 线性表、栈与队列', days: [24], summary: '认识顺序表、链表、栈与队列的基本操作。', topics: ['vector 与顺序表','链表及数组模拟链表','stack、queue 与基本应用'] }
+  { id: 6, title: '线性表', range: '第 25 天', training: [113], lessons: [
+    { slug: 'linear', title: '6.1 线性表、栈与队列', days: [25], summary: '认识顺序表、链表、栈与队列的基本操作。', topics: ['vector 与顺序表','链表及数组模拟链表','stack、queue 与基本应用'] }
   ]},
-  { id: 7, title: '基础数学问题', range: '第 25—26 天', training: [117], lessons: [
-    { slug: 'math', title: '7.1 整除、质数与最大公约数', days: [25], summary: '用基础数论解决整除和约数问题。', topics: ['整除、质数判断与筛法','约数与质因数分解','gcd、lcm 与溢出处理'] },
-    { slug: 'math-applications', title: '7.2 数学应用与规律', days: [26], summary: '整理进制、计数、模运算与基础几何。', topics: ['进制转换与模运算','基础组合计数与规律观察','基础几何与数学应用'] }
+  { id: 7, title: '基础数学问题', range: '第 26—27 天', training: [117], lessons: [
+    { slug: 'math', title: '7.1 整除、质数与最大公约数', days: [26], summary: '用基础数论解决整除和约数问题。', topics: ['整除、质数判断与筛法','约数与质因数分解','gcd、lcm 与溢出处理'] },
+    { slug: 'math-applications', title: '7.2 数学应用与规律', days: [27], summary: '整理进制、计数、模运算与基础几何。', topics: ['进制转换与模运算','基础组合计数与规律观察','基础几何与数学应用'] }
   ]},
-  { id: 8, title: '简单动态规划', range: '第 27—28 天', lessons: [
-    { slug: 'dp', title: '8.1 从递推到线性 DP', days: [27], summary: '定义状态，写出转移，确定初始值和顺序。', topics: ['状态、转移、边界和计算顺序','简单线性 DP','最大连续子段和与基础序列问题'] },
-    { slug: 'knapsack', title: '8.2 简单背包与网格 DP', days: [28], summary: '理解 0/1 背包与网格路径的基本模型。', topics: ['二维网格 DP','0/1 背包基础','基础模型练习'] }
+  { id: 8, title: '简单动态规划', range: '第 28—29 天', lessons: [
+    { slug: 'dp', title: '8.1 从递推到线性 DP', days: [28], summary: '定义状态，写出转移，确定初始值和顺序。', topics: ['状态、转移、边界和计算顺序','简单线性 DP','最大连续子段和与基础序列问题'] },
+    { slug: 'knapsack', title: '8.2 简单背包与网格 DP', days: [29], summary: '理解 0/1 背包与网格路径的基本模型。', topics: ['二维网格 DP','0/1 背包基础','基础模型练习'] }
   ]},
-  { id: 9, title: '简单博弈论与赛前练习', range: '第 29—30 天', lessons: [
-    { slug: 'games', title: '9.1 必胜态与必败态', days: [29], summary: '从小规模局面找规律，理解简单取石子游戏。', topics: ['必胜态和必败态','简单取石子与巴什博弈','从小规模局面推导规律'] },
-    { slug: 'contest', title: '9.2 模拟赛与复盘', days: [30], summary: '限时做题、选择题目，赛后补题并总结。', topics: ['新生组模拟练习','读题、时间分配与部分进展','错题复盘与后续学习路线'] }
+  { id: 9, title: '简单博弈论', range: '第 30 天', lessons: [
+    { slug: 'games', title: '9.1 必胜态与必败态', days: [30], summary: '从小规模局面找规律，理解简单取石子游戏。', topics: ['必胜态和必败态','简单取石子与巴什博弈','从小规模局面推导规律'] }
   ]}
 ];
 

@@ -3,7 +3,8 @@
 面向零基础新生的 30 天算法竞赛入门网站。使用 C++17 + Dev-C++，为校内 ACM-ICPC 招新赛准备基础知识。
 
 - 网站：<https://llzzxx-712.github.io/ACMguide/>
-- 已提供：前言、30 天路线与第一至四章共 16 节教程，覆盖第 1—21 天；第 5—9 章为标题与日程规划。
+- 已提供：前言、30 天路线与第一至四章共 17 节教程，覆盖第 1—22 天；第 5—9 章为标题与日程规划。
+- 后续例题优先参考[入门算法题单 #1126196](https://www.luogu.com.cn/training/1126196)，按当前章节与教学范围选题。
 - 参考布局：[AIInfraGuide](https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/)，本项目独立实现页面与内容。
 
 ## 内容范围

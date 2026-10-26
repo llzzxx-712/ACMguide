@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>闭区间二分查找动图</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#233247;background:#f7fafc}button,input{font:inherit}button{cursor:pointer;border:1px solid #cbd5e1;border-radius:6px;background:white;padding:8px 12px;color:#334155}button:hover{background:#edf3f9}button:focus-visible,input:focus-visible{outline:3px solid #78b8ed;outline-offset:2px}button[aria-pressed=true]{border-color:#087f71;background:#e6f5f0;color:#07695d}button:disabled{opacity:.4;cursor:default}#demo{max-width:800px;margin:auto;padding:22px}h1{font-size:21px;line-height:1.5;margin:4px 0 14px}.eyebrow{font-size:12px;color:#087f71;margin:0}.targets{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12px}.targets>span{margin-right:3px;color:#64748b}svg{width:100%;height:auto;display:block;margin:2px 0 -5px;overflow:visible}svg text{font-family:Arial,sans-serif;text-anchor:middle}.value{font-size:36px;font-weight:700;fill:#233247}.index{font-size:23px;fill:#64748b}.pointer-label{font-size:29px;font-weight:700}.readout{display:flex;justify-content:space-between;gap:6px;font-size:14px;font-family:Consolas,monospace;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px}.le{color:#1563ba}.right{color:#a94f06}.mid{color:#7544b6}.answer{color:#087f50;font-weight:700}#note{font-size:14px;line-height:1.8;min-height:57px;margin:13px 0 10px}#phase{font-size:12px;color:#64748b}.code{margin:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 7px;overflow-x:auto;font:12px/1.8 Consolas,monospace;white-space:pre}.code span{display:block;padding:1px 8px;border-radius:3px}.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:12px}#play{background:#087f71;color:white;border-color:#087f71;min-width:65px}.scrub{display:flex;gap:10px;align-items:center;margin-top:11px;font-size:12px;color:#64748b}.scrub input{min-width:0;flex:1;accent-color:#087f71}#bar-track{height:3px;background:#dce7ed;margin-top:16px}#playhead{height:100%;background:#087f71;transform-origin:0 50%}.help{font-size:11px;line-height:1.7;margin:10px 0 0;color:#64748b}@media(max-width:450px){#demo{padding:17px 13px}h1{font-size:18px}.targets button{padding:8px 7px;font-size:11px}.readout{font-size:12px;padding:10px 8px}#note{min-height:80px;font-size:13px}.code{font-size:11px}.controls button{padding:8px 10px}}
+</style>
+</head>
+<body>
+<div id="demo" data-composition-id="binary-search" data-width="800" data-height="780" data-duration="24">
+<section id="search-scene" class="clip" data-start="0" data-duration="24" data-track-index="0">
+<p class="eyebrow">闭区间二分 · 找第一次出现的位置</p>
+<h1>找到就记进 ans，再继续向左找</h1>
+<div class="targets" aria-label="选择查找目标">
+<span>目标 x</span>
+<button type="button" data-target="2" aria-pressed="true">2 · 重复值</button>
+<button type="button" data-target="6" aria-pressed="false">6 · 找不到</button>
+<button type="button" data-target="9" aria-pressed="false">9 · 最右端</button>
+</div>
+<svg viewBox="0 0 760 268" role="img" aria-labelledby="diagram-title diagram-description">
+<title id="diagram-title">左右边界、当前中点与已经记录的答案</title>
+<desc id="diagram-description">数组为 1、2、2、2、5、7、9。le 是蓝色，r 是橙色，mid 是紫色，ans 是绿色。</desc>
+<g id="cell-1"><rect x="86" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="122" y="161">1</text><text class="index" x="122" y="204">1</text></g>
+<g id="cell-2"><rect x="170" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="206" y="161">2</text><text class="index" x="206" y="204">2</text></g>
+<g id="cell-3"><rect x="254" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="290" y="161">2</text><text class="index" x="290" y="204">3</text></g>
+<g id="cell-4"><rect x="338" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="374" y="161">2</text><text class="index" x="374" y="204">4</text></g>
+<g id="cell-5"><rect x="422" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="458" y="161">5</text><text class="index" x="458" y="204">5</text></g>
+<g id="cell-6"><rect x="506" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="542" y="161">7</text><text class="index" x="542" y="204">6</text></g>
+<g id="cell-7"><rect x="590" y="119" width="72" height="59" rx="9" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text class="value" x="626" y="161">9</text><text class="index" x="626" y="204">7</text></g>
+<g id="le-pointer" fill="#1563ba"><text class="pointer-label" y="34">le</text><path d="M-8 47 L8 47 L0 61 Z"/><path d="M0 60 V110" fill="none" stroke="#1563ba" stroke-width="3"/></g>
+<g id="r-pointer" fill="#a94f06"><text class="pointer-label" y="79">r</text><path d="M-8 89 L8 89 L0 103 Z"/><path d="M0 102 V112" fill="none" stroke="#a94f06" stroke-width="3"/></g>
+<g id="mid-pointer" fill="#7544b6"><path d="M-8 226 L8 226 L0 212 Z"/><text class="pointer-label" y="259">mid</text></g>
+</svg>
+<div class="readout">
+<span class="le">le = <b id="le-value">1</b></span>
+<span class="right">r = <b id="r-value">7</b></span>
+<span class="mid">mid = <b id="mid-value">—</b></span>
+<span class="answer">ans = <b id="ans-value">-1</b></span>
+</div>
+<p id="note">先把整个 [1,7] 放入待查范围，ans=-1 表示还没找到。</p>
+<pre class="code" aria-label="与动图对应的代码"><span id="line-loop">while (le &lt;= r) {</span><span id="line-mid">    int mid = le + (r - le) / 2;</span><span id="line-found">    if (a[mid] == x) { ans = mid; r = mid - 1; }</span><span id="line-right">    else if (a[mid] &lt; x) le = mid + 1;</span><span id="line-left">    else r = mid - 1;</span><span id="line-return">} // 结束后，直接返回 ans</span></pre>
+<div class="controls">
+<button id="play" type="button">播放</button>
+<button id="previous" type="button">上一步</button>
+<button id="next" type="button">下一步</button>
+<button id="restart" type="button">重来</button>
+<span id="phase">准备</span>
+</div>
+<label class="scrub">步骤 <input id="step" aria-label="动画步骤" type="range" min="0" max="7" step="1" value="0"><output id="step-count">1 / 8</output></label>
+<p class="help">格子下方是从 1 开始的编号。紫色表示正在比较，绿色保留 ans；淡色格子已排除。点击播放或逐步查看。</p>
+<div id="bar-track"><div id="playhead"></div></div>
+</section>
+</div>
+<script src="assets/gsap.min.js"></script>
+<script type="module">
+import {values, buildTrace} from './trace.mjs';
+
+const gsap = window.gsap;
+const stepSeconds = 3;
+const duration = 24;
+const center = index => 122 + (index - 1) * 84;
+const play = document.querySelector('#play');
+const previous = document.querySelector('#previous');
+const next = document.querySelector('#next');
+const slider = document.querySelector('#step');
+const count = document.querySelector('#step-count');
+const targets = [...document.querySelectorAll('button[data-target]')];
+let timeline, frames, currentStep = 0;
+
+function updateControls() {
+    currentStep = Math.min(frames.length - 1, Math.floor(timeline.time() / stepSeconds));
+    slider.value = String(currentStep);
+    count.textContent = (currentStep + 1) + ' / ' + frames.length;
+    previous.disabled = currentStep === 0;
+    next.disabled = currentStep === frames.length - 1;
+    play.textContent = timeline.paused() || timeline.time() >= duration ? '播放' : '暂停';
+}
+
+function createTimeline(target) {
+    timeline?.kill();
+    frames = buildTrace(target);
+    timeline = gsap.timeline({paused:true, onUpdate:updateControls, onComplete:updateControls});
+    gsap.set('#le-pointer', {x:center(1)});
+    gsap.set('#r-pointer', {x:center(values.length)});
+    gsap.set('#mid-pointer', {x:center(4), opacity:0});
+    gsap.set('#playhead', {scaleX:0});
+    timeline.to('#playhead', {scaleX:1, duration, ease:'none'}, 0);
+    frames.forEach((frame, index) => {
+        const at = index * stepSeconds;
+        const movement = index === 0 ? 0 : 0.55;
+        timeline.set('#demo', {attr:{'data-step':index,'data-target':target}}, at);
+        for (const key of ['le','r','ans']) {
+            timeline.set('#' + key + '-value', {textContent:String(frame[key])}, at);
+        }
+        timeline.set('#mid-value', {textContent:frame.mid === null ? '—' : String(frame.mid)}, at);
+        timeline.set('#note', {textContent:frame.note}, at);
+        timeline.set('#phase', {textContent:frame.phase}, at);
+        timeline.to('#le-pointer', {x:center(frame.le), duration:movement, ease:'power2.inOut'}, at);
+        timeline.to('#r-pointer', {x:center(frame.r), duration:movement, ease:'power2.inOut'}, at);
+        timeline.set('#mid-pointer', {x:center(frame.mid ?? 4), opacity:frame.mid === null ? 0 : 1}, at);
+        for (let cell = 1; cell <= values.length; cell++) {
+            const active = cell >= frame.le && cell <= frame.r;
+            const answer = cell === frame.ans;
+            const middle = cell === frame.mid;
+            timeline.to('#cell-' + cell, {opacity:active || answer ? 1 : 0.3, duration:movement}, at);
+            timeline.to('#cell-' + cell + ' rect', {
+                attr:{fill:answer ? '#e2f4e9' : middle ? '#f0eafa' : '#ffffff',
+                    stroke:answer ? '#087f50' : middle ? '#7544b6' : '#cbd5e1',
+                    'stroke-width':answer || middle ? 3 : 2}, duration:movement
+            }, at);
+        }
+        for (const line of ['loop','mid','found','right','left','return']) {
+            timeline.set('#line-' + line, {backgroundColor:line === frame.line ? '#e6f5f0' : '#ffffff',
+                color:line === frame.line ? '#07695d' : '#334155'}, at);
+        }
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines['binary-search'] = timeline;
+    timeline.seek(0.01);
+    timeline.pause();
+    updateControls();
+}
+function goToStep(index) {
+    timeline.pause();
+    timeline.seek(Math.max(0, Math.min(frames.length - 1, index)) * stepSeconds + 0.7);
+    updateControls();
+}
+play.addEventListener('click', () => {
+    if (timeline.paused() || timeline.time() >= duration) {
+        if (timeline.time() >= duration) timeline.seek(0);
+        timeline.play();
+    } else {
+        timeline.pause();
+    }
+    updateControls();
+});
+previous.addEventListener('click', () => goToStep(currentStep - 1));
+next.addEventListener('click', () => goToStep(currentStep + 1));
+document.querySelector('#restart').addEventListener('click', () => goToStep(0));
+slider.addEventListener('input', () => goToStep(Number(slider.value)));
+targets.forEach(button => button.addEventListener('click', () => {
+    targets.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    createTimeline(Number(button.dataset.target));
+}));
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        timeline.pause();
+        updateControls();
+    }
+});
+createTimeline(2);
+
+</script>
+</body>
+</html>

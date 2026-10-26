@@ -1,4 +1,18 @@
 export {};
+document.querySelectorAll<HTMLIFrameElement>('.binary-animation-frame').forEach(frame => {
+  let observer: ResizeObserver | undefined;
+  const fitAnimation = () => {
+    observer?.disconnect();
+    const body = frame.contentDocument?.body;
+    if (!body) return;
+    const fit = () => { frame.style.height = `${Math.ceil(body.getBoundingClientRect().height) + 2}px`; };
+    observer = new ResizeObserver(fit);
+    observer.observe(body);
+    fit();
+  };
+  frame.addEventListener('load', fitAnimation);
+  if (frame.contentDocument?.readyState === 'complete' && frame.contentDocument.URL !== 'about:blank') fitAnimation();
+});
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector);
 const theme = $('#theme-toggle');
 theme?.addEventListener('click', () => {

@@ -77,11 +77,42 @@ const randomTrees = Array.from({length:24}, () => {
   const heights = Array.from({length:8}, () => 1 + randomInt(20));
   return treeCase(heights, 1 + randomInt(heights.reduce((a,b)=>a+b,0) - 1));
 });
+const wTable = Array.from({length:21}, () => Array.from({length:21}, () => Array(21).fill(1n)));
+for (let a = 1; a <= 20; a++) {
+  for (let b = 1; b <= 20; b++) {
+    for (let c = 1; c <= 20; c++) {
+      wTable[a][b][c] = a < b && b < c
+        ? wTable[a][b][c-1] + wTable[a][b-1][c-1] - wTable[a][b-1][c]
+        : wTable[a-1][b][c] + wTable[a-1][b-1][c] + wTable[a-1][b][c-1] - wTable[a-1][b-1][c-1];
+    }
+  }
+}
+function wCase(queries) {
+  return [queries.map(q=>q.join(' ')).join('\n') + '\n-1 -1 -1\n', queries.map(q=>{
+    const [a,b,c] = q.map(BigInt);
+    const ans = a <= 0n || b <= 0n || c <= 0n ? 1n
+      : a > 20n || b > 20n || c > 20n ? wTable[20][20][20]
+      : wTable[Number(a)][Number(b)][Number(c)];
+    return `w(${q.join(', ')}) = ${ans}\n`;
+  }).join('')];
+}
+function prefixCase(values, ranges) {
+  return [values.length + '\n' + values.join(' ') + '\n' + ranges.length + '\n' + ranges.map(q=>q.join(' ')).join('\n') + '\n',
+    ranges.map(([l,r])=>values.slice(l-1,r).reduce((a,b)=>a+BigInt(b),0n) + '\n').join('')];
+}
+const allWQueries = Array.from({length:8000}, (_,i)=>[Math.floor(i/400)+1, Math.floor(i/20)%20+1, i%20+1]);
 const cases = {
-  recursion: [
+  recurrence: [
     [['0\n','1\n'],['1\n','1\n'],['2\n','2\n'],['3\n','3\n'],['5\n','8\n'],['40\n','165580141\n']],
+    sequenceCases,
+    [prefixCase([2,4,1,5,3],[[2,4],[1,5],[3,3]]),prefixCase([1],[[1,1],[1,1]]),prefixCase([10000,10000,10000],[[1,3],[1,1],[3,3],[2,3]]),
+      ['100000\n' + '10000 '.repeat(99999) + '10000\n3\n1 100000\n100000 100000\n1 1\n','1000000000\n10000\n10000\n']]
+  ],
+  recursion: [
     [['0\n','1\n'],['1\n','1\n'],['3\n','6\n'],['4\n','24\n'],['12\n','479001600\n'],['20\n','2432902008176640000\n']],
-    sequenceCases, sequenceCases
+    [wCase([[1,1,1],[2,2,2],[30,-1,0],[21,21,21]]),
+      wCase([['9223372036854775807','9223372036854775807','9223372036854775807'],['-9223372036854775808',21,21],[30,-1,0],[0,0,0],[-1,1,1],[1,2,3],[20,20,20],[20,1,20]]),
+      wCase(allWQueries),wCase(Array.from({length:100000},()=>[1,1,1]))]
   ],
   greedy: [[
     intervalCase([[1,3],[2,4],[3,5],[0,6],[5,7],[7,8]]),
@@ -153,8 +184,9 @@ try {
       if (compile.error || compile.status !== 0) throw new Error(`${slug} block ${i+1}: ${compile.error || compile.stderr}`);
       if (compile.stderr.trim()) throw new Error(`Compiler warning in ${slug} block ${i+1}: ${compile.stderr}`);
       for (const [input, expected] of cases[slug][i]) {
-        const run = spawnSync(exe, [], { input, encoding: 'utf8', timeout: 3000 });
-        if (run.error || run.status !== 0 || run.stdout.replaceAll('\r\n','\n') !== expected) throw new Error(`${slug} block ${i+1}: input=${JSON.stringify(input)}, expected=${JSON.stringify(expected)}, actual=${JSON.stringify(run.stdout)}, error=${run.error || run.stderr}`);
+        const run = spawnSync(exe, [], { input, encoding: 'utf8', timeout: 3000, maxBuffer: 16 * 1024 * 1024 });
+        const preview = value => JSON.stringify(value.length <= 200 ? value : value.slice(0,200) + '... [' + value.length + ' characters]');
+        if (run.error || run.status !== 0 || run.stdout.replaceAll('\r\n','\n') !== expected) throw new Error(`${slug} block ${i+1}: input=${preview(input)}, expected=${preview(expected)}, actual=${preview(run.stdout)}, error=${run.error || run.stderr}`);
         checks++;
       }
       programs++;
