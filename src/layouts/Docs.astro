@@ -1,5 +1,6 @@
 ---
 import { chapters, href, repo, dayLabel } from '../data/course';
+import { isPublished, publishedLessonSlugs } from '../data/content';
 import '../styles/global.css';
 interface Props {
   title: string;
@@ -35,7 +36,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       } catch {}
     </script>
   </head>
-  <body data-base={href()}>
+  <body data-base={href()} data-published-lessons={JSON.stringify(publishedLessonSlugs)}>
     <a class="skip-link" href="#main-content">跳到正文</a>
     <header class="site-header">
       <a class="brand" href={href()} aria-label="ACM 入门指南首页">
@@ -45,7 +46,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <nav class="top-nav" aria-label="主导航">
         <a class:list={{ active: isActive('') }} href={href()}>开始之前</a>
         <a class:list={{ active: isActive('roadmap/') }} href={href('roadmap/')}>30 天路线</a>
-        <a class:list={{ active: path.includes('/learn/') }} href={href('chapter/1/')}>语言基础</a>
+        <a class:list={{ active: isActive('chapter/1/') || chapters[0].lessons.some(item => item.slug === lesson) }} href={href('chapter/1/')}>语言基础</a>
         <a class:list={{ active: isActive('resources/') }} href={href('resources/')}>题单与资源</a>
       </nav>
       <div class="header-tools">
@@ -64,17 +65,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <div class="sidebar-intro"><span class="small-label">从这里出发</span><a class:list={['sidebar-link', { selected: isActive('') }]} href={href()}>前言 · 写给刚入学的你</a><a class:list={['sidebar-link', { selected: isActive('roadmap/') }]} href={href('roadmap/')}>30 天学习路线 <span class="mini-tag">计划</span></a></div>
         <div class="sidebar-separator"></div>
         {chapters.map(chapter => (
-          <details class="chapter-group" open={chapter.id === 1 || chapter.lessons.some(item => item.slug === lesson)}>
-            <summary><span class:list={['chapter-dot', `dot-${chapter.id}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>{chapter.range}{chapter.id > 1 ? ' · 规划中' : ''}</small></span><span class="chevron">›</span></summary>
+          <details class="chapter-group" open={chapter.id === 1 || isActive(`chapter/${chapter.id}/`) || chapter.lessons.some(item => item.slug === lesson)}>
+            <summary><span class:list={['chapter-dot', `dot-${chapter.id}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>{chapter.range}{!chapter.lessons.some(item => isPublished(item.slug)) ? ' · 规划中' : ''}</small></span><span class="chevron">›</span></summary>
             <div class="chapter-lessons">
               <a class:list={['sidebar-link', 'chapter-overview', { selected: isActive(`chapter/${chapter.id}/`) }]} href={href(`chapter/${chapter.id}/`)}>本章概览</a>
-              {chapter.lessons.map(item => <a class:list={['sidebar-link', { selected: lesson === item.slug }]} href={href(`learn/${item.slug}/`)} aria-current={lesson === item.slug ? 'page' : undefined}><span>{item.title}</span><small>{dayLabel(item.days).replace('第 ', '').replace(' 天', 'd')}</small>{chapter.id === 1 && <i data-lesson-dot={item.slug} aria-hidden="true"></i>}</a>)}
+              {chapter.lessons.map(item => <a class:list={['sidebar-link', { selected: lesson === item.slug }]} href={href(`learn/${item.slug}/`)} aria-current={lesson === item.slug ? 'page' : undefined}><span>{item.title}</span><small>{dayLabel(item.days).replace('第 ', '').replace(' 天', 'd')}</small>{isPublished(item.slug) && <i data-lesson-dot={item.slug} aria-hidden="true"></i>}</a>)}
             </div>
           </details>
         ))}
         <div class="sidebar-separator"></div>
         <a class:list={['sidebar-link', { selected: isActive('resources/') }]} href={href('resources/')}>↗ 题单与学习资源</a>
-        <div class="progress-card"><div><span>语言基础进度</span><strong id="progress-text">0 / 9 节</strong></div><progress id="course-progress" max="9" value="0" aria-label="语言基础已完成节数"></progress><small>学习记录保存在当前浏览器</small></div>
+        <div class="progress-card"><div><span>已发布教程进度</span><strong id="progress-text">0 / {publishedLessonSlugs.length} 节</strong></div><progress id="course-progress" max={publishedLessonSlugs.length} value="0" aria-label="已完成教程节数"></progress><small>学习记录保存在当前浏览器</small></div>
       </aside>
       <main id="main-content" class="main-content" tabindex="-1">
         <div class="article-meta"><a href={href()}>ACM 入门指南</a><span>/</span><span>{section}</span>{planned && <span class="status-tag">规划中</span>}</div>

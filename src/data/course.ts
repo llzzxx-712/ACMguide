@@ -30,9 +30,9 @@ export const chapters: Chapter[] = [
     { slug: 'checkpoint', title: '1.9 语言基础复盘', days: [12], summary: '独立完成小测，学会读评测结果与定位错误。' }
   ]},
   { id: 2, title: '模拟、排序与枚举', range: '第 13—16 天', training: [106,107,108], lessons: [
-    { slug: 'simulation', title: '2.1 模拟与复杂度入门', days: [13], summary: '按规则模拟，先估算程序需要执行多少次。', topics: ['题意转流程与边界处理','时间与空间复杂度入门','模拟练习（排除高精度）'] },
-    { slug: 'sorting', title: '2.2 排序与自定义比较', days: [14], summary: '使用 sort，为数字和结构体制定排序规则。', topics: ['基础排序思想','sort 与比较函数','排序后的统计与去重'] },
-    { slug: 'enumeration', title: '2.3 暴力枚举与优化', days: [15,16], summary: '枚举候选答案，再减少不必要的尝试。', topics: ['枚举对象与范围','多重循环与可行性判断','剪枝、预处理与对拍意识'] }
+    { slug: 'simulation', title: '2.1 模拟与复杂度入门', days: [13], summary: '记录状态、按规则更新，用统计天数理解模拟与计算量。', topics: ['题意转流程与边界处理','时间与空间复杂度入门','连续状态的维护'] },
+    { slug: 'sorting', title: '2.2 排序与 sort 的应用', days: [14], summary: '用 sort 完成升降序、多字段排名和排序后的统计。', topics: ['sort 的区间与升降序','比较函数与奖学金排名','排序后的统计与去重'] },
+    { slug: 'enumeration', title: '2.3 暴力枚举与优化', days: [15,16], summary: '选定枚举对象与范围，通过减少变量和批量计数降低计算量。', topics: ['枚举对象、范围与检验条件','减少枚举变量与提前排除','统计方形与预处理思路'] }
   ]},
   { id: 3, title: '递推、递归与贪心', range: '第 17—19 天', training: [109,110], lessons: [
     { slug: 'recursion', title: '3.1 递推与递归', days: [17,18], summary: '从已知推到未知，理解递归的出口和调用过程。', topics: ['递推关系与初始条件','递归调用与终止条件','简单分治与递归展开'] },

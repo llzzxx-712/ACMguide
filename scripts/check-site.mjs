@@ -35,7 +35,15 @@ for (const [file, source] of html) {
   }
 }
 const search = JSON.parse(await readFile(path.join(root, 'search.json'), 'utf8'));
-if (search.filter(item => !item.planned && item.url.includes('/learn/')).length !== 9) errors.push('Expected 9 published language lessons');
+const sources = (await walk(path.resolve('src/content'))).filter(file => file.endsWith('.md'));
+const published = search.filter(item => !item.planned && item.url.includes('/learn/'));
+if (published.length !== sources.length) errors.push('Published lesson count differs from Markdown sources');
+for (const file of sources) {
+  const slug = path.basename(file, '.md');
+  const entry = published.find(item => item.url === `${base}/learn/${slug}/`);
+  const rendered = html.get(path.join(root, 'learn', slug, 'index.html'));
+  if (!entry?.text.trim() || !rendered?.includes('<h2') || rendered.includes('这节课还在准备中')) errors.push(`Missing published lesson content: ${slug}`);
+}
 if (!html.get(path.join(root, 'index.html'))?.includes('写给刚入学的你')) errors.push('Missing home content');
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
-console.log(`Site checks passed: ${htmlFiles.length} pages, ${links} internal links/anchors/assets, 9 published lessons, ${search.length} search entries.`);
+console.log(`Site checks passed: ${htmlFiles.length} pages, ${links} internal links/anchors/assets, ${published.length} published lessons, ${search.length} search entries.`);

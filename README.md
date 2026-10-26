@@ -3,7 +3,7 @@
 面向零基础新生的 30 天算法竞赛入门网站。使用 C++17 + Dev-C++，为校内 ACM-ICPC 招新赛准备基础知识。
 
 - 网站：<https://llzzxx-712.github.io/ACMguide/>
-- 第一版：前言、30 天路线、第一章 9 节教程草稿；第 2—9 章为标题与日程规划。
+- 已提供：前言、30 天路线、第一章 9 节与第二章 3 节教程；第 3—9 章为标题与日程规划。
 - 参考布局：[AIInfraGuide](https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/)，本项目独立实现页面与内容。
 
 ## 内容范围
@@ -43,13 +43,15 @@ npm run preview
 | 文件 | 用途 |
 | --- | --- |
 | `src/content/language/*.md` | 第一章的 9 节教程，每节一个 Markdown 文件 |
+| `src/content/basic-algorithms/*.md` | 第二章的模拟、排序与枚举教程 |
+| `src/data/content.ts` | 自动加载正文，并为目录、搜索和进度提供发布状态 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/pages/index.astro` | 前言 |
 | `src/pages/roadmap.astro` | 30 天路线与新生组目标 |
 | `src/styles/global.css` | 全站样式和移动端布局 |
 | `astro.config.mjs` | GitHub Pages 账号、仓库子路径 |
 
-后续发布新章节时，将正文放入合适的内容目录，并相应扩展 `src/pages/learn/[slug].astro` 与 `src/pages/search.json.ts` 的内容加载规则。正文存在才发布为可学习状态；不要仅删除“规划中”字样。
+后续发布新章节时，将正文放入 `src/content/章节目录/`，文件名与 `src/data/course.ts` 中的 slug 对应。正文存在才发布为可学习状态，目录、搜索、路线和学习进度会一起更新。
 
 学习进度与主题只保存在读者的本地浏览器，不创建账号、不跨设备同步。
 

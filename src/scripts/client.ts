@@ -20,7 +20,7 @@ syncSidebar();
 $('.sidebar-overlay')?.addEventListener('click', closeMenu);
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
 
-const validLessons = ['setup','hello-world','io','conditions','loops','arrays','strings','functions','checkpoint'];
+const validLessons: string[] = JSON.parse(document.body.dataset.publishedLessons || '[]');
 let done: string[] = [];
 try {
   const stored: unknown = JSON.parse(localStorage.getItem('acmguide-completed') || '[]');
@@ -31,7 +31,7 @@ function updateProgress() {
   const progress = $<HTMLProgressElement>('#course-progress');
   if (progress) progress.value = done.length;
   const text = $('#progress-text');
-  if (text) text.textContent = `${done.length} / 9 节`;
+  if (text) text.textContent = `${done.length} / ${validLessons.length} 节`;
   document.querySelectorAll<HTMLElement>('[data-lesson-dot]').forEach(dot => dot.classList.toggle('done', done.includes(dot.dataset.lessonDot || '')));
   if (complete) {
     const checked = done.includes(complete.dataset.lesson || '');

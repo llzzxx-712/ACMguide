@@ -13,7 +13,19 @@ function magicSquareOutput(n) {
     ).join(' ')
   ).join('\n') + '\n';
 }
+// Count grid rectangles using line choices and sums of powers, independently of the tutorial loops.
+function gridCounts(n, m) {
+  const rows = BigInt(n), cols = BigInt(m), k = BigInt(Math.min(n, m));
+  const squares = k * (rows + 1n) * (cols + 1n)
+    - (rows + cols + 2n) * k * (k + 1n) / 2n
+    + k * (k + 1n) * (2n * k + 1n) / 6n;
+  const all = rows * (rows + 1n) / 2n * (cols * (cols + 1n) / 2n);
+  return `${squares} ${all - squares}\n`;
+}
 const cases = {
+  simulation: [[['6\n20 21 22 19 20 21\n','3\n'],['1\n0\n','1\n'],['3\n5 5 5\n','1\n'],['5\n5 4 3 2 1\n','1\n'],['6\n3 2 1 2 3 4\n','4\n'],['9\n1 2 3 0 1 2 3 2 1\n','4\n'],['1000000\n'+'0 '.repeat(999999)+'0\n','1\n'],['2\n999999999 1000000000\n','2\n']]],
+  sorting: [[['4\n4 1 4 2\n','1 2 4 4\n4 4 2 1\n'],['1\n-7\n','-7\n-7\n'],['5\n-3 0 -3 2 1\n','-3 -3 0 1 2\n2 1 0 -3 -3\n'],['1000\n'+'1 '.repeat(999)+'1\n',('1 '.repeat(999)+'1\n').repeat(2)]], [['6\n90 90 90\n95 85 90\n90 95 85\n100 90 90\n80 80 80\n85 95 95\n','4 280\n6 275\n2 270\n1 270\n3 270\n'],['5\n'+'0 0 0\n'.repeat(5),'1 0\n2 0\n3 0\n4 0\n5 0\n'],['6\n100 0 0\n99 100 100\n100 100 100\n100 99 99\n100 100 99\n100 100 99\n','3 300\n5 299\n6 299\n2 299\n4 298\n'],['300\n'+'100 100 100\n'.repeat(300),'1 300\n2 300\n3 300\n4 300\n5 300\n']]],
+  enumeration: [[['5 14\n','3 2\n'],['0 0\n','0 0\n'],['5 11\n','-1\n'],['1 5\n','-1\n'],['1000 4000\n','0 1000\n'],['1000 2000\n','1000 0\n'],['5 100\n','-1\n']], [[1,1],[1,5],[2,3],[3,3],[5000,5000],[2,5000],[5000,1]].map(([n,m])=>[`${n} ${m}\n`,gridCounts(n,m)])],
   setup: [[['','Hello,World!\n']]],
   'hello-world': [[['','Hello,World!\n']], [['','Hello,World!\nI love ACM!\n']]],
   io: [[['3 4\n','3.50\n'],['-3 2\n','-0.50\n'],['1000000000 1000000000\n','1000000000.00\n']], [['3 5\n','15\n'],['3 8\n','24\n'],['2 10\n','20\n'],['1 1\n','1\n'],['1000000000 2\n','2000000000\n']]],
@@ -29,11 +41,17 @@ const standard = process.env.CXX_STANDARD || 'c++17';
 const dir = await mkdtemp(path.join(os.tmpdir(), 'acmguide-examples-'));
 if (path.dirname(path.resolve(dir)) !== path.resolve(os.tmpdir()) || !path.basename(dir).startsWith('acmguide-examples-')) throw new Error('Unexpected temporary example directory');
 let programs = 0, checks = 0;
+async function markdownFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  return (await Promise.all(entries.map(entry => entry.isDirectory()
+    ? markdownFiles(path.join(dir, entry.name))
+    : entry.name.endsWith('.md') ? [path.join(dir, entry.name)] : []))).flat();
+}
 try {
-  const contentDir = path.resolve('src/content/language');
-  for (const name of (await readdir(contentDir)).filter(name => name.endsWith('.md'))) {
-    const slug = name.slice(0, -3);
-    const source = await readFile(path.join(contentDir, name), 'utf8');
+  const files = await markdownFiles(path.resolve('src/content'));
+  for (const file of files) {
+    const slug = path.basename(file, '.md');
+    const source = await readFile(file, 'utf8');
     const blocks = [...source.matchAll(/```cpp\r?\n([\s\S]*?)\r?\n```/g)];
     if (!blocks.length) continue;
     if (!cases[slug] || cases[slug].length !== blocks.length) throw new Error(`Case count differs from actual tutorial: ${slug}`);
