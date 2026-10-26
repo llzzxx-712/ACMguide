@@ -119,8 +119,6 @@ int main() {
 
 **第 4 天基础：** [P5706 · 再分肥宅水](https://www.luogu.com.cn/problem/P5706)、[P1425 · 小鱼的游泳时间](https://www.luogu.com.cn/problem/P1425)。题目要求几位小数，就按它的格式输出。
 
-**提高组选做：** [P5707 · 上学迟到](https://www.luogu.com.cn/problem/P5707)。把时间统一成分钟，特别检查是否需要向上取整以及跨越零点的情况。
-
 对应完整题单：[顺序结构 #100](https://www.luogu.com.cn/training/100)。题单内暂时不会的题可以稍后回看。
 
 ## 两天验收

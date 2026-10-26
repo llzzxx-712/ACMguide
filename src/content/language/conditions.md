@@ -105,8 +105,6 @@ int main() {
 
 **巩固：** [P5710 · 数的性质](https://www.luogu.com.cn/problem/P5710)。仔细区分“都满足”“至少满足一个”“恰好满足一个”“都不满足”。
 
-**提高组选做：** [P5717 · 三角形分类](https://www.luogu.com.cn/problem/P5717)。关注条件重叠、有效性判断和输出顺序。
-
 对应完整题单：[分支结构 #101](https://www.luogu.com.cn/training/101)。
 
 ## 今日验收

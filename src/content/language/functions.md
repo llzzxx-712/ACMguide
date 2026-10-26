@@ -125,8 +125,6 @@ Bob 95
 
 **巩固：** [P5740 · 最厉害的学生](https://www.luogu.com.cn/problem/P5740)。注意它的成绩字段和比较规则与本页示例不同，要按原题修改。
 
-**提高组选做：** [P5741 · 旗鼓相当的对手 - 加强版](https://www.luogu.com.cn/problem/P5741)、[P5742 · 评等级](https://www.luogu.com.cn/problem/P5742)。
-
 对应题单：[函数与结构体 #105](https://www.luogu.com.cn/training/105)。其中需要递归、数论或其他后续知识的题，不必今天全部完成。
 
 ## 今日验收

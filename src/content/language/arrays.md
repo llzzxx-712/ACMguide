@@ -113,8 +113,6 @@ int main() {
 
 **第 9 天巩固：** [P1047 · 校门外的树](https://www.luogu.com.cn/problem/P1047)、[P5728 · 旗鼓相当的对手](https://www.luogu.com.cn/problem/P5728)。
 
-**提高组选做：** [P5731 · 蛇形方阵](https://www.luogu.com.cn/problem/P5731)、[P1789 · 插火把](https://www.luogu.com.cn/problem/P1789)。检查边缘位置、重复标记和行列顺序。
-
 对应完整题单：[数组 #103](https://www.luogu.com.cn/training/103)。
 
 ## 两天验收

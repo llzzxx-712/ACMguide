@@ -98,8 +98,6 @@ int main() {
 
 **巩固：** [P1914 · 小书童——凯撒密码](https://www.luogu.com.cn/problem/P1914)，处理超过 `'z'` 后的循环回绕。
 
-**提高组选做：** [P5734 · 文字处理软件](https://www.luogu.com.cn/problem/P5734)、[P1308 · 统计单词数](https://www.luogu.com.cn/problem/P1308)。先把操作和边界逐项列清楚。
-
 对应完整题单：[字符串 #104](https://www.luogu.com.cn/training/104)。
 
 ## 今日验收

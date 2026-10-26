@@ -122,8 +122,6 @@ int main() {
 
 **第 7 天巩固：** [P5721 · 数字直角三角形](https://www.luogu.com.cn/problem/P5721)、[P1307 · 数字反转](https://www.luogu.com.cn/problem/P1307)。注意格式、0 和负数等题目允许的边界。
 
-**提高组选做：** [P1980 · 计数问题](https://www.luogu.com.cn/problem/P1980)、[P1089 · 津津的储蓄计划](https://www.luogu.com.cn/problem/P1089)。
-
 对应题单：[循环结构 #102](https://www.luogu.com.cn/training/102)。其中 **P1009“阶乘之和”涉及高精度，本轮跳过**。
 
 ## 两天验收

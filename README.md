@@ -12,11 +12,15 @@
 
 排除高精度、二叉树、集合及图的基本应用。模拟保留；搜索中的网格 / 状态 BFS 保留。题单中跨范围的题不作为首轮必做题。
 
-新生组参考洛谷红—黄、CF 800—1500；提高组参考洛谷红—绿、CF 800—1800。它们是目标难度范围，不是难度平台之间的精确换算，也不是 30 天后的能力保证。
+新生组：洛谷红—黄、CF 800—1500。
 
 ## 本地运行
 
 需要 Node.js 24 或更高版本。
+
+Windows 上双击 `preview.cmd` 即可启动本地预览并打开浏览器。保持终端窗口开启，修改文件后页面会自动更新；按 `Ctrl+C` 结束预览。
+
+本地预览不会上传 GitHub。可以多次修改，确定后再统一发布。GitHub 也支持反复提交更新，每次都有历史记录。
 
 ```sh
 npm ci
@@ -41,7 +45,7 @@ npm run preview
 | `src/content/language/*.md` | 第一章的 9 节教程，每节一个 Markdown 文件 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/pages/index.astro` | 前言 |
-| `src/pages/roadmap.astro` | 30 天路线与两组目标 |
+| `src/pages/roadmap.astro` | 30 天路线与新生组目标 |
 | `src/styles/global.css` | 全站样式和移动端布局 |
 | `astro.config.mjs` | GitHub Pages 账号、仓库子路径 |
 

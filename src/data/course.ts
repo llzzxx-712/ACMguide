@@ -55,11 +55,11 @@ export const chapters: Chapter[] = [
   ]},
   { id: 8, title: '简单动态规划', range: '第 27—28 天', lessons: [
     { slug: 'dp', title: '8.1 从递推到线性 DP', days: [27], summary: '定义状态，写出转移，确定初始值和顺序。', topics: ['状态、转移、边界和计算顺序','简单线性 DP','最大连续子段和与基础序列问题'] },
-    { slug: 'knapsack', title: '8.2 简单背包与网格 DP', days: [28], summary: '理解 0/1 背包与网格路径的基本模型。', topics: ['二维网格 DP','0/1 背包基础','提高组选学：完全背包与空间优化'] }
+    { slug: 'knapsack', title: '8.2 简单背包与网格 DP', days: [28], summary: '理解 0/1 背包与网格路径的基本模型。', topics: ['二维网格 DP','0/1 背包基础','基础模型练习'] }
   ]},
   { id: 9, title: '简单博弈论与赛前练习', range: '第 29—30 天', lessons: [
-    { slug: 'games', title: '9.1 必胜态与必败态', days: [29], summary: '从小规模局面找规律，理解简单取石子游戏。', topics: ['必胜态和必败态','简单取石子与巴什博弈','提高组选学：Nim 与异或'] },
-    { slug: 'contest', title: '9.2 模拟赛与复盘', days: [30], summary: '限时做题、选择题目，赛后补题并总结。', topics: ['新生组 / 提高组模拟练习','读题、时间分配与部分进展','错题复盘与后续学习路线'] }
+    { slug: 'games', title: '9.1 必胜态与必败态', days: [29], summary: '从小规模局面找规律，理解简单取石子游戏。', topics: ['必胜态和必败态','简单取石子与巴什博弈','从小规模局面推导规律'] },
+    { slug: 'contest', title: '9.2 模拟赛与复盘', days: [30], summary: '限时做题、选择题目，赛后补题并总结。', topics: ['新生组模拟练习','读题、时间分配与部分进展','错题复盘与后续学习路线'] }
   ]}
 ];
 
