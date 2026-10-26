@@ -86,7 +86,7 @@ r = mid - 1;
 
 可以播放，也可以点“下一步”，先看本轮比较，再看边界怎样移动。切换目标还能观察“没有找到”与“答案在最右边”的情况。
 
-<iframe class="binary-animation-frame" src="/ACMguide/animations/binary-search/index.html" title="闭区间二分查找：左右边界与 ans 的动态演示" loading="lazy"></iframe>
+<iframe class="binary-animation-frame" src="/ACMguide/animations/binary-search/index.html" title="闭区间二分查找：左右边界与 ans 的动态演示"></iframe>
 
 ### 把动图过程记成表
 
