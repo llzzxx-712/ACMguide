@@ -73,13 +73,12 @@ title: 变量、输入输出与运算
 
 ## 小数与格式：统一使用 printf
 
-题目要求“保留两位小数”时，答案 3.5 也应输出为 `3.50`。我们用 `printf` 控制输出格式，需要引入 `<cstdio>`。
+题目要求“保留两位小数”时，答案 3.5 也应输出为 `3.50`。我们用 `printf` 控制输出格式，开头仍使用 `#include<bits/stdc++.h>`。
 
 下面是一个**本地演示任务**：读入两个绝对值不超过 10⁹ 的整数，输出它们的平均数，保留两位小数。
 
 ```cpp
-#include <iostream>
-#include <cstdio>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -124,7 +123,7 @@ int main() {
 ### 把流程翻译成代码
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {

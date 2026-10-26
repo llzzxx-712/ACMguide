@@ -17,7 +17,7 @@ title: 函数与结构体
 先做一个本地演示：定义 `square` 函数计算平方。输入整数的绝对值不超过 10⁹，平方最多为 10¹⁸，因此返回值使用 long long。
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 long long square(long long x) {
@@ -43,7 +43,7 @@ int main() {
 普通的值参数会得到一份副本。修改副本，不会自动修改调用者的原变量。需要修改原变量时，可以使用引用参数；下面的 `&` 表示引用：
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 void addOne(int& x) {
@@ -103,9 +103,7 @@ struct Student {
 - 最后用 best 找到获选学生，输出姓名与各科成绩。
 
 ```cpp
-#include <iostream>
-#include <string>
-#include <cstdio>
+#include<bits/stdc++.h>
 using namespace std;
 
 struct Student {
@@ -167,13 +165,13 @@ printf 中 `%s` 表示字符串，`name.c_str()` 把 string 提供为它需要�
 
 ### 推荐必做
 
-1. [P5735 · 距离函数](https://www.luogu.com.cn/problem/P5735)：输入三个点坐标，输出三角形周长，保留两位小数。把两点距离写成函数，调用三次；平方根用 `<cmath>` 中的 `sqrt(x)`，输出用 printf。
+1. [P5735 · 距离函数](https://www.luogu.com.cn/problem/P5735)：输入三个点坐标，输出三角形周长，保留两位小数。把两点距离写成函数，调用三次；平方根用 `sqrt(x)`，输出用 printf。
 2. [P5737 · 闰年展示](https://www.luogu.com.cn/problem/P5737)：输出指定区间内的闰年个数与全部年份。把闰年判断封装成返回 bool 的函数，再在循环中调用。
 
 ### 选做：需要继续巩固时练习
 
 1. [P5739 · 计算阶乘](https://www.luogu.com.cn/problem/P5739)：计算 n!，n 不超过 12。先写一个内部使用循环的阶乘函数，明确参数与返回值；原题“不使用循环”的挑战可以在学到递归后再尝试。
-2. [P5741 · 旗鼓相当的对手 - 加强版](https://www.luogu.com.cn/problem/P5741)：找出每科分差与总分分差都满足要求的学生组合，输出姓名。练习结构体数组、两层循环和判断函数；整数分差可用 `<cstdlib>` 中的 `abs(a - b)` 求绝对值。输入姓名已有字典序，按原顺序枚举组合。
+2. [P5741 · 旗鼓相当的对手 - 加强版](https://www.luogu.com.cn/problem/P5741)：找出每科分差与总分分差都满足要求的学生组合，输出姓名。练习结构体数组、两层循环和判断函数；整数分差可用 `abs(a - b)` 求绝对值。输入姓名已有字典序，按原顺序枚举组合。
 
 对应题单：[函数与结构体 #105](https://www.luogu.com.cn/training/105)。
 

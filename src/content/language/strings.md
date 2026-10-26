@@ -16,7 +16,7 @@ title: 字符串
 - `"ACM"` 是字符串字面量，使用**双引号**，可以用来初始化 `string`。
 - `string s = "ACM";` 让 `s` 存下这三个字符。
 
-使用 `string` 时引入头文件 `<string>`。`s.size()` 返回长度，`s[i]` 访问下标为 `i` 的字符。合法字符下标为 `0` 到 `s.size() - 1`；空字符串没有可读写的字符位置。
+开头使用 `#include<bits/stdc++.h>` 后，就可以直接使用 `string`。`s.size()` 返回长度，`s[i]` 访问下标为 `i` 的字符。合法字符下标为 `0` 到 `s.size() - 1`；空字符串没有可读写的字符位置。
 
 和数组一样，**字符串也要检查边界**。`s.size()` 返回的是无符号类型，初学阶段需要倒序循环时，可先把长度转成 `int`，在本章的小规模字符串范围内使用。
 
@@ -25,8 +25,7 @@ title: 字符串
 先做一个本地演示：输入一个不带空格的单词，把它倒序输出。和数组倒序一样，先找到最后一个字符的下标：
 
 ```cpp
-#include <iostream>
-#include <string>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -50,8 +49,7 @@ int main() {
 再做一个本地演示：读入一行文字，统计里面有多少个英文字母。这里处理英文、数字和普通标点组成的文本。
 
 ```cpp
-#include <iostream>
-#include <string>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -77,7 +75,7 @@ int main() {
 
 先用 `cin >> n` 读整数时，行末的换行通常还留在输入中。紧接着调用 `getline`，它就可能读到一个空行。
 
-如果题目规定“第一行是一个整数，第二行是完整文本”，可以在读整数后使用 `cin.ignore(numeric_limits<streamsize>::max(), '\n');` 丢弃当前行的剩余内容，再 `getline`。使用这句时需要引入 `<limits>`。
+如果题目规定“第一行是一个整数，第二行是完整文本”，可以在读整数后使用 `cin.ignore(numeric_limits<streamsize>::max(), '\n');` 丢弃当前行的剩余内容，再 `getline`。本教程的万能头文件已经包含这句所需的库功能。
 
 另一种常见写法是 `getline(cin >> ws, s)`，但 `ws` 会跳过所有前导空白，因此**不适合需要保留行首空格或空行的题目**。按照题目输入格式选择，不要机械套用。
 
@@ -113,8 +111,7 @@ int main() {
 但数字 `'3'` 不需要改，已经大写的 `'M'` 也不需要改。因此先判断是否在 `'a'` 到 `'z'` 之间，满足才转换。最后把这个步骤对字符串每个下标都做一次。
 
 ```cpp
-#include <iostream>
-#include <string>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {

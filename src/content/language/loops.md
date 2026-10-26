@@ -15,7 +15,35 @@ title: 循环结构
 
 ## for：次数或范围比较明确
 
-先看 `for (int i = 1; i <= n; i++)`。其中 `i++` 表示让 i 加 1。循环的执行顺序是：
+先做一个最简单的本地演示：输入正整数 n（不超过 1000），按顺序输出 1 到 n，每行一个数。其中 `i++` 表示让 i 加 1。
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cout << i << '\n';
+    }
+    return 0;
+}
+```
+
+输入 `3`，输出：
+
+```text
+1
+2
+3
+```
+
+大括号里的 `cout` 是每轮都要执行的**循环体**。这条语句缩进在 for 里面，可以直接看出它要跟着循环重复执行。
+
+### for 的执行顺序
+
+`for (int i = 1; i <= n; i++)` 的三个位置分别是“初始化、继续条件、每轮后的更新”。执行顺序是：
 
 1. `int i = 1`：设置起点，只执行一次。
 2. `i <= n`：判断是否继续；为假就退出。
@@ -24,12 +52,48 @@ title: 循环结构
 
 例如 n 为 3 时，循环体执行时 i 依次为 1、2、3。第三轮后 i 变成 4，条件不满足，循环结束。它不是“看到 3 就立即停”，而是先完成 i 为 3 的那一轮。
 
+<figure class="loop-flow">
+  <img src="/ACMguide/diagrams/for-loop.svg" alt="for 循环流程：初始化只执行一次，判断条件；真则执行循环体、更新变量后回到判断，假则退出循环。" width="480" height="520" loading="lazy" />
+  <figcaption>顺着箭头走：① 只执行一次，之后反复执行 ② → ③ → ④ → ②，直到条件为假。</figcaption>
+</figure>
+
 ## while：满足条件就继续
 
-while 先检查条件，满足才执行一轮。下面是一个本地演示任务：输入一个非负整数，计算它有几位。思路是反复除以 10，每除一次就去掉末位。
+while 也先检查条件，满足才执行一轮。把刚才“输出 1 到 n”的程序换成 while，完整代码如下：
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    int i = 1;
+    while (i <= n) {
+        cout << i << '\n';
+        i++;
+    }
+    return 0;
+}
+```
+
+输入 `3`，仍然依次输出 1、2、3，每个数占一行。这里先在 while 前准备 i，再在大括号里“输出当前值、让 i 加 1”。循环体中的两条语句都执行完，才回到条件判断。
+
+### while 的执行顺序
+
+<figure class="loop-flow">
+  <img src="/ACMguide/diagrams/while-loop.svg" alt="while 循环流程：循环前初始化 i，判断 i 是否不大于 n；真则输出 i、执行 i++ 后回到判断，假则退出循环。" width="480" height="520" loading="lazy" />
+  <figcaption>while 的括号里写继续条件；本例把更新 i 的语句写在循环体内，每轮输出后再更新。</figcaption>
+</figure>
+
+对照两张图，两种写法都经历“判断 → 输出 → 更新 → 再判断”。for 把初始化、条件、更新集中写在一行；while 在括号里写条件，初始化放在前面，更新放在循环体里。若第一次判断就为假，两种循环都不会执行循环体。
+
+### 再用 while 处理位数统计
+
+下面是另一个本地演示任务：输入一个非负整数，计算它有几位。思路是反复除以 10，每除一次就去掉末位。
+
+```cpp
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -59,7 +123,7 @@ int main() {
 下面的本地演示读入 `1 <= n <= 20`，输出 n 行星号，第 i 行有 i 个星号：
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -85,7 +149,7 @@ int main() {
 
 外层 i 决定“现在第几行”；内层 j 决定“这一行打几个星号”。一整行打印完才换行，所以换行在内层循环外面。
 
-必做题会把星号换成两位数字。使用 `<cstdio>` 中的 `printf("%02d", x);`：宽度至少为 2，不足两位在前面补 0，例如 3 输出为 03。换行可以写 `printf("\n");`。
+必做题会把星号换成两位数字。使用 `printf("%02d", x);`：宽度至少为 2，不足两位在前面补 0，例如 3 输出为 03。换行可以写 `printf("\n");`。
 
 ## break 和 continue
 
@@ -121,7 +185,7 @@ int main() {
 因此，循环开始前设置 `sum = 0`；每轮执行 `sum += i`；循环结束后，sum 就是答案。
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {

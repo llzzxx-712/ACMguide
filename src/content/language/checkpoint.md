@@ -25,13 +25,12 @@ title: 语言基础复盘
 3. 每一对学生都要检查，用两层循环。
 4. 找到符合条件的一对，答案加 1。
 
-分差不能直接用 a−b 比较，因为它可能是负数。使用 `<cstdlib>` 中的 `abs(a - b)` 取绝对值，才表示两人相差多少。
+分差不能直接用 a−b 比较，因为它可能是负数。使用 `abs(a - b)` 取绝对值，才表示两人相差多少。
 
 枚举时令第二个人 j 从 i+1 开始。这样既不会让一个人与自己比较，也不会把“第 1 人与第 2 人”和“第 2 人与第 1 人”重复算两次。
 
 ```cpp
-#include <iostream>
-#include <cstdlib>
+#include<bits/stdc++.h>
 using namespace std;
 
 struct Student {

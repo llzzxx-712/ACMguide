@@ -43,7 +43,7 @@ title: 数组
 做一个本地演示：输入 n 行 m 列的矩阵，输出每一行的和。这里约定 `1 <= n,m <= 20`，每个数绝对值不超过 10⁹。
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -126,7 +126,7 @@ int main() {
 读到 0 就停止，不能先把 0 放进数组。最后有效下标为 0 到 n−1，输出时从 n−1 递减到 0。
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {

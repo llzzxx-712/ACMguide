@@ -92,7 +92,7 @@ D:\ACM\
 打开刚才保存的 `hello.cpp`，复制下面的全部内容并粘贴进去：
 
 ```cpp
-#include <iostream>
+#include<bits/stdc++.h>
 using namespace std;
 
 int main() {

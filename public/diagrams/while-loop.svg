@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="520" viewBox="0 0 480 520" role="img" aria-labelledby="title desc">
+  <title id="title">while 循环的执行顺序</title>
+  <desc id="desc">在循环前准备 int i = 1。判断 i 小于等于 n，为真则进入循环体，先输出 i 再执行 i++，回到条件判断；为假则退出循环。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#168476"/></marker>
+  </defs>
+  <rect width="480" height="520" rx="12" fill="#fff"/>
+  <g fill="none" stroke="#168476" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M200 52V78"/><path d="M200 134V160"/>
+    <path d="M200 270V310"/><path d="M200 374V400"/>
+    <path d="M310 215H348"/>
+    <path d="M200 464V494H40V215H88"/>
+  </g>
+  <g stroke-width="1.5">
+    <ellipse cx="200" cy="30" rx="56" ry="22" fill="#eaf6f2" stroke="#168476"/>
+    <rect x="90" y="80" width="220" height="54" rx="8" fill="#f5f8fb" stroke="#c9d6e2"/>
+    <path d="M200 160L310 215L200 270L90 215Z" fill="#edf5ff" stroke="#3980bf"/>
+    <rect x="90" y="310" width="220" height="64" rx="8" fill="#eaf6f2" stroke="#168476"/>
+    <rect x="90" y="400" width="220" height="64" rx="8" fill="#eaf6f2" stroke="#168476"/>
+    <rect x="350" y="192" width="110" height="46" rx="23" fill="#f5f8fb" stroke="#c9d6e2"/>
+  </g>
+  <g font-family="Microsoft YaHei, PingFang SC, sans-serif" fill="#202b3d" text-anchor="middle">
+    <text x="200" y="36" font-size="20">开始</text>
+    <text x="200" y="101" font-size="18">在 while 之前准备变量</text>
+    <text x="200" y="124" font-size="20" font-family="Consolas, monospace">int i = 1;</text>
+    <text x="200" y="208" font-size="18">判断条件</text>
+    <text x="200" y="234" font-size="20" font-family="Consolas, monospace">i &lt;= n ?</text>
+    <text x="220" y="296" font-size="18" fill="#168476">真</text>
+    <text x="329" y="203" font-size="18" fill="#3980bf">假</text>
+    <text x="405" y="221" font-size="20">退出循环</text>
+    <text x="200" y="335" font-size="18">循环体：先输出</text>
+    <text x="200" y="360" font-size="19" font-family="Consolas, monospace">cout &lt;&lt; i &lt;&lt; '\n';</text>
+    <text x="200" y="425" font-size="18">循环体：再更新</text>
+    <text x="200" y="451" font-size="20" font-family="Consolas, monospace">i++;</text>
+    <text x="215" y="515" font-size="16" fill="#168476">回到条件判断，决定是否继续</text>
+  </g>
+</svg>
