@@ -25,7 +25,7 @@ export const chapters: Chapter[] = [
     { slug: 'conditions', title: '1.4 分支结构', days: [5], summary: '用条件判断，让程序处理不同情况。' },
     { slug: 'loops', title: '1.5 循环结构', days: [6,7], summary: '理解 for 和 while，练习计数、求和与多重循环。' },
     { slug: 'arrays', title: '1.6 数组', days: [8,9], summary: '用一维、二维数组保存和处理一组数据。' },
-    { slug: 'strings', title: '1.7 字符串', days: [10], summary: '使用 char 与 string，处理字符、单词和整行文本。' },
+    { slug: 'strings', title: '1.7 字符与字符串', days: [10], summary: '从 char 与 ASCII 开始，学习 string、常用操作和整行输入。' },
     { slug: 'functions', title: '1.8 函数与结构体', days: [11], summary: '把程序拆成函数，用结构体记录一个对象。' },
     { slug: 'checkpoint', title: '1.9 语言基础复盘', days: [12], summary: '独立完成小测，学会读评测结果与定位错误。' }
   ]},
