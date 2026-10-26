@@ -22,7 +22,7 @@ title: 二分答案
 
 ## 例题精讲：P1873 · 砍树
 
-**原题：** [P1873 · 砍树](https://www.luogu.com.cn/problem/P1873)，来自[优先参考题单](https://www.luogu.com.cn/training/1126196)。
+**原题：** [P1873 · 砍树](https://www.luogu.com.cn/problem/P1873)，来自[自编入门题单](https://www.luogu.com.cn/training/1126196)。
 
 **题意简述：** 有 n 棵树，需要至少 m 米木材。锯片设在整数高度 h，高于 h 的树被锯下高出的部分，其他树不动。求能够获得足够木材的最大 h。
 
@@ -234,7 +234,7 @@ while (le <= r) {
 1. [P1182 · 数列分段 Section II](https://www.luogu.com.cn/problem/P1182)：分成 M 个连续非空段，让最大段和最小。固定上限 limit，从左往右尽量往当前段放，放不下再开新段；需要的最少段数≤M 时可行。闭区间下界取最大元素，上界取全体元素之和；可行就 ans=mid 并向左试。元素非负，少于 M 段时还可以继续拆分，总和与边界用 long long。
 2. [P3853 · 路标设置](https://www.luogu.com.cn/problem/P3853)：最多新增 K 个路标，让最大相邻距离最小。固定 d≥1，一段间隔 gap 需要新增 `(gap - 1) / d` 个路标；累加后不超过 K 就可行。使用闭区间 [1,L]，可行时记录 ans 再向左试。用 gap=10、d=5 检查公式中的减 1。
 
-对应题单：[优先参考题单 #1126196](https://www.luogu.com.cn/training/1126196)、[二分查找与二分答案 #111](https://www.luogu.com.cn/training/111)。
+对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[二分查找与二分答案 #111](https://www.luogu.com.cn/training/111)。
 
 ## 今日验收
 

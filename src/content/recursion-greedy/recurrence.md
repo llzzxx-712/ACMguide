@@ -222,7 +222,7 @@ sum(l, r) = s[r] - s[l - 1]
 
 ### 配套例题：P8218 · 求区间和
 
-**原题：** [P8218 · 求区间和](https://www.luogu.com.cn/problem/P8218)，来自[优先参考题单](https://www.luogu.com.cn/training/1126196)。
+**原题：** [P8218 · 求区间和](https://www.luogu.com.cn/problem/P8218)，来自[自编入门题单](https://www.luogu.com.cn/training/1126196)。
 
 **题意简述：** 输入 n 个正整数，再输入 m 个区间 [l,r]，逐行输出每个区间内所有数的和。n、m≤10⁵，a[i]≤10⁴。
 
@@ -294,7 +294,7 @@ int main() {
 1. [P1614 · 爱与愁的心痛](https://www.luogu.com.cn/problem/P1614)：找连续 m 个数的最小总和。枚举这一段的右端点，用前缀和 O(1) 求出每段总和，再取最小值；注意第一段和最后一段的范围。题目允许 m=0，此时空段的和为 0。
 2. [P1990 · 覆盖墙壁](https://www.luogu.com.cn/problem/P1990)：用两种砖覆盖 2×N 的墙，输出方案数的最后四位。先画出长度 1、2、3 的情况，再区分末端平齐或缺一格的情况推关系；计算时及时对 10000 取余。它练习的是怎样从图形中找出递推所需的信息。
 
-对应题单：[优先参考题单 #1126196](https://www.luogu.com.cn/training/1126196)、[递推与递归 #109](https://www.luogu.com.cn/training/109)。
+对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[递推与递归 #109](https://www.luogu.com.cn/training/109)。
 
 ## 今日验收
 

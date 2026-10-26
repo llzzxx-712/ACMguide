@@ -5,7 +5,7 @@ const headings=[{depth:2,slug:'practice',text:'洛谷基础题单'},{depth:2,slu
 ---
 <Docs title="题单与学习资源" description="先把手边的材料用好。教程负责讲清楚，题单负责把知识练熟。" section="学习资源" headings={headings}>
   <h2 id="practice">洛谷基础题单</h2>
-  <p>例题优先参考<a href="https://www.luogu.com.cn/training/1126196" target="_blank" rel="noopener noreferrer">入门算法题单 #1126196</a>。按本指南顺序，先学当前知识点、独立重做例题，再完成分层练习。</p>
+  <p>例题优先参考<a href="https://www.luogu.com.cn/training/1126196" target="_blank" rel="noopener noreferrer">自编入门题单</a>。按本指南顺序，先学当前知识点、独立重做例题，再完成分层练习。</p>
   <p>以下链接指向洛谷官方题单，保留原题单内容；我们的日程会从中选择适合当前阶段的题目。<strong>题单里的难题可以先标记，不必在第一次学习时全部完成。</strong></p>
   <table><thead><tr><th>课程章节</th><th>原题单</th><th>学习范围</th></tr></thead><tbody>{chapters.filter(chapter=>chapter.training).map(chapter=><tr><td>第{chapter.id}章 · {chapter.title}</td><td>{chapter.training?.map((id,i)=><Fragment>{i>0?' / ':''}<a href={`https://www.luogu.com.cn/training/${id}`} target="_blank" rel="noopener noreferrer">#{id}</a></Fragment>)}</td><td>{chapter.id===2?'模拟保留，高精度排除':'先重做例题，再完成必做题，按需选做'}</td></tr>)}</tbody></table>
   <div class="callout"><strong>原题单目录与本次范围有区别</strong><p>高精度、二叉树、集合、图的基本应用不在本次安排。循环题单中的 P1009“阶乘之和”等题涉及高精度，第一轮跳过。简单动态规划和简单博弈论单独补充。</p></div>

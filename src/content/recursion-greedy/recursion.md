@@ -107,7 +107,7 @@ ways(5)
 
 ## 例题精讲：P1464 · Function
 
-**原题：** [P1464 · Function](https://www.luogu.com.cn/problem/P1464)，来自[优先参考题单](https://www.luogu.com.cn/training/1126196)。
+**原题：** [P1464 · Function](https://www.luogu.com.cn/problem/P1464)，来自[自编入门题单](https://www.luogu.com.cn/training/1126196)。
 
 **题意简述：** 按题目给定的规则计算递归函数 w(a,b,c)。有多组输入，读到三个 −1 时结束；每组按指定格式输出函数值。
 
@@ -278,7 +278,7 @@ w(21, 21, 21) = 1048576
 1. [P1010 · 幂次方](https://www.luogu.com.cn/problem/P1010)：把整数写成规定的 2 的幂表示，指数本身也要继续表示。先读懂输出格式，再把“输出一个数的表示”写成递归函数，单独处理 0、1 等情况。
 2. [P3612 · Secret Cow Code S](https://www.luogu.com.cn/problem/P3612)：字符串不断复制并旋转，查询极远位置的字符。位置可达 10¹⁸，用 long long；找出目标位置在前一轮对应哪里，一轮轮缩小到原串，不要实际构造完整字符串。
 
-对应题单：[优先参考题单 #1126196](https://www.luogu.com.cn/training/1126196)、[递推与递归 #109](https://www.luogu.com.cn/training/109)。
+对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[递推与递归 #109](https://www.luogu.com.cn/training/109)。
 
 ## 今日验收
 

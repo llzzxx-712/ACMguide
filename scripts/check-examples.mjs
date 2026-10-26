@@ -2,6 +2,7 @@ import { readFile, readdir, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
+import assert from 'node:assert/strict';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -101,7 +102,133 @@ function prefixCase(values, ranges) {
     ranges.map(([l,r])=>values.slice(l-1,r).reduce((a,b)=>a+BigInt(b),0n) + '\n').join('')];
 }
 const allWQueries = Array.from({length:8000}, (_,i)=>[Math.floor(i/400)+1, Math.floor(i/20)%20+1, i%20+1]);
+// Parenthesis oracle removes matched pairs, instead of simulating the tutorial stack.
+function bracketsCase(expression) {
+  let rest = expression.split('@')[0].replace(/[^()]/g, '');
+  while (rest.includes('()')) rest = rest.replaceAll('()', '');
+  return [expression + '\n', (rest === '' ? 'YES' : 'NO') + '\n'];
+}
+// Keep a plain list and search it, independently of the queue plus membership-array solution.
+function translationCase(capacity, words) {
+  const memory = [];
+  let misses = 0;
+  for (const word of words) {
+    if (memory.includes(word)) continue;
+    misses++;
+    if (memory.length === capacity) memory.splice(0,1);
+    memory.push(word);
+  }
+  return [capacity + ' ' + words.length + '\n' + words.join(' ') + '\n', misses + '\n'];
+}
+function selectionCase(values, k) {
+  const upper = values.reduce((a,b)=>a+b,0);
+  const prime = Array(upper + 1).fill(true);
+  prime[0] = prime[1] = false;
+  for (let p=2;p*p<=upper;p++) if (prime[p]) {
+    for (let multiple=p*p;multiple<=upper;multiple+=p) prime[multiple]=false;
+  }
+  let answer=0;
+  for (let mask=0;mask<2**values.length;mask++) {
+    let count=0,sum=0;
+    for (let i=0;i<values.length;i++) if (mask & (1<<i)) {
+      count++; sum+=values[i];
+    }
+    if (count===k && prime[sum]) answer++;
+  }
+  return [values.length + ' ' + k + '\n' + values.join(' ') + '\n', answer + '\n'];
+}
+// Shifted bit masks provide an independent diagonal representation for n-queens.
+function queensCase(n) {
+  const mask=(1<<n)-1, first=[], positions=[];
+  let total=0;
+  function visit(columns,left,right) {
+    if (columns===mask) {
+      total++;
+      if (first.length<3) first.push(positions.join(' '));
+      return;
+    }
+    let free=mask & ~(columns|left|right);
+    while (free) {
+      const bit=free & -free;
+      free-=bit;
+      positions.push(1 + Math.log2(bit));
+      visit(columns|bit,((left|bit)<<1)&mask,(right|bit)>>>1);
+      positions.pop();
+    }
+  }
+  visit(0,0,0);
+  assert.equal(total, {6:4,7:40,8:92,9:352,10:724,11:2680,12:14200,13:73712}[n]);
+  return [n + '\n', first.join('\n') + '\n' + total + '\n'];
+}
+// Small boards use all-pairs Floyd-Warshall, rather than another queue implementation.
+function knightCase(rows,cols,sx,sy) {
+  const count=rows*cols;
+  const distance=Array.from({length:count},(_,u)=>Array.from({length:count},(_,v)=>{
+    if(u===v) return 0;
+    const dx=Math.abs(Math.floor(u/cols)-Math.floor(v/cols));
+    const dy=Math.abs(u%cols-v%cols);
+    return dx*dy===2 ? 1 : Infinity;
+  }));
+  for(let k=0;k<count;k++) for(let i=0;i<count;i++) for(let j=0;j<count;j++) {
+    distance[i][j]=Math.min(distance[i][j],distance[i][k]+distance[k][j]);
+  }
+  const start=(sx-1)*cols+sy-1;
+  const output=Array.from({length:rows},(_,r)=>Array.from({length:cols},(_,c)=>{
+    const value=distance[start][r*cols+c];
+    return Number.isFinite(value) ? value : -1;
+  }).join(' ')).join('\n')+'\n';
+  return [rows+' '+cols+' '+sx+' '+sy+'\n',output];
+}
+// Union-find counts connected water components, independently of flood-fill traversal.
+function lakeCase(grid) {
+  const rows=grid.length,cols=grid[0].length;
+  const parent=Array.from({length:rows*cols},(_,i)=>i);
+  function find(x) { while(parent[x]!==x) { parent[x]=parent[parent[x]];x=parent[x]; } return x; }
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) if(grid[r][c]==='W') {
+    for(let rr=Math.max(0,r-1);rr<=Math.min(rows-1,r+1);rr++) {
+      for(let cc=Math.max(0,c-1);cc<=Math.min(cols-1,c+1);cc++) if(grid[rr][cc]==='W') {
+        parent[find(r*cols+c)]=find(rr*cols+cc);
+      }
+    }
+  }
+  const roots=new Set();
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) if(grid[r][c]==='W') roots.add(find(r*cols+c));
+  return [rows+' '+cols+'\n'+grid.join('\n')+'\n',roots.size+'\n'];
+}
+const randomBracketCases=Array.from({length:30},()=>bracketsCase(
+  Array.from({length:32},()=>['(',')','a','+'][randomInt(997)%4]).join('')+'@'
+));
+const randomTranslationCases=Array.from({length:25},()=>translationCase(
+  1+randomInt(8),Array.from({length:50},()=>randomInt(12))
+));
+const randomSelectionCases=Array.from({length:20},()=>{
+  const n=2+randomInt(9);
+  return selectionCase(Array.from({length:n},()=>1+randomInt(35)),1+randomInt(n-1));
+});
+const randomLakeCases=Array.from({length:25},()=>lakeCase(
+  Array.from({length:1+randomInt(6)},()=>Array.from({length:6},()=>randomInt(3)===0 ? 'W' : '.').join(''))
+));
 const cases = {
+  linear: [
+    ['@','a+b@','(a+(b*c))@',')(@','((a)@','a)@','()()@','('.repeat(19)+')'.repeat(19)+'@'].map(bracketsCase).concat(randomBracketCases),
+    [translationCase(3,[1,2,1,5,4,4,1]),translationCase(1,[0,0,1000,0,1000]),translationCase(100,Array(1000).fill(0)),
+      translationCase(100,Array.from({length:1000},(_,i)=>i%101)),...randomTranslationCases]
+  ],
+  dfs: [
+    [selectionCase([3,7,12,19],3),selectionCase([1,1,1],2),selectionCase([1,1,1],1),selectionCase([2,2],1),
+      selectionCase(Array(20).fill(1),19),selectionCase(Array(20).fill(2),10),
+      ['20 19\n'+'5000000 '.repeat(19)+'5000000\n','0\n'],...randomSelectionCases],
+    [6,7,8,9,10,11,12,13].map(queensCase)
+  ],
+  bfs: [
+    [[1,1,1,1],[1,6,1,3],[6,1,4,1],[2,3,1,1],[3,3,1,1],[4,4,2,2],[5,6,5,6],
+      ...Array.from({length:16},()=>{const r=1+randomInt(6),c=1+randomInt(6);return [r,c,1+randomInt(r),1+randomInt(c)];})].map(args=>knightCase(...args))
+      .concat([['400 1 400 1\n',Array(399).fill('-1\n').join('')+'0\n']]),
+    [lakeCase(['W']),lakeCase(['.']),lakeCase(['W.','.W']),lakeCase(['W...W','.W..W','.....','W....']),
+      lakeCase(Array(100).fill('W'.repeat(100))),lakeCase(Array(100).fill('.'.repeat(100))),
+      lakeCase(Array.from({length:100},(_,r)=>Array.from({length:100},(_,c)=>(r+c)%2 ? '.' : 'W').join(''))),
+      ...randomLakeCases]
+  ],
   recurrence: [
     [['0\n','1\n'],['1\n','1\n'],['2\n','2\n'],['3\n','3\n'],['5\n','8\n'],['40\n','165580141\n']],
     sequenceCases,
@@ -124,7 +251,9 @@ const cases = {
     ...randomIntervals,
     ['1000000\n' + '0 1\n'.repeat(1000000), '1\n']
   ]],
-  'binary-search': [[
+  'binary-search': [
+    Array.from({length:13},(_,i)=>{const x=i-1,index=[1,2,2,2,5,7,9].indexOf(x);return [x+'\n',(index<0?-1:index+1)+'\n'];}),
+    [
     lookupCase([1,2,2,2,5],[2,4,1,6,5]),
     lookupCase([0],[0,1,1000000000]),
     lookupCase([1000000000],[0,999999999,1000000000]),

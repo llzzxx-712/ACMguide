@@ -43,12 +43,12 @@ export const chapters: Chapter[] = [
     { slug: 'binary-search', title: '4.1 二分查找', days: [21], summary: '用闭区间和 ans 查找第一次出现的位置，通过动图观察左右边界变化。', topics: ['闭区间、ans 与边界动图','lower_bound / upper_bound','重复值、查找失败与越界检查'] },
     { slug: 'binary-answer', title: '4.2 二分答案', days: [22], summary: '用砍树理解 check 与单调性，使用闭区间和 ans 求最优答案。', topics: ['答案单调性与 check 函数','用 ans 记录最大、最小可行值','每次检查与整体复杂度'] }
   ]},
-  { id: 5, title: '搜索', range: '第 23—24 天', training: [112], lessons: [
-    { slug: 'dfs', title: '5.1 深度优先搜索与回溯', days: [23], summary: '用状态、选择和回退枚举解。', topics: ['DFS 搜索树','排列、组合与回溯','访问标记与基础剪枝'] },
-    { slug: 'bfs', title: '5.2 广度优先搜索', days: [24], summary: '用队列逐层扩展状态，求无权步数。', topics: ['BFS 与队列','网格、状态搜索与最少步数','入队标记与边界判断（不展开图论章节）'] }
+  { id: 5, title: '线性表：栈与队列', range: '第 23 天', training: [113], lessons: [
+    { slug: 'linear', title: '5.1 线性表、栈与队列', days: [23], summary: '用括号匹配理解栈，用机器翻译理解队列，认识 vector 与数组模拟链表。', topics: ['stack 与后进先出','queue 与先进先出','括号匹配、机器翻译与线性表'] }
   ]},
-  { id: 6, title: '线性表', range: '第 25 天', training: [113], lessons: [
-    { slug: 'linear', title: '6.1 线性表、栈与队列', days: [25], summary: '认识顺序表、链表、栈与队列的基本操作。', topics: ['vector 与顺序表','链表及数组模拟链表','stack、queue 与基本应用'] }
+  { id: 6, title: '搜索：DFS 与 BFS', range: '第 24—25 天', training: [112], lessons: [
+    { slug: 'dfs', title: '6.1 深度优先搜索与回溯', days: [24], summary: '用选数理解状态与选择，用八皇后练习标记、恢复与剪枝。', topics: ['DFS 搜索树与组合去重','选数与递归参数','八皇后、回溯与基础剪枝'] },
+    { slug: 'bfs', title: '6.2 广度优先搜索', days: [25], summary: '用队列逐层扩展，通过马的遍历求最少步数，再用八方向搜索统计水塘。', topics: ['队列、距离与入队标记','马的遍历与最少步数','八方向搜索与水塘计数'] }
   ]},
   { id: 7, title: '基础数学问题', range: '第 26—27 天', training: [117], lessons: [
     { slug: 'math', title: '7.1 整除、质数与最大公约数', days: [26], summary: '用基础数论解决整除和约数问题。', topics: ['整除、质数判断与筛法','约数与质因数分解','gcd、lcm 与溢出处理'] },

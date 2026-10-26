@@ -10,17 +10,21 @@ assert.deepEqual(trace.map(({le,r,ans,mid})=>[le,r,ans,mid]), [
 for (let target = -1; target <= 11; target++) {
     const frames = buildTrace(target);
     const expected = values.indexOf(target);
+    const candidate = values.findIndex(value => value >= target);
     const end = frames.at(-1);
-    assert.equal(end.ans, expected < 0 ? -1 : expected + 1);
+    assert.equal(end.ans, candidate < 0 ? -1 : candidate + 1);
+    assert.equal(end.result, expected < 0 ? -1 : expected + 1);
     assert.ok(end.le > end.r);
     for (const frame of frames) {
         if (frame.mid !== null) assert.ok(frame.mid >= frame.le && frame.mid <= frame.r);
-        if (frame.ans !== -1) assert.equal(values[frame.ans - 1], target);
+        if (frame.ans !== -1) assert.ok(values[frame.ans - 1] >= target);
     }
 }
 const html = await readFile('public/animations/binary-search/index.html','utf8');
 for (const target of [2,6,9]) assert.equal(buildTrace(target).length, 8);
 assert.ok(html.includes('data-duration="24"'));
 assert.ok(html.includes('max="7"'));
+assert.ok(html.includes('a[mid] &gt;= x'));
+assert.ok(html.includes('ans != -1 &amp;&amp; a[ans] == x'));
 for (let i=1;i<=7;i++) assert.ok(html.includes('id="cell-' + i + '"'));
 console.log('Animation checks passed: 13 targets, closed-interval trace, answers and timeline length.');

@@ -10,19 +10,25 @@ const descriptions: Record<number, string> = {
   1: '从安装环境开始，写出能独立解决基础问题的 C++ 程序。',
   2: '用模拟维护状态，用 sort 整理顺序，用枚举寻找答案。',
   3: '从小问题推到大问题，理解函数递归，再说明贪心选择为什么成立。',
-  4: '从有序数组的边界查找到单调的可行性判断，用二分减少尝试次数。'
+  4: '从有序数组的边界查找到单调的可行性判断，用二分减少尝试次数。',
+  5: '用栈处理最近的待匹配对象，用队列维护等待顺序。',
+  6: '用 DFS 探索选择与回溯，用 BFS 按层处理状态。'
 };
 const introductions: Record<number, string> = {
   1: '这一章不要求你有任何编程基础。我们用 C++17，从编辑器、第一行输出开始，逐步学会读入数据、判断、重复执行和组织数据。',
   2: '第一章准备好了语言工具，这一章开始学习怎样组织解题过程。先把题目的规则翻译成状态变化，再用 sort 完成排序与排名，最后练习枚举与优化。每节都从手算走到代码，再通过独立重做和练习把方法用起来。',
   3: '这一章先用一天学习递推与前缀和，用“数的计算”和“求区间和”把方法落到题目上；再用一天学习递归的调用、返回和 Function 的记忆化。贪心安排两天，通过反例、交换理由和不同题目的练习，把排序与选择结合起来。',
-  4: '这一章统一使用闭区间和 ans：每轮检查 mid，把已经找到的答案保存下来，再向可能更优的方向继续找。先通过动图观察数组查找，再用砍树问题理解 check、单调性与最大可行值。'
+  4: '这一章统一使用闭区间和 ans：满足判断条件时先保存候选，再向更优方向继续找。先通过动图与完整程序观察第一个大于等于 x 的位置，检查相等后回答查找；再用砍树问题理解 check、单调性与最大可行值。',
+  5: '搜索之前，先准备好保存状态的工具。我们用括号匹配理解栈，用机器翻译理解队列，再对照数组模拟与 vector、链表，学会根据操作规则选择容器。',
+  6: '先用选数画出 DFS 搜索树，用八皇后理解回溯与剪枝；再使用上一章的队列完成 BFS，通过马的遍历求最少步数，通过水塘计数找出整片相连区域。'
 };
 const goals: Record<number, string[]> = {
   1: ['能创建、保存、编译、运行一个 C++ 程序，并在洛谷提交。','会使用输入输出、变量、分支、循环、数组和字符串。','理解基础函数与结构体，能独立完成入门语言题。','遇到报错时知道从哪里查，能用小数据检查自己的代码。'],
   2: ['能找出初始状态、更新顺序和终止条件，按题意模拟。','能根据数据范围估算时间与空间，比较不同方案的计算量。','会用 sort 排数字和结构体，处理多字段排名、统计与去重。','会确定枚举对象与范围，用减少变量、提前排除、预处理和批量计数优化。'],
   3: ['能定义递推中的量，写出关系、初始值和计算顺序。','会构建前缀和，用 s[r]−s[l−1] 回答区间查询。','能追踪递归的调用与返回，找到出口，检查调用栈和重复计算。','会用数组保存 Function 中同一组参数的答案。','会用反例检验策略，并用交换思路解释贪心选择。','会把 sort 与贪心扫描结合，完成两天练习。'],
-  4: ['会用闭区间、le≤r 和 mid±1 缩小候选范围。','会用 ans 保存找到的结果，处理重复值和查找失败。','能通过动图说明 le、r、mid、ans 怎样变化。','会用 lower_bound、upper_bound 查找与统计。','能编写 check，说明可行性方向，并用 ans 求最大或最小可行值。','会确定答案范围，计算每次 check 与整体算法的复杂度。']
+  4: ['会用闭区间、le≤r 和 mid±1 缩小候选范围。','会先找第一个 ≥x 的候选，再验证是否等于 x。','能通过动图和完整程序说明 le、r、mid、ans 怎样变化。','会用 lower_bound、upper_bound 查找与统计。','能编写 check，说明可行性方向，并用 ans 求最大或最小可行值。','会确定答案范围，计算每次 check 与整体算法的复杂度。'],
+  5: ['理解栈的后进先出与队列的先进先出。','会使用 stack、queue 的常用操作，操作前检查是否为空。','能独立完成括号匹配与机器翻译。','会解释数组模拟栈与队列的端点和容量。','认识 vector、顺序存放与链表连接，按操作规则选工具。'],
+  6: ['能定义 DFS 状态、选择、出口和恢复操作。','能区分排列与组合，完成选数与八皇后。','能解释 BFS 按层处理与最少步数。','会在入队时标记，检查边界、障碍与移动规则。','能完成马的遍历和八方向水塘计数。','能区分当前方案的回溯标记与整道题的访问标记。']
 };
 const description = descriptions[chapter.id] ?? '章节规划已整理，详细教程将在后续发布。';
 const chapterGoals = goals[chapter.id] ?? chapter.lessons.map(item=>item.summary);
@@ -35,7 +41,7 @@ const headings=[{depth:2,slug:'goals',text:'本章目标'},{depth:2,slug:'lesson
   <h2 id="lessons">章节与日程</h2>
   <div class="lesson-list">{chapter.lessons.map(item=><a class="lesson-card" href={href(`learn/${item.slug}/`)}><span class="day-number">{dayLabel(item.days)}</span><div><h3>{item.title}</h3><p>{item.summary}</p></div><span class="arrow">→</span></a>)}</div>
   <h2 id="practice">对应题单</h2>
-  <p>例题优先参考<a href="https://www.luogu.com.cn/training/1126196" target="_blank" rel="noopener noreferrer">入门算法题单 #1126196</a>，再结合本章知识安排练习。</p>
+  <p>例题优先参考<a href="https://www.luogu.com.cn/training/1126196" target="_blank" rel="noopener noreferrer">自编入门题单</a>，再结合本章知识安排练习。</p>
   {chapter.training ? <p>对应洛谷《深入浅出基础篇》：{chapter.training.map((id,i)=><Fragment>{i>0?'、':''}<a href={`https://www.luogu.com.cn/training/${id}`} target="_blank" rel="noopener noreferrer">题单 #{id}</a></Fragment>)}。练习按各节的例题、推荐必做与选做安排完成。{chapter.id===2?'“模拟与高精度”题单中，本章学习模拟部分。':''}</p> : <p>这是招新要求额外补充的部分，后续将单独整理练习题。</p>}
   {firstPublished && <div class="action-row"><a class="button-primary" href={href(`learn/${firstPublished.slug}/`)}>进入 {firstPublished.title} →</a></div>}
 </Docs>
