@@ -6,8 +6,10 @@ const headings = [
   { depth: 2, slug: 'why-learn', text: '为什么值得花时间' },
   { depth: 2, slug: 'this-month', text: '这一个月，学到哪里' },
   { depth: 2, slug: 'how-to-learn', text: '怎么使用这份指南' },
+  { depth: 2, slug: 'learning-channels', text: '更多学习方式/渠道' },
   { depth: 2, slug: 'start', text: '从第一天开始' }
 ];
+const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教我如何下载deepseek harness或workbuddy以及如何使用它们成为我的伴学';
 ---
 <Docs title="写给刚入学的你" description="从第一行 C++ 代码出发，用一个月认识算法竞赛，准备你的第一场招新赛。" section="前言" headings={headings}>
   <div class="tags"><span class="tag">零基础起步</span><span class="tag">30 天学习路线</span><span class="tag">C++17</span></div>
@@ -39,6 +41,37 @@ const headings = [
   <h2 id="how-to-learn">怎么使用这份指南</h2>
   <ol><li><strong>先跟着写，再关掉教程重写。</strong>复制运行是检查环境，独立写出来才是掌握。</li><li><strong>每天给练习留出时间。</strong>可先按每天 2—4 小时预留，阅读、动手、刷题和复盘都要有；具体速度按自己的基础调整。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
   <div class="callout blue"><strong>网站正在逐章完善</strong><p>目前已提供前言、30 天路线和第一章的 9 节教程草稿。第 2—9 章已列出章节与日程，正文会在后续打磨后补齐；你看到的“规划中”就是尚未发布的部分。</p></div>
+
+  <h2 id="learning-channels">更多学习方式/渠道</h2>
+  <p>这份指南给出了学习顺序，下面这些渠道可以配合使用：让 AI 陪你学，用百科和书籍补充知识，在题单里练习，遇到具体问题就去搜索或提问。</p>
+
+  <h3>1. AI 辅助学习：笔者非常建议使用</h3>
+  <p>你可以把 AI 当作随时能提问的助教：让它把知识点<strong>详细展开、一步步讲解</strong>，让它根据刚学的内容<strong>设置测验</strong>，等你作答后再讲解答案；细节中有任何不懂的地方，随时接着问。</p>
+  <p>没怎么用过 AI 的同学，可以先打开 <a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer">DeepSeek 网页版</a>，按页面提示登录。使用方式和聊天类似：在输入框里写下问题并发送，读完回答后，在同一个对话里继续追问。</p>
+  <p>例如，学循环时可以问：“我是零基础，请从头讲解 for 循环，每一步都用具体数字演示。”讲完后再让它“出三道小测验，先等我回答，再逐题讲解”。遇到某行代码看不懂，就把那一行和上下文发过去继续问。</p>
+  <p><strong>提示词</strong>就是你发给 AI 的任务说明。把下面这段提示词复制给 DeepSeek，让它带你下载和使用伴学工具：</p>
+  <pre class="learning-prompt" data-copy-label="复制提示词"><code>{aiPrompt}</code></pre>
+  <p>准备好伴学工具后，把当前章节的链接发给它，告诉它你已经学到哪里，让它按“讲解 → 测验 → 根据回答继续讲解”的顺序陪你学习。编译报错、题意不明白、某个计算步骤没跟上，也都可以随时提问。</p>
+
+  <h3>2. 搜索引擎：学会自己找到答案</h3>
+  <p>使用搜索引擎解决问题是程序员很重要的一项能力。遇到问题时，把它拆成明确的关键词，例如“C++ Dev-C++ 编译运行”“C++ getline 读到空行”；遇到报错，可以搜索报错原文中的关键句，再对照自己的代码处理。</p>
+
+  <h3>3. OI Wiki：随时查阅的算法竞赛百科</h3>
+  <p><a href="https://oi-wiki.org/" target="_blank" rel="noopener noreferrer">OI Wiki</a> 的内容非常全面，从工具介绍、语言语法到各种算法都能找到。学习一个新知识点时，可以打开对应条目，把概念、过程和示例连起来看，再去洛谷找题实现。</p>
+
+  <h3>4. 书籍：系统地学完一块知识</h3>
+  <p>洛谷的《深入浅出程序设计竞赛》适合入门，也与本指南使用的基础题单相对应；《信息学奥赛一本通》的语法讲解很详细，可以用来补充语言基础。学完语法、开始学习算法后，可以继续阅读《挑战程序设计竞赛》。</p>
+  <p>读书时把例子自己敲一遍，运行后改几组数据，再关掉书独立实现。遇到一段看不懂的讲解，可以让 AI 展开解释，也可以向学长学姐请教。</p>
+
+  <h3>5. 在线评测平台：把知识变成做题能力</h3>
+  <p>在线评测平台简称 <strong>OJ</strong>，你提交程序后，它会自动运行测试并给出评测结果。零基础同学先从 <a href="https://www.luogu.com.cn/training/list" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》题单</a> 开始，跟着本指南的章节做对应练习；卡住时结合题解、AI 和讨论理解思路，再自己重写代码。</p>
+  <p>有了语法基础后，可以到 <a href="https://codeforces.com/problemset" target="_blank" rel="noopener noreferrer">Codeforces 题库</a> 从 800 分的题开始练习，逐渐熟悉英文题面，并参加比赛、赛后补题。</p>
+
+  <h3>6. 请教学长学姐：带着具体问题来问</h3>
+  <p>遇到具体问题，可以直接在招新群里请教，也可以和一起学习的同学讨论。把题目链接、完整代码、报错信息或出错数据、预期结果和已经尝试过的方法一起发出来，别人就能更快找到你卡在哪里。</p>
+
+  <h3>7. 视频与网课：按知识点补充</h3>
+  <p>笔者更推荐按本指南、书籍和题单主动学习。需要看别人演示某个操作，或者想看算法过程如何一步步变化时，再搜索对应的视频讲解。看完后马上自己写代码、做题，把讲解中的过程亲手实现一遍。</p>
 
   <h2 id="start">从第一天开始</h2>
   <p>今天只需要完成一件事：准备好能写 C++ 的环境。明天，我们一起写下 <code>Hello,World!</code>。</p>

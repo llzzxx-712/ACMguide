@@ -50,12 +50,13 @@ complete?.addEventListener('click', () => {
 
 document.querySelectorAll<HTMLPreElement>('pre').forEach(pre => {
   const button = document.createElement('button');
-  button.className = 'copy-code'; button.textContent = '复制代码';
-  button.setAttribute('aria-label', '复制这段代码');
+  const copyLabel = pre.dataset.copyLabel || '复制代码';
+  button.className = 'copy-code'; button.textContent = copyLabel;
+  button.setAttribute('aria-label', pre.dataset.copyLabel || '复制这段代码');
   button.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(pre.querySelector('code')?.textContent || ''); button.textContent = '已复制 ✓'; }
-    catch { button.textContent = '请选中代码复制'; }
-    window.setTimeout(() => { button.textContent = '复制代码'; }, 2000);
+    catch { button.textContent = pre.dataset.copyLabel ? '请选中提示词复制' : '请选中代码复制'; }
+    window.setTimeout(() => { button.textContent = copyLabel; }, 2000);
   });
   pre.appendChild(button);
 });
@@ -98,6 +99,7 @@ function search() {
 async function openSearch() { closeMenu(); if (!dialog?.open) dialog?.showModal(); input?.focus(); await loadIndex(); }
 $('#search-open')?.addEventListener('click', openSearch);
 $('#search-close')?.addEventListener('click', () => dialog?.close());
+results?.addEventListener('click', event => { if (event.target instanceof Element && event.target.closest('a')) dialog?.close(); });
 dialog?.addEventListener('click', event => { if (event.target === dialog) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
 input?.addEventListener('input', search);
 document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); void openSearch(); } });
