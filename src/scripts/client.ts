@@ -5,7 +5,16 @@ document.querySelectorAll<HTMLIFrameElement>('.binary-animation-frame').forEach(
     observer?.disconnect();
     const body = frame.contentDocument?.body;
     if (!body) return;
-    const fit = () => { frame.style.height = `${Math.ceil(body.getBoundingClientRect().height) + 2}px`; };
+    let scheduled = false;
+    const fit = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        const height = `${Math.ceil(body.getBoundingClientRect().height) + 2}px`;
+        if (frame.style.height !== height) frame.style.height = height;
+      });
+    };
     observer = new ResizeObserver(fit);
     observer.observe(body);
     fit();
