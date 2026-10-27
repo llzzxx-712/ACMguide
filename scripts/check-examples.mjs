@@ -9,6 +9,7 @@ import { optimizationCases, vectorIntroCases } from './optimization-cases.mjs';
 import { divideStringCases, prefixSumCases } from './divide-string-cases.mjs';
 import { searchHeapCases } from './search-heap-cases.mjs';
 import { greedySegmentCases, switchCases } from './greedy-segment-cases.mjs';
+import { treeGraphCases } from './tree-graph-cases.mjs';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -383,6 +384,7 @@ const cases = {
   ...divideStringCases,
   ...searchHeapCases,
   ...greedySegmentCases,
+  ...treeGraphCases,
   'counting-precomputation': [...optimizationCases['counting-precomputation'], prefixSumCases],
   'graph-concepts': [vectorIntroCases, ...graphPrefixCases['graph-concepts']],
   games: [
@@ -567,10 +569,11 @@ try {
       const compile = spawnSync(compiler, [`-std=${standard}`, '-Wall', '-Wextra', cpp, '-o', exe], { encoding: 'utf8', timeout: 30000 });
       if (compile.error || compile.status !== 0) throw new Error(`${slug} block ${i+1}: ${compile.error || compile.stderr}`);
       if (compile.stderr.trim()) throw new Error(`Compiler warning in ${slug} block ${i+1}: ${compile.stderr}`);
-      for (const [input, expected] of cases[slug][i]) {
+      for (const [input, expected, validate] of cases[slug][i]) {
         const run = spawnSync(exe, [], { input, encoding: 'utf8', timeout: 3000, maxBuffer: 16 * 1024 * 1024 });
         const preview = value => JSON.stringify(value.length <= 200 ? value : value.slice(0,200) + '... [' + value.length + ' characters]');
-        if (run.error || run.status !== 0 || run.stdout.replaceAll('\r\n','\n') !== expected) throw new Error(`${slug} block ${i+1}: input=${preview(input)}, expected=${preview(expected)}, actual=${preview(run.stdout)}, error=${run.error || run.stderr}`);
+        const correct = validate ? validate(run.stdout) : run.stdout.replaceAll('\r\n','\n') === expected;
+        if (run.error || run.status !== 0 || !correct) throw new Error(`${slug} block ${i+1}: input=${preview(input)}, expected=${preview(expected)}, actual=${preview(run.stdout)}, error=${run.error || run.stderr}`);
         checks++;
       }
       programs++;
