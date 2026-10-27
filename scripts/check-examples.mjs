@@ -8,6 +8,7 @@ import { graphPrefixCases } from './graph-prefix-cases.mjs';
 import { optimizationCases, vectorIntroCases } from './optimization-cases.mjs';
 import { divideStringCases, prefixSumCases } from './divide-string-cases.mjs';
 import { searchHeapCases } from './search-heap-cases.mjs';
+import { greedySegmentCases, switchCases } from './greedy-segment-cases.mjs';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -381,6 +382,7 @@ const cases = {
   ...optimizationCases,
   ...divideStringCases,
   ...searchHeapCases,
+  ...greedySegmentCases,
   'counting-precomputation': [...optimizationCases['counting-precomputation'], prefixSumCases],
   'graph-concepts': [vectorIntroCases, ...graphPrefixCases['graph-concepts']],
   games: [
@@ -538,6 +540,7 @@ const cases = {
   functions: [[['12\n','144\n'],['-1000000000\n','1000000000000000000\n']], [['7\n','8\n'],['-1\n','0\n']], [['3\nalice 100 90 80\nbob 90 100 80\ncarol 100 95 90\n','carol 100 95 90\n'],['1\nalice 0 0 0\n','alice 0 0 0\n'],['3\nalice 100 90 80\nbob 90 100 80\ncarol 90 90 90\n','alice 100 90 80\n'],['1000\nfirst 150 150 150\n'+'other 150 150 150\n'.repeat(999),'first 150 150 150\n']]],
   checkpoint: [[['3\n100 100 100\n104 103 102\n105 105 105\n','2\n'],['2\n100 100 100\n106 100 100\n','0\n'],['2\n100 100 100\n104 104 104\n','0\n'],['2\n100 100 100\n105 105 100\n','1\n'],['1000\n'+'150 150 150\n'.repeat(1000),'499500\n']]]
 };
+cases.checkpoint.unshift(switchCases);
 const compiler = process.env.CXX || 'g++';
 const standard = process.env.CXX_STANDARD || 'c++17';
 const dir = await mkdtemp(path.join(os.tmpdir(), 'acmguide-examples-'));

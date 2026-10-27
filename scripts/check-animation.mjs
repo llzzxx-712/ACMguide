@@ -274,3 +274,39 @@ assert.ok(kmpHtml.includes('data-duration="'+Number((fall.frames.length*kmpSecon
 assert.ok(kmpHtml.includes('max="'+(fall.frames.length-1)+'"'));
 for(const id of ['mode','play','previous','next','restart','before-fallback','fallback-step','found-step','slider','speed'])assert.ok(kmpHtml.includes('id="'+id+'"'));
 console.log('KMP animation checks passed: prefix and substring oracles, preserved suffixes, stationary text on fallback, overlapping matches and independent snapshots.');
+
+const {buildFenwickTrace,seconds:fenwickSeconds}=await import('../public/animations/fenwick/trace.mjs');
+for(let n=1;n<=8;n++){
+  const values=[0,...Array.from({length:n},(_,i)=>i*3-7)];
+  for(let pos=0;pos<=n;pos++){
+    const trace=buildFenwickTrace('query',{values,pos});
+    for(const f of trace.frames){
+      assert.equal(new Set(f.covered).size,f.covered.length,'Query intervals must not overlap');
+      assert.equal(f.result,f.covered.reduce((s,i)=>s+values[i],0));
+      for(let i=1;i<=n;i++)assert.equal(f.bit[i],values.slice(i-(i&-i)+1,i+1).reduce((s,x)=>s+x,0));
+    }
+    const last=trace.frames.at(-1);assert.equal(last.x,0);assert.equal(last.result,values.slice(1,pos+1).reduce((s,x)=>s+x,0));
+    assert.deepEqual(last.covered.slice().sort((a,b)=>a-b),Array.from({length:pos},(_,i)=>i+1));
+  }
+  for(let pos=1;pos<=n;pos++)for(const delta of [-10,0,10]){
+    const trace=buildFenwickTrace('update',{values,pos,delta});
+    for(const f of trace.frames)for(let i=1;i<=n;i++){
+      const original=values.slice(i-(i&-i)+1,i+1).reduce((s,x)=>s+x,0);
+      assert.equal(f.bit[i],original+(f.visited.includes(i)?delta:0));
+      if(f.visited.includes(i))assert(i-(i&-i)+1<=pos&&pos<=i,'Modified interval must contain the point');
+    }
+    const last=trace.frames.at(-1);assert(last.x>n);
+    const containing=Array.from({length:n},(_,i)=>i+1).filter(i=>i-(i&-i)+1<=pos&&pos<=i);
+    assert.deepEqual(last.visited,containing);
+    assert.equal(trace.frames[0].a[pos],values[pos]);assert.equal(last.a[pos],values[pos]+delta);
+    const saved=last.bit[pos];trace.frames[0].bit[pos]=999;assert.equal(last.bit[pos],saved,'Snapshots must be independent');
+  }
+}
+const fenwickQuery=buildFenwickTrace(),fenwickUpdate=buildFenwickTrace('update');
+assert.deepEqual(fenwickQuery.frames.at(-1).visited,[7,6,4]);assert.equal(fenwickQuery.frames.at(-1).result,28);
+assert.deepEqual(fenwickUpdate.frames.at(-1).visited,[5,6,8]);
+assert.deepEqual([5,6,8].map(i=>fenwickUpdate.frames.at(-1).bit[i]),[15,21,46]);
+const fenwickHtml=await readFile('public/animations/fenwick/index.html','utf8');
+assert(fenwickHtml.includes(`data-duration="${fenwickQuery.frames.length*fenwickSeconds}"`));
+for(const id of ['mode','play','previous','next','restart','change-step','done-step','slider','bar-8','code-move'])assert(fenwickHtml.includes(`id="${id}"`));
+console.log('Fenwick animation checks passed: disjoint prefix coverage, exact sums, every containing update interval, boundaries and independent snapshots.');

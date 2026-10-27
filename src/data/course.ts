@@ -27,7 +27,7 @@ export const chapters: Chapter[] = [
     { slug: 'arrays', title: '1.6 数组', days: [8,9], summary: '用一维、二维数组保存和处理一组数据。' },
     { slug: 'strings', title: '1.7 字符与字符串', days: [10], summary: '从 char 与 ASCII 开始，学习 string、常用操作和整行输入。' },
     { slug: 'functions', title: '1.8 函数与结构体', days: [11], summary: '把程序拆成函数，用结构体记录一个对象。' },
-    { slug: 'checkpoint', title: '1.9 语言基础复盘', days: [12], summary: '独立完成小测，学会读评测结果与定位错误。' }
+    { slug: 'checkpoint', title: '1.9 位运算与语言基础复盘', days: [12], summary: '认识二进制与位运算，用开关练习逐位操作，再独立完成小测与错误定位。' }
   ]},
   { id: 2, title: '模拟、排序与枚举', range: '第 13—16 天', training: [106,107,108], lessons: [
     { slug: 'simulation', title: '2.1 模拟与复杂度入门', days: [13], summary: '记录状态、按规则更新，代入最大规模估算能否通过，处理百万级输入。', topics: ['题意转流程与边界处理','复杂度、常数与最大规模估算','cin 关闭流同步与连续状态的维护'] },

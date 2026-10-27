@@ -72,7 +72,7 @@ for (const [day,slug] of [[29,'knapsack'],[30,'knapsack'],[31,'games']]) {
 if (search.some(item=>item.planned && item.url.includes('/learn/'))) errors.push('All nine introductory chapters should be published');
 const outline = html.get(path.join(root, 'after-joining', 'index.html')) || '';
 const outlineChapters = [...outline.matchAll(/data-outline-chapter="([^"]+)"/g)];
-if (!outline.includes('<h1>入队后—寒假前</h1>') || outlineChapters.length !== 24) errors.push('Missing second-block chapter outline');
+if (!outline.includes('<h1>入队后—寒假前</h1>') || outlineChapters.length !== 25) errors.push('Missing second-block chapter outline');
 const outlineBody = outline.split('<div class="article-content">')[1]?.split('<footer class="article-footer">')[0] || '';
 const outlinePages = [outlineBody];
 let plannedSections = 0;
@@ -83,7 +83,7 @@ for (const chapter of outlineChapters) {
   outlinePages.push(body);
   plannedSections += [...body.matchAll(/data-outline-section/g)].length;
   if (!source || !body.includes('章节与小节') || !body.includes('对应题单')) errors.push(`Missing chapter overview: ${chapter[1]}`);
-  const publishedChapter = ['binary-trees','sets-and-dsu','graph-basics','prefix-difference-compression','linear-optimizations','divide-and-doubling','string-algorithms','advanced-search','heap-and-fenwick'].includes(chapter[1]);
+  const publishedChapter = ['binary-trees','sets-and-dsu','graph-basics','prefix-difference-compression','linear-optimizations','divide-and-doubling','string-algorithms','advanced-search','heap-and-fenwick','advanced-greedy','segment-trees'].includes(chapter[1]);
   if (!search.some(item=>item.planned===!publishedChapter && item.url===url)) errors.push(`Incorrect chapter publication status in search: ${chapter[1]}`);
   if (!source.includes(`data-after-joining-chapter="${chapter[1]}" open`)) errors.push(`Current chapter must open in sidebar: ${chapter[1]}`);
   if (source.includes('id="complete-lesson"')) errors.push(`Planned chapter must not have completion control: ${chapter[1]}`);
@@ -91,7 +91,7 @@ for (const chapter of outlineChapters) {
 const combinedOutline = outlinePages.join('');
 if (/第\s*\d+\s*[—~～-]?\s*\d*\s*天|Day\s*\d|推荐天数|建议用时|class="day-number"/.test(combinedOutline)) errors.push('Second-block outline must not schedule study days');
 if (combinedOutline.includes('高精度') || search.some(item=>item.url.includes('/after-joining/') && /高精度|high-precision/.test(JSON.stringify(item)))) errors.push('High precision must not appear in the second block');
-if (plannedSections !== 101) errors.push('Expected 101 sections after trimming chapter 8 to two lessons');
+if (plannedSections !== 103) errors.push('Expected 103 sections after adding advanced greedy');
 const searchChapter=html.get(path.join(root,'after-joining','chapter','advanced-search','index.html')) || '';
 const searchChapterBody=searchChapter.split('<div class="article-content">')[1]?.split('<footer class="article-footer">')[0] || '';
 if ([...searchChapterBody.matchAll(/data-outline-section/g)].length !== 2 || /迭代加深|IDA\*|A\*|搜索状态设计与综合应用/.test(searchChapterBody)) errors.push('Chapter 8 must contain only sections 8.1 and 8.2');
@@ -103,7 +103,7 @@ const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
 const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
-if (joinedPublished.length !== 36 || published.length !== 61 || !outline.includes('0 / 61 节')) errors.push('Progress must include 25 original and 36 second-block lessons, but no outline placeholders');
+if (joinedPublished.length !== 42 || published.length !== 67 || !outline.includes('0 / 67 节')) errors.push('Progress must include 25 original and 42 second-block lessons, but no outline placeholders');
 if (!summary?.includes(`${base}/after-joining/`) || !html.get(path.join(root,'index.html'))?.includes('第二板块 · 入队后—寒假前')) errors.push('Missing entry from first block to second block');
 for (const [file,source] of html) {
   if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);

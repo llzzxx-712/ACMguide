@@ -19,3 +19,6 @@
 .dsu-animation-frame{height:1220px}@media(max-width:600px){.dsu-animation-frame{height:1400px}}
 .queue-animation-frame{height:1320px}@media(max-width:600px){.queue-animation-frame{height:1540px}}
 .kmp-animation-frame{height:1400px}@media(max-width:600px){.kmp-animation-frame{height:1600px}}
+
+.fenwick-animation-frame { height: 1540px; }
+@media (max-width: 700px) { .fenwick-animation-frame { height: 1800px; } }
