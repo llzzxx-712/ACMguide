@@ -10,6 +10,7 @@ const headings = [
   { depth: 2, slug: 'this-month', text: '这一个月，学到哪里' },
   { depth: 2, slug: 'how-to-learn', text: '怎么使用这份指南' },
   { depth: 2, slug: 'learning-channels', text: '更多学习方式/渠道' },
+  { depth: 2, slug: 'course-blocks', text: '两个学习板块' },
   { depth: 2, slug: 'start', text: '从第一天开始' }
 ];
 const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教我如何下载deepseek harness或workbuddy以及如何使用它们成为我的伴学';
@@ -36,10 +37,10 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
   </tbody></table>
 
   <h2 id="this-month">这一个月，学到哪里</h2>
-  <p>目标是<strong>学完招新赛涉及的入门知识，能够独立完成相应的基础题，并开始尝试综合题</strong>。整个学习过程安排为 31 天，内容较多的部分安排两天学习与巩固。</p>
+  <p>目标是<strong>学完招新赛涉及的入门知识，能够独立完成相应的基础题，并开始尝试综合题</strong>。招新前的入门学习安排为 31 天，内容较多的部分安排两天学习与巩固。</p>
   <table><thead><tr><th>组别</th><th>洛谷大致范围</th><th>Codeforces 大致范围</th><th>练习重心</th></tr></thead><tbody><tr><td>新生组</td><td>红色—黄色</td><td>800—1500</td><td>基础题做稳，逐步尝试综合运用。</td></tr></tbody></table>
   <p>知识范围按<a href="https://www.luogu.com.cn/training/list" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》题单</a>组织：语言基础、模拟、排序、暴力枚举、递推与递归、贪心、二分、搜索、线性表和基础数学，另加简单动态规划、简单博弈论。</p>
-  <p>本轮不安排<strong>高精度、二叉树、集合、图的基本应用</strong>。保留“模拟与高精度”中的模拟部分；搜索中的网格与状态 BFS 仍在范围内，不展开图论章节。</p>
+  <p>招新前不安排<strong>高精度、二叉树、集合、图的基本应用</strong>。保留“模拟与高精度”中的模拟部分；搜索中的网格与状态 BFS 仍在范围内。这些后续内容会在<a href={href('after-joining/')}>入队后—寒假前</a>继续学习。</p>
 
   <h2 id="how-to-learn">怎么使用这份指南</h2>
   <ol><li><strong>先跟着写，再关掉教程重写。</strong>复制运行是检查环境，独立写出来才是掌握。</li><li><strong>每天给练习留出时间。</strong>可先按每天 2—4 小时预留，阅读、动手、刷题和复盘都要有；具体速度按自己的基础调整。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
@@ -75,6 +76,12 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
 
   <h3>7. 视频与网课：按知识点补充</h3>
   <p>笔者更推荐按本指南、书籍和题单主动学习。需要看别人演示某个操作，或者想看算法过程如何一步步变化时，再搜索对应的视频讲解。看完后马上自己写代码、做题，把讲解中的过程亲手实现一遍。</p>
+
+  <h2 id="course-blocks">两个学习板块</h2>
+  <div class="resource-grid">
+    <a class="resource-card" href={href('roadmap/')}><h3>第一板块 · 招新前</h3><p>从零开始的 31 天入门路线，学习语言、基础算法、简单 DP 与博弈，准备招新赛。</p></a>
+    <a class="resource-card" href={href('after-joining/')}><h3>第二板块 · 入队后—寒假前</h3><p>补齐基础篇，继续学习进阶算法、数据结构、图论、动态规划与数学。先查看章节大纲。</p></a>
+  </div>
 
   <h2 id="start">从第一天开始</h2>
   <p>今天只需要完成一件事：准备好能写 C++ 的环境。明天，我们一起写下 <code>Hello,World!</code>。</p>

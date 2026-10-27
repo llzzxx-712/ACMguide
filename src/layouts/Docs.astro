@@ -1,6 +1,7 @@
 ---
 import { chapters, href, repo, dayLabel } from '../data/course';
 import { isPublished, publishedLessonSlugs } from '../data/content';
+import { afterJoiningPhases } from '../data/after-joining';
 import '../styles/global.css';
 interface Props {
   title: string;
@@ -13,6 +14,7 @@ interface Props {
 const { title, description, section = '开始之前', headings = [], lesson, planned = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '');
 const isActive = (target: string) => path === href(target).replace(/\/$/, '');
+const afterJoining = isActive('after-joining/');
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -45,8 +47,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </a>
       <nav class="top-nav" aria-label="主导航">
         <a class:list={{ active: isActive('') }} href={href()}>开始之前</a>
-        <a class:list={{ active: isActive('roadmap/') }} href={href('roadmap/')}>31 天路线</a>
-        <a class:list={{ active: isActive('chapter/1/') || chapters[0].lessons.some(item => item.slug === lesson) }} href={href('chapter/1/')}>语言基础</a>
+        <a class:list={{ active: isActive('roadmap/') || Boolean(lesson) || path.startsWith(href('chapter/')) || isActive('summary/') }} href={href('roadmap/')}>招新前 · 31 天</a>
+        <a class:list={{ active: afterJoining }} href={href('after-joining/')}>入队后—寒假前</a>
         <a class:list={{ active: isActive('resources/') }} href={href('resources/')}>题单与资源</a>
       </nav>
       <div class="header-tools">
@@ -62,8 +64,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <button class="sidebar-overlay" aria-label="关闭章节目录" tabindex="-1"></button>
     <div class="docs-grid">
       <aside id="sidebar" class="sidebar" aria-label="课程章节">
-        <div class="sidebar-intro"><span class="small-label">从这里出发</span><a class:list={['sidebar-link', { selected: isActive('') }]} href={href()}>前言 · 写给刚入学的你</a><a class:list={['sidebar-link', { selected: isActive('roadmap/') }]} href={href('roadmap/')}>31 天学习路线 <span class="mini-tag">计划</span></a></div>
+        <div class="sidebar-intro"><span class="small-label">从这里出发</span><a class:list={['sidebar-link', { selected: isActive('') }]} href={href()}>前言 · 写给刚入学的你</a></div>
         <div class="sidebar-separator"></div>
+        <details class="course-block" open={!afterJoining}>
+        <summary><span>第一板块 · 招新前<small>31 天入门学习</small></span><span class="chevron">›</span></summary>
+        <a class:list={['sidebar-link', { selected: isActive('roadmap/') }]} href={href('roadmap/')}>31 天学习路线</a>
         {chapters.map(chapter => (
           <details class="chapter-group" open={chapter.id === 1 || isActive(`chapter/${chapter.id}/`) || chapter.lessons.some(item => item.slug === lesson)}>
             <summary><span class:list={['chapter-dot', `dot-${chapter.id}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>{chapter.range}{!chapter.lessons.some(item => isPublished(item.slug)) ? ' · 规划中' : ''}</small></span><span class="chevron">›</span></summary>
@@ -74,6 +79,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           </details>
         ))}
         <a class:list={['sidebar-link', { selected: isActive('summary/') }]} href={href('summary/')}>结语 · 完成 31 天之后</a>
+        </details>
+        <div class="sidebar-separator"></div>
+        <details class="course-block" open={afterJoining}>
+          <summary><span>第二板块 · 入队后—寒假前<small>进阶学习大纲</small></span><span class="chevron">›</span></summary>
+          <a class:list={['sidebar-link', { selected: afterJoining }]} href={href('after-joining/')} aria-current={afterJoining ? 'page' : undefined}>章节大纲总览</a>
+          {afterJoiningPhases.map(phase => <div class="outline-sidebar-phase"><a class="outline-sidebar-heading" href={`${href('after-joining/')}#${phase.slug}`}>{phase.title}</a>{phase.chapters.map(chapter => <a class="sidebar-link outline-sidebar-link" href={`${href('after-joining/')}#${chapter.slug}`}>{chapter.id}. {chapter.title}</a>)}</div>)}
+        </details>
         <div class="sidebar-separator"></div>
         <a class:list={['sidebar-link', { selected: isActive('resources/') }]} href={href('resources/')}>↗ 题单与学习资源</a>
         <div class="progress-card"><div><span>已发布教程进度</span><strong id="progress-text">0 / {publishedLessonSlugs.length} 节</strong></div><progress id="course-progress" max={publishedLessonSlugs.length} value="0" aria-label="已完成教程节数"></progress><small>学习记录保存在当前浏览器</small></div>

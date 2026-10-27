@@ -41,6 +41,9 @@ menu?.addEventListener('click', () => {
 mobileQuery.addEventListener('change', () => { closeMenu(); });
 syncSidebar();
 $('.sidebar-overlay')?.addEventListener('click', closeMenu);
+sidebar?.addEventListener('click', event => {
+  if (event.target instanceof Element && event.target.closest('a') && mobileQuery.matches) closeMenu();
+});
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
 
 const validLessons: string[] = JSON.parse(document.body.dataset.publishedLessons || '[]');
