@@ -87,6 +87,14 @@ int find(int x) {
 
 递归也能写成“先求上级的代表，再把结果保存为 f[x]”。本节完整代码使用循环形式，长链也不需要产生大量函数调用。
 
+## 动图：看父指针怎样改变
+
+先播放“从一人一组开始”，观察每次合并连接的是哪两个根。再切换“只看路径压缩”，用“下一步”对照代码：**保存 next → 修改 f[x] → 让 x 走到 next**。
+
+<iframe class="lesson-animation-frame dsu-animation-frame" src="/ACMguide/animations/dsu/index.html" title="并查集动图：合并、查找与路径压缩"></iframe>
+
+点击“看 f[1] 改变”时，f[1] 已经变成 5，但 next 仍是 2。再走一步，x 会来到 2，继续压缩中间结点。最后点击“对比再次查找”，看找根的路线由三段变成一段；分组始终没有被路径压缩改变。
+
 ## 例题精讲：P1551 · 亲戚
 
 **原题：** [P1551 · 亲戚](https://www.luogu.com.cn/problem/P1551)。

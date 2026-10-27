@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>并查集：合并、查找与路径压缩</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#20384b;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:900px;margin:auto;padding:22px}h1{font-size:25px;margin:0 0 8px}p{margin:8px 0}button,select{font:inherit;background:white;color:#244258;border:1px solid #b9cdd8;border-radius:8px;padding:8px 12px;cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #176e9f;outline-offset:2px}button.primary{background:#087e6d;color:white;border-color:#087e6d}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:15px 0}.timeline{display:flex;align-items:center;gap:12px}input[type=range]{flex:1;min-width:90px;accent-color:#087e6d}.track{height:4px;background:#e5edf2;border-radius:4px;overflow:hidden}#progress{height:100%;background:#087e6d;transform-origin:left}#context{font-weight:700;color:#086a5d;margin-top:20px}.graph{background:#f5f9fc;border:1px solid #d9e5ed;border-radius:14px;padding:8px;margin-top:10px}.graph{overflow-x:auto}.graph svg{display:block;width:100%;height:auto}.array{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.cell{border:2px solid #d8e4ec;border-radius:9px;text-align:center;padding:7px 3px;background:#f7fafc}.cell small{display:block;font-size:14px}.cell b{font-size:23px}.vars{font-family:Consolas,monospace;background:#eef4f8;padding:10px 14px;border-radius:8px;white-space:normal}#note{border-left:4px solid #087e6d;background:#edf7f2;padding:13px 16px;min-height:82px}#groups{font-size:15px;color:#455f72}.code{background:#f6f8fb;border:1px solid #dae4ed;border-radius:10px;padding:12px 0;font:15px/1.7 Consolas,monospace;overflow-x:auto}.code div{white-space:pre;border-left:4px solid transparent;padding:1px 12px}footer{font-size:14px;color:#526878;margin-top:12px}.hint{font-size:14px;color:#526878}@media(max-width:560px){main{padding:14px}.graph g[font-size]{font-size:40px}h1{font-size:21px}.toolbar{gap:6px}button,select{padding:7px 9px}.code{font-size:13px}.cell small{font-size:12px}#note{min-height:112px}.graph{padding:2px}.array{gap:4px}}
+</style>
+</head>
+<body>
+<main id="demo" data-composition-id="dsu" data-width="900" data-height="1300" data-duration="62.4">
+<h1>一组人，怎样用父指针连起来？</h1>
+<p>箭头表示 <b>结点 → f[结点]</b>。跟着代码走，观察数组和连接怎样一起变化。</p>
+<div class="toolbar"><label>过程 <select id="mode"><option value="full">从一人一组开始</option><option value="compression">只看路径压缩</option></select></label><button id="play" class="primary">播放</button><button id="previous">上一步</button><button id="next">下一步</button><button id="restart">重来</button></div>
+<div class="toolbar"><button id="first-find">跳到首次查找</button><button id="key-step">看 f[1] 改变</button><button id="repeat-find">对比再次查找</button><label>速度 <select id="speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>
+<div class="timeline"><input id="slider" type="range" min="0" max="51" value="0" aria-label="步骤进度"><span id="step-count">1 / 52</span></div><div class="track"><div id="progress"></div></div>
+<p id="context">开始一人一组</p>
+<div class="graph"><svg viewBox="0 0 900 265" role="img" aria-label="五个成员与指向直接上级的箭头">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#497eaa"/></marker></defs>
+<g fill="none" stroke="#497eaa" stroke-width="3" marker-end="url(#arrow)"><path id="edge-1" d="M 90 190 Q 90 110 90 190" opacity="0"/><path id="edge-2" d="M 270 190 Q 270 110 270 190" opacity="0"/><path id="edge-3" d="M 450 190 Q 450 110 450 190" opacity="0"/><path id="edge-4" d="M 630 190 Q 630 110 630 190" opacity="0"/><path id="edge-5" d="M 810 190 Q 810 110 810 190" opacity="0"/></g>
+<g font-size="24" text-anchor="middle" fill="#20384b"><circle id="node-1" cx="90" cy="200" r="29" fill="white" stroke="#087e6d" stroke-width="5"/><text x="90" y="208">1</text><circle id="node-2" cx="270" cy="200" r="29" fill="white" stroke="#087e6d" stroke-width="5"/><text x="270" y="208">2</text><circle id="node-3" cx="450" cy="200" r="29" fill="white" stroke="#087e6d" stroke-width="5"/><text x="450" y="208">3</text><circle id="node-4" cx="630" cy="200" r="29" fill="white" stroke="#087e6d" stroke-width="5"/><text x="630" y="208">4</text><circle id="node-5" cx="810" cy="200" r="29" fill="white" stroke="#087e6d" stroke-width="5"/><text x="810" y="208">5</text></g>
+
+</svg><p class="hint">绿色外圈：根（f[i] = i）　黄色：当前移动位置　紫色：本步改指针</p></div>
+<div class="array"><div class="cell" id="cell-1"><small>f[1]</small><b id="value-1">1</b></div><div class="cell" id="cell-2"><small>f[2]</small><b id="value-2">2</b></div><div class="cell" id="cell-3"><small>f[3]</small><b id="value-3">3</b></div><div class="cell" id="cell-4"><small>f[4]</small><b id="value-4">4</b></div><div class="cell" id="cell-5"><small>f[5]</small><b id="value-5">5</b></div></div>
+<p id="vars" class="vars">x = —　root = —　next = —</p><p id="note">开始一人一组，f[i] = i。</p><p id="groups">分组：{1} {2} {3} {4} {5}</p>
+<div class="code" aria-label="与教材一致的查找和合并代码"><div>int find(int x) {</div><div id="code-init">    int root = x;</div><div id="code-walk">    while (f[root] != root) root = f[root];</div><div>    while (x != root) {</div><div id="code-save">        int next = f[x];</div><div id="code-redirect">        f[x] = root;</div><div id="code-advance">        x = next;</div><div>    }</div><div id="code-return">    return root;</div><div>}</div><div>int fx = find(x), fy = find(y);</div><div id="code-merge">if (fx != fy) f[fx] = fy;</div></div>
+<footer>先找代表，再沿旧路径压缩。可以逐步前进、后退，对照 next 在改指针前后的数值。</footer>
+</main>
+<script src="assets/gsap.min.js"></script>
+<script type="module">
+import {buildDsuTrace,seconds} from './trace.mjs';
+const $=s=>document.querySelector(s),play=$('#play'),slider=$('#slider'),speed=$('#speed');
+let timeline,trace,frames,duration,current=0;
+function groups(f){const result={};for(let i=1;i<=5;i++){let root=i;while(f[root]!==root)root=f[root];(result[root]??=[]).push(i);}return Object.values(result).map(g=>'{'+g.join(', ')+'}').join(' ');}
+function arrow(i,parent){const x=90+(i-1)*180,end=90+(parent-1)*180;return `M ${x} 170 Q ${(x+end)/2} ${155-Math.abs(end-x)*.20} ${end-13} 171`;}
+function controls(){current=Math.min(frames.length-1,Math.floor(timeline.time()/seconds));slider.value=current;$('#step-count').textContent=(current+1)+' / '+frames.length;play.textContent=timeline.paused()||timeline.time()>=duration?'播放':'暂停';}
+function create(){
+    if(timeline)timeline.kill();trace=buildDsuTrace($('#mode').value);frames=trace.frames;duration=Number((frames.length*seconds).toFixed(1));slider.max=frames.length-1;$('#demo').dataset.duration=duration;
+    timeline=gsap.timeline({paused:true,onUpdate:controls,onComplete:controls});timeline.timeScale(Number(speed.value));gsap.set('#progress',{scaleX:0});timeline.to('#progress',{scaleX:1,duration,ease:'none'},0);
+    frames.forEach((frame,index)=>{
+        const at=index*seconds,v=frame.vars;
+        timeline.set('#demo',{attr:{'data-step':index,'data-event':frame.event}},at);
+        timeline.set('#context',{textContent:frame.context||'开始一人一组'},at);timeline.set('#note',{textContent:frame.note},at);timeline.set('#groups',{textContent:'分组：'+groups(frame.parents)},at);
+        timeline.set('#vars',{textContent:['x','root','next','fx','fy'].map(key=>key+' = '+(v[key]??'—')).join('　')},at);
+        for(let i=1;i<=5;i++){
+            const parent=frame.parents[i],root=parent===i,active=i===v.x||i===v.root,changed=i===frame.changed;
+            timeline.set('#value-'+i,{textContent:String(parent)},at);
+            timeline.to('#edge-'+i,{attr:{d:arrow(i,parent)},opacity:root?0:1,stroke:changed?'#784ab5':'#497eaa',duration:.22,ease:'power1.inOut'},at);
+            timeline.to('#node-'+i,{attr:{fill:changed?'#eee5fa':active?'#fff0cb':'#fff',stroke:root?'#087e6d':changed?'#784ab5':'#497eaa'},duration:.22},at);
+            timeline.to('#cell-'+i,{backgroundColor:changed?'#eee5fa':active?'#fff0cb':'#f7fafc',borderColor:changed?'#784ab5':root?'#087e6d':'#d8e4ec',duration:.22},at);
+        }
+        for(const line of ['init','walk','save','redirect','advance','return','merge'])timeline.set('#code-'+line,{backgroundColor:frame.line===line?'#dff1e9':'transparent',borderLeftColor:frame.line===line?'#087e6d':'transparent'},at);
+    });
+    window.__timelines=window.__timelines||{};window.__timelines.dsu=timeline;timeline.seek(.3).pause();controls();
+}
+function step(index){timeline.pause().seek(Math.max(0,Math.min(frames.length-1,index))*seconds+.3);controls();}
+play.addEventListener('click',()=>{if(timeline.paused()||timeline.time()>=duration){if(timeline.time()>=duration)timeline.seek(0);timeline.play();}else timeline.pause();controls();});
+$('#previous').addEventListener('click',()=>step(current-1));$('#next').addEventListener('click',()=>step(current+1));$('#restart').addEventListener('click',()=>step(0));$('#first-find').addEventListener('click',()=>step(trace.firstFind));$('#key-step').addEventListener('click',()=>step(trace.keyStep));$('#repeat-find').addEventListener('click',()=>step(trace.repeatFind));
+slider.addEventListener('input',()=>step(Number(slider.value)));speed.addEventListener('change',()=>timeline.timeScale(Number(speed.value)));$('#mode').addEventListener('change',create);document.addEventListener('visibilitychange',()=>{if(document.hidden){timeline.pause();controls();}});create();
+</script>
+</body>
+</html>

@@ -53,7 +53,9 @@ for (const file of sources) {
     const body = rendered?.split('<div class="article-content">')[1]?.split('<div class="completion">')[0] || '';
     if (!body.includes('AI 伴学提示词') || !body.includes('例题精讲') || !body.includes('推荐必做') || !body.includes('选做巩固') || !body.includes('本节验收')) errors.push(`Missing learning structure: ${slug}`);
     if (!rendered?.includes(`data-lesson="after-joining/${slug}"`)) errors.push(`Missing separate progress identity: ${slug}`);
-    if (/第\s*\d+\s*[—~～-]?\s*\d*\s*天|class="day-number"/.test(body)) errors.push(`Second-block lesson must not schedule study days: ${slug}`);
+    // Calendar days inside problem explanations (e.g. borrowing classrooms) are not study schedules.
+    const scheduleLabels = [...body.matchAll(/<(?:h[1-6]|span)[^>]*>([^<]*)</g)].map(match=>match[1]).join(' ');
+    if (/第\s*\d+\s*[—~～-]?\s*\d*\s*天|推荐天数|建议用时/.test(scheduleLabels) || body.includes('class="day-number"')) errors.push(`Second-block lesson must not schedule study days: ${slug}`);
   }
 }
 if (!html.get(path.join(root, 'index.html'))?.includes('写给刚入学的你')) errors.push('Missing home content');
@@ -81,7 +83,7 @@ for (const chapter of outlineChapters) {
   outlinePages.push(body);
   plannedSections += [...body.matchAll(/data-outline-section/g)].length;
   if (!source || !body.includes('章节与小节') || !body.includes('对应题单')) errors.push(`Missing chapter overview: ${chapter[1]}`);
-  const publishedChapter = ['binary-trees','sets-and-dsu'].includes(chapter[1]);
+  const publishedChapter = ['binary-trees','sets-and-dsu','graph-basics','prefix-difference-compression'].includes(chapter[1]);
   if (!search.some(item=>item.planned===!publishedChapter && item.url===url)) errors.push(`Incorrect chapter publication status in search: ${chapter[1]}`);
   if (!source.includes(`data-after-joining-chapter="${chapter[1]}" open`)) errors.push(`Current chapter must open in sidebar: ${chapter[1]}`);
   if (source.includes('id="complete-lesson"')) errors.push(`Planned chapter must not have completion control: ${chapter[1]}`);
@@ -98,7 +100,7 @@ const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
 const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
-if (joinedPublished.length !== 9 || published.length !== 34 || !outline.includes('0 / 34 节')) errors.push('Progress must include 25 original and 9 second-block lessons, but no outline placeholders');
+if (joinedPublished.length !== 18 || published.length !== 43 || !outline.includes('0 / 43 节')) errors.push('Progress must include 25 original and 18 second-block lessons, but no outline placeholders');
 if (!summary?.includes(`${base}/after-joining/`) || !html.get(path.join(root,'index.html'))?.includes('第二板块 · 入队后—寒假前')) errors.push('Missing entry from first block to second block');
 for (const [file,source] of html) {
   if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);

@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {values, buildTrace} from '../public/animations/binary-search/trace.mjs';
 import {buildTrace as buildDfsTrace} from '../public/animations/dfs-enumeration/trace.mjs';
 import {buildTrace as buildKnapsackTrace,presets as knapsackPresets} from '../public/animations/knapsack/trace.mjs';
+import {buildDsuTrace,seconds as dsuSeconds} from '../public/animations/dsu/trace.mjs';
 
 const trace = buildTrace(2);
 assert.deepEqual(trace.map(({le,r,ans,mid})=>[le,r,ans,mid]), [
@@ -159,3 +160,43 @@ assert.ok(bagHtml.includes('max="15"'));
 assert.ok(!/__MATRIX__|__ARRAY__|__SNAPSHOT__/.test(bagHtml));
 for(const mode of ['two','descending','ascending']) assert.ok(bagHtml.includes('data-mode="'+mode+'"'));
 console.log('Knapsack animation checks passed: 2 examples × 3 modes, subset oracles, provenance, loop order and the 3-versus-6 counterexample.');
+function dsuRoot(f,x){const seen=new Set();while(f[x]!==x){assert.ok(!seen.has(x),'parent cycle');seen.add(x);x=f[x];}return x;}
+function dsuPartition(f){return Array.from({length:5},(_,i)=>Array.from({length:5},(_,j)=>dsuRoot(f,i+1)===dsuRoot(f,j+1)));}
+for(const mode of ['full','compression']){
+    const t=buildDsuTrace(mode);
+    assert.deepEqual(t,buildDsuTrace(mode));
+    for(let i=0;i<t.frames.length;i++){
+        const f=t.frames[i],prev=t.frames[i-1];
+        assert.ok(f.parents.slice(1).every(p=>p>=1&&p<=5));
+        for(let x=1;x<=5;x++)dsuRoot(f.parents,x);
+        if(prev&&f.event!=='merge')assert.deepEqual(dsuPartition(f.parents),dsuPartition(prev.parents));
+        if(f.event==='merge'){
+            const {fx,fy}=f.vars;
+            assert.equal(prev.parents[fx],fx);assert.equal(prev.parents[fy],fy);
+            assert.equal(f.parents[fx],fy);
+            for(let x=1;x<=5;x++)if(x!==fx)assert.equal(f.parents[x],prev.parents[x]);
+        }
+        if(f.event==='save')assert.equal(f.vars.next,f.parents[f.vars.x]);
+        if(f.event==='redirect'){
+            assert.equal(prev.event,'save');assert.equal(f.vars.next,prev.vars.next);
+            assert.equal(f.parents[f.vars.x],f.vars.root);
+        }
+        if(f.event==='advance')assert.equal(f.vars.x,prev.vars.next);
+    }
+    assert.deepEqual(t.frames[t.firstFind].parents,[0,2,3,5,5,5]);
+    const key=t.frames[t.keyStep];
+    assert.equal(key.parents[1],5);assert.equal(key.vars.next,2);assert.equal(key.vars.x,1);
+    assert.equal(t.frames[t.keyStep+1].vars.x,2);
+    assert.equal(t.frames.slice(t.firstFind,t.repeatFind).filter(f=>f.event==='walk').length,3);
+    assert.equal(t.frames.slice(t.repeatFind).filter(f=>f.event==='walk').length,1);
+    assert.deepEqual(t.frames.at(-1).parents,[0,5,5,5,5,5]);
+    // Frames must not share a mutable parent array.
+    const saved=t.frames[0].parents[1];t.frames.at(-1).parents[1]=99;assert.equal(t.frames[0].parents[1],saved);
+}
+const dsuHtml=await readFile('public/animations/dsu/index.html','utf8');
+const fullDsu=buildDsuTrace('full');
+assert.ok(dsuHtml.includes('data-duration="'+Number((fullDsu.frames.length*dsuSeconds).toFixed(1))+'"'));
+assert.ok(dsuHtml.includes('max="'+(fullDsu.frames.length-1)+'"'));
+for(const id of ['play','previous','next','restart','first-find','key-step','repeat-find','slider','mode','speed'])assert.ok(dsuHtml.includes('id="'+id+'"'));
+assert.ok(dsuHtml.includes('window.__timelines.dsu=timeline'));
+console.log('DSU animation checks passed: immutable frames, root-only merges, unchanged partitions during compression, saved next pointer, and 3-versus-1 root walks.');

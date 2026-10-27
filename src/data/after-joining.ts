@@ -31,7 +31,8 @@ export const afterJoiningPhases: OutlinePhase[] = [
         training: [{ id: 115, title: '集合' }] },
       { id: 3, slug: 'graph-basics', title: '图的存储、遍历与拓扑排序',
         summary: '把对象和关系表示成点与边，将已经学过的搜索应用到图上。',
-        sections: ['有向图、无向图、边权与度数', '邻接矩阵、邻接表与链式前向星', '图上的 DFS、BFS 与连通块', '拓扑排序与依赖关系', '有向无环图上的路径与计数、欧拉路径初步'],
+        sections: ['有向图、无向图、边权与度数', '用 vector 存图：每个结点的邻居名单', '图上的 DFS、BFS 与连通块', '拓扑排序与依赖关系', '有向无环图上的路径与计数、欧拉路径初步'],
+        lessonSlugs: ['graph-concepts', 'graph-vector', 'graph-traversal', 'topological-sort', 'dag-paths'],
         training: [{ id: 116, title: '图的基本应用' }] }
     ]
   },
@@ -42,6 +43,7 @@ export const afterJoiningPhases: OutlinePhase[] = [
       { id: 4, slug: 'prefix-difference-compression', title: '前缀和、差分与离散化',
         summary: '把逐个处理转化为区间处理，并保留解题所需的相对关系。',
         sections: ['一维前缀和复习与二维前缀和', '一维、二维差分与区间修改', '离散化：排序、去重与编号映射', '前缀统计、差分与二分的综合应用'],
+        lessonSlugs: ['prefix-sums', 'difference-arrays', 'coordinate-compression', 'prefix-binary'],
         training: [{ id: 200, title: '前缀和、差分与离散化' }] },
       { id: 5, slug: 'linear-optimizations', title: '常见优化技巧',
         summary: '分析哪些选项可以被排除，用单调性维护有用的信息。',
