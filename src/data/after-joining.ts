@@ -48,6 +48,7 @@ export const afterJoiningPhases: OutlinePhase[] = [
       { id: 5, slug: 'linear-optimizations', title: '常见优化技巧',
         summary: '分析哪些选项可以被排除，用单调性维护有用的信息。',
         sections: ['双指针与滑动窗口', '计数、预处理与空间换时间', '单调栈：维护下一个更大或更小的元素', '单调队列：维护滑动窗口最值'],
+        lessonSlugs: ['two-pointers', 'counting-precomputation', 'monotonic-stack', 'monotonic-queue'],
         training: [{ id: 201, title: '常见优化技巧' }] },
       { id: 6, slug: 'divide-and-doubling', title: '分治与倍增',
         summary: '拆分同类子问题，或把多次操作组合成二的幂次跳跃。',
