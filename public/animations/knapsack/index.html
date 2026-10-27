@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>0/1 背包：二维转移与一维更新顺序</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7fafc;color:#25344a;font:14px/1.7 system-ui,sans-serif}button,select,input{font:inherit}button,select{border:1px solid #cbd7e2;border-radius:7px;background:#fff;color:#334155;padding:7px 11px}button{cursor:pointer}button:hover{background:#edf5f7}button:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #74b6ee;outline-offset:3px}[hidden]{display:none!important}h1,h2,p{margin:0}h1{font-size:25px;line-height:1.45;color:#152b3e;letter-spacing:-.5px}h2{font-size:14px;margin-bottom:10px;color:#213b50}.eyebrow{color:#087c6b;font-size:11px;letter-spacing:1px;font-weight:700;margin-bottom:6px}.intro{margin:9px 0 15px;color:#52647a}#demo{padding:20px;max-width:900px;margin:0 auto}.setup{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 10px}.setup label{color:#52647a;font-size:12px}.modes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.modes button{font-size:12px}.modes button[aria-pressed=true]{background:#e4f3ed;border-color:#087e6d;color:#086455;font-weight:700}.modes button[data-mode=ascending][aria-pressed=true]{background:#fff0ec;border-color:#b94835;color:#a83224}.controls{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.controls button{font-size:12px;padding:6px 10px}.controls label{font-size:12px;color:#52647a;margin-left:auto}.controls select{padding:4px 6px}.scrub{display:flex;align-items:center;gap:9px;font-size:12px;margin:10px 0}input[type=range]{min-width:50px;flex:1;accent-color:#087e6d}.scrub output{min-width:60px;text-align:right;color:#52647a}.variables{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 8px}.variables span{padding:3px 9px;border-radius:5px;background:#e9eff5;font-size:12px}#phase{font-weight:700;color:#087565}#note{padding:11px 13px;border-left:3px solid #087e6d;background:#edf7f2;min-height:72px;margin-bottom:12px;font-size:13px}.workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}.panel{padding:14px;border:1px solid #dce5ed;border-radius:10px;background:#fff;min-width:0}.column{display:flex;flex-direction:column;gap:12px}.items{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.item{border:1px solid #dce5ed;background:#f7fafc;border-radius:5px;padding:3px 8px;font-size:11px}.item.active{border-color:#087e6d;background:#e9f5ef;color:#086455;font-weight:700}.matrix,.array,.snapshot{display:grid;grid-template-columns:minmax(62px,1.35fr) repeat(5,minmax(34px,1fr));gap:4px}.matrix{margin-bottom:8px}.cell,.cell-head,.row-label{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:55px;border-radius:6px;font-size:12px;text-align:center}.cell{border:2px solid #dde5ed;background:#fff;color:#334155}.cell b{font-size:20px;line-height:1.3}.cell small{font-size:9px;line-height:1.4;white-space:nowrap}.cell-head{min-height:25px;font-size:10px;color:#54647a}.row-label{align-items:flex-start;font-size:10px;text-align:left;color:#54647a;line-height:1.5;padding-left:3px}.snapshot{margin-bottom:12px}.snapshot .cell{min-height:36px;border-width:1px;background:#f3f6f9}.snapshot .cell b{font-size:15px}.snapshot .cell-head{min-height:20px}.snapshot-label{font-size:11px;color:#52647a;margin-bottom:5px}.legend{margin:10px 0 0;font-size:11px;color:#52647a}.legend strong{display:inline-block;margin-right:8px}.legend .purple{color:#6d43b3}.legend .amber{color:#985c00}.legend .blue{color:#216aac}.legend .red{color:#ad3728}.explain{font-size:11px;color:#52647a;margin-top:9px}#read-status{padding:7px 10px;border:1px solid #dce5ed;border-radius:6px;margin:10px 0;font-size:12px;font-weight:650;min-height:40px}.choice{border:1px solid #dce5ed;border-radius:7px;padding:9px 11px;margin:8px 0;font-size:12px}.choice strong{font-size:11px;display:block;margin-bottom:3px}.choice span{display:block}.choice.skip{border-left:3px solid #3276b3}.choice.take{border-left:3px solid #b47c17}#decision{font-size:15px;font-weight:750;color:#096b5c;margin:12px 0 6px}#selection{font-size:12px;min-height:42px}pre{font:11px/1.9 ui-monospace,monospace;white-space:pre;overflow-x:auto;margin:0;padding:6px 0;border-radius:5px;background:#f7f9fb;color:#334155}pre span{display:block;min-height:21px;padding:0 6px;border-left:3px solid transparent}.code-help{font-size:11px;color:#52647a;margin-top:10px}.result-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:13px 0 6px}.result{padding:8px;border:1px solid #dce5ed;border-radius:7px;text-align:center;font-size:11px;background:#fff}.result b{font-size:21px;display:block;color:#087565}.result:last-child b{color:#ad3728}.result-note{font-size:11px;color:#52647a}.track{height:4px;border-radius:3px;background:#dce5ed;margin-top:15px;overflow:hidden}#progress{height:100%;width:100%;background:#087e6d;transform-origin:left center}.help{font-size:11px;color:#52647a;margin-top:12px}@media(max-width:600px){#demo{padding:13px}h1{font-size:22px}.workspace{grid-template-columns:1fr}.controls label{margin-left:0}.cell{min-height:54px}.modes button{padding:7px 9px}.panel{padding:11px}.intro{font-size:13px}.variables{gap:5px}.result{padding:7px 4px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+@media(max-width:600px){.cell small{font-size:10px;line-height:1.3;white-space:normal;max-width:100%;overflow-wrap:anywhere}}
+</style>
+</head>
+<body>
+<div data-composition-id="knapsack" data-width="900" data-height="1220" data-duration="24">
+<section id="knapsack-scene" class="clip" data-start="0" data-duration="24" data-track-index="0" data-track-kind="graphics">
+<div id="demo">
+<p class="eyebrow">0/1 背包 · 对照状态与代码</p>
+<h1>为什么压成一维后，容量要倒着更新？</h1>
+<p class="intro">先看一株药：耗时 2、价值 3，总时间 4。切换三种写法，观察程序从哪里读取、把同一株算了几次。</p>
+<div class="setup"><label>例子 <select id="example" aria-label="选择背包例子"><option value="single">单株反例 · 看 3 与 6</option><option value="lesson">教程三株药 · 追踪每一轮</option></select></label></div>
+<div class="modes" role="group" aria-label="选择背包实现">
+<button type="button" data-mode="two" aria-pressed="true">二维 · 读取上一行</button>
+<button type="button" data-mode="descending" aria-pressed="false">一维倒序 · 每株最多一次</button>
+<button type="button" data-mode="ascending" aria-pressed="false">一维正序 · 观察重复</button>
+</div>
+<div class="controls"><button type="button" id="play">播放</button><button type="button" id="previous">上一步</button><button type="button" id="next">下一步</button><button type="button" id="key-step">跳到关键转移 j=4</button><button type="button" id="restart">重来</button><label>速度 <select id="speed" aria-label="播放速度"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>
+<label class="scrub">步骤 <input type="range" id="step" aria-label="背包动画步骤" min="0" max="15" step="1" value="0"><output id="step-count">1 / 16</output></label>
+<div class="variables"><strong id="phase">初始状态</strong><span id="current-item">尚未处理物品</span><span id="current-j">j = —</span></div>
+<p id="note">容量表示“至多使用”，允许不选。初始没有物品，每个容量上限的最优价值都是 0。</p>
+<div class="workspace"><div class="column">
+<div class="panel"><h2 id="state-title">二维表：行是物品阶段，列是容量上限</h2><div class="items"><span id="item-1" class="item">A · 耗时 2 / 价值 3</span><span id="item-2" class="item" hidden>B · 耗时 2 / 价值 3</span><span id="item-3" class="item" hidden>C · 耗时 2 / 价值 3</span></div>
+<div id="matrix-view"><div class="matrix"><div class="cell-head">阶段 / j</div><div class="cell-head">0</div><div class="cell-head">1</div><div class="cell-head">2</div><div class="cell-head">3</div><div class="cell-head">4</div><div class="row-label" data-row="0">第 0 行<br>没有物品</div><div class="cell" id="mc-0-0" data-row="0"><b id="mv-0-0">0</b><small id="mt-0-0">初始</small></div><div class="cell" id="mc-0-1" data-row="0"><b id="mv-0-1">0</b><small id="mt-0-1">初始</small></div><div class="cell" id="mc-0-2" data-row="0"><b id="mv-0-2">0</b><small id="mt-0-2">初始</small></div><div class="cell" id="mc-0-3" data-row="0"><b id="mv-0-3">0</b><small id="mt-0-3">初始</small></div><div class="cell" id="mc-0-4" data-row="0"><b id="mv-0-4">0</b><small id="mt-0-4">初始</small></div><div class="row-label" data-row="1">第 1 行<br>前 1 株</div><div class="cell" id="mc-1-0" data-row="1"><b id="mv-1-0">—</b><small id="mt-1-0">待计算</small></div><div class="cell" id="mc-1-1" data-row="1"><b id="mv-1-1">—</b><small id="mt-1-1">待计算</small></div><div class="cell" id="mc-1-2" data-row="1"><b id="mv-1-2">—</b><small id="mt-1-2">待计算</small></div><div class="cell" id="mc-1-3" data-row="1"><b id="mv-1-3">—</b><small id="mt-1-3">待计算</small></div><div class="cell" id="mc-1-4" data-row="1"><b id="mv-1-4">—</b><small id="mt-1-4">待计算</small></div><div class="row-label" data-row="2">第 2 行<br>前 2 株</div><div class="cell" id="mc-2-0" data-row="2"><b id="mv-2-0">—</b><small id="mt-2-0">待计算</small></div><div class="cell" id="mc-2-1" data-row="2"><b id="mv-2-1">—</b><small id="mt-2-1">待计算</small></div><div class="cell" id="mc-2-2" data-row="2"><b id="mv-2-2">—</b><small id="mt-2-2">待计算</small></div><div class="cell" id="mc-2-3" data-row="2"><b id="mv-2-3">—</b><small id="mt-2-3">待计算</small></div><div class="cell" id="mc-2-4" data-row="2"><b id="mv-2-4">—</b><small id="mt-2-4">待计算</small></div><div class="row-label" data-row="3">第 3 行<br>前 3 株</div><div class="cell" id="mc-3-0" data-row="3"><b id="mv-3-0">—</b><small id="mt-3-0">待计算</small></div><div class="cell" id="mc-3-1" data-row="3"><b id="mv-3-1">—</b><small id="mt-3-1">待计算</small></div><div class="cell" id="mc-3-2" data-row="3"><b id="mv-3-2">—</b><small id="mt-3-2">待计算</small></div><div class="cell" id="mc-3-3" data-row="3"><b id="mv-3-3">—</b><small id="mt-3-3">待计算</small></div><div class="cell" id="mc-3-4" data-row="3"><b id="mv-3-4">—</b><small id="mt-3-4">待计算</small></div></div></div>
+<div id="array-view" hidden><p class="snapshot-label">本株开始前的快照 · 只作对照，代码不读取这份副本</p><div class="snapshot"><div class="row-label">上一轮</div><div class="cell"><b id="sv-0">0</b></div><div class="cell"><b id="sv-1">0</b></div><div class="cell"><b id="sv-2">0</b></div><div class="cell"><b id="sv-3">0</b></div><div class="cell"><b id="sv-4">0</b></div></div><div class="array"><div class="cell-head">阶段 / j</div><div class="cell-head">0</div><div class="cell-head">1</div><div class="cell-head">2</div><div class="cell-head">3</div><div class="cell-head">4</div><div class="row-label">数组 f[j]</div><div class="cell" id="ac-0"><b id="av-0">0</b><small id="at-0">上一轮</small></div><div class="cell" id="ac-1"><b id="av-1">0</b><small id="at-1">上一轮</small></div><div class="cell" id="ac-2"><b id="av-2">0</b><small id="at-2">上一轮</small></div><div class="cell" id="ac-3"><b id="av-3">0</b><small id="at-3">上一轮</small></div><div class="cell" id="ac-4"><b id="av-4">0</b><small id="at-4">上一轮</small></div></div></div>
+<p class="legend"><strong class="purple">紫框：当前目标</strong><strong class="blue">蓝色：不选来源</strong><strong class="amber">橙色：选取来源</strong><strong class="red">红色：读取本轮结果</strong></p><p class="explain" id="stage-help">空白格还没有计算。第 i 行只读取第 i−1 行；同一行按列正序计算是正确的。</p>
+</div>
+<div class="panel"><h2>把读取、比较与写入连起来</h2><p id="read-status">先选择一个状态，或点击“跳到关键转移”。</p><div class="choice skip"><strong>不选当前这一株</strong><span id="skip-value">—</span></div><div class="choice take" id="take-card"><strong>选当前这一株：旧价值 + 本株价值</strong><span id="take-value">—</span></div><p id="decision">等待计算</p><p id="selection">每株最多使用一次，才是本题要求的 0/1 背包。</p></div>
+</div><div class="column"><div class="panel"><h2>代码正在实现哪一步</h2><pre aria-label="与背包转移对应的代码"><code><span id="code-item">for (int i = 1; i &lt;= m; i++) {</span><span id="code-input">    // w[i]、v[i] 是当前药的耗时与价值</span><span id="code-loop">    for (int j = 0; j &lt;= T; j++) {</span><span id="code-copy">        f[i][j] = f[i - 1][j];</span><span id="code-if">        if (j &gt;= w[i]) {</span><span id="code-update">            f[i][j] = max(f[i][j],
+                f[i - 1][j - w[i]] + v[i]);</span><span id="code-if-close">        }</span><span>    }</span><span>}</span></code></pre><p class="code-help" id="code-help">关键是右侧的 i−1：读取上一行，当前药没有被包含在来源状态里。</p></div>
+<div class="panel"><h2>相同输入，完成后的数值</h2><div class="result-row"><div class="result">二维<b id="result-two">3</b></div><div class="result">一维倒序<b id="result-descending">3</b></div><div class="result">一维正序<b id="result-ascending">6</b></div></div><p class="result-note" id="result-note">只有一株 A，正序的 6 对应 A×2，已经重复使用。看来源属于哪一轮，比只看数值更重要。</p></div>
+</div></div>
+<p class="help">建议先逐步看二维，再切到倒序和正序，各点一次“关键转移”。绿色的“本轮”标记表示该容量已经写过；灰色表示仍保留上一轮。三株药模式也可以沿滑块追踪后续物品。</p><div class="track"><div id="progress"></div></div>
+</div></section></div>
+<script src="assets/gsap.min.js"></script>
+<script type="module">
+import {buildTrace,pickDescription} from './trace.mjs';
+const gsap=window.gsap,seconds=1.5;
+const modes=[...document.querySelectorAll('button[data-mode]')];
+const slider=document.querySelector('#step'),play=document.querySelector('#play'),speed=document.querySelector('#speed');
+let mode='two',preset='single',timeline,frames,config,keyStep,current=0,duration;
+const phaseNames={init:'初始状态',prepare:'开始新的一株',copy:'先保留不选的结果',read:'读取来源并比较',write:'写入当前结果',done:'本次计算完成'};
+function controls(){
+    current=Math.min(frames.length-1,Math.floor(timeline.time()/seconds));
+    slider.value=String(current);document.querySelector('#step-count').textContent=(current+1)+' / '+frames.length;
+    document.querySelector('#previous').disabled=current===0;document.querySelector('#next').disabled=current===frames.length-1;
+    play.textContent=timeline.paused() || timeline.time()>=duration ? '播放' : '暂停';
+}
+function create(){
+    timeline?.kill();
+    ({frames,config,keyStep}=buildTrace(preset,mode));duration=frames.length*seconds;
+    slider.max=String(frames.length-1);
+    document.querySelector('#matrix-view').hidden=mode!=='two';document.querySelector('#array-view').hidden=mode==='two';
+    document.querySelector('#state-title').textContent=mode==='two' ? '二维表：行是物品阶段，列是容量上限' : '同一个数组：哪些格子已经在本轮写过？';
+    document.querySelector('#stage-help').textContent=mode==='two' ? '空白格还没有计算。第 i 行只读取第 i−1 行；同一行按列正序计算是正确的。' : '绿色格子是本轮已写，灰色仍是上一轮。倒序会先读到较小容量的旧值；正序可能读到本轮的新值。';
+    for(let i=1;i<=3;i++){
+        const item=config.items[i-1];document.querySelector('#item-'+i).hidden=!item;
+        if(item) document.querySelector('#item-'+i).textContent=item.name+' · 耗时 '+item.weight+' / 价值 '+item.value;
+    }
+    for(let r=0;r<=3;r++) for(const cell of document.querySelectorAll('[data-row="'+r+'"]')) cell.hidden=r>config.items.length;
+    document.querySelector('#code-input').textContent=mode==='two' ? '    // w[i]、v[i] 是当前药的耗时与价值' : '    int w, v; cin >> w >> v;';
+    document.querySelector('#code-loop').textContent=mode==='two' ? '    for (int j = 0; j <= T; j++) {' : mode==='descending' ? '    for (int j = T; j >= w; j--) {' : '    for (int j = w; j <= T; j++) {';
+    for(const name of ['copy','if','if-close']) document.querySelector('#code-'+name).hidden=mode!=='two';
+    document.querySelector('#code-update').textContent=mode==='two' ? '            f[i][j] = max(f[i][j],\n                f[i - 1][j - w[i]] + v[i]);' : '        f[j] = max(f[j], f[j - w] + v);';
+    document.querySelector('#code-help').textContent=mode==='two' ? '关键是右侧的 i−1：读取上一行，当前药没有被包含在来源状态里。' : mode==='descending' ? 'j−w 比 j 小。倒序更新时，这个较小容量尚未在本轮改写，所以读取的是上一轮。' : 'j−w 比 j 小。正序更新时，这个格子可能已经使用当前药，再加一次就会重复。';
+    for(const name of ['two','descending','ascending']) document.querySelector('#result-'+name).textContent=String(buildTrace(preset,name).result);
+    document.querySelector('#result-note').textContent=preset==='single' ? '只有一株 A，正序的 6 对应 A×2，已经重复使用。看来源属于哪一轮，比只看数值更重要。' : '本例最终数值碰巧相同，但正序中途已经重复选药。切换“单株反例”能清楚看到 3 与 6 的差别。';
+    timeline=gsap.timeline({paused:true,onUpdate:controls,onComplete:controls});timeline.timeScale(Number(speed.value));
+    gsap.set('#progress',{scaleX:0});timeline.to('#progress',{scaleX:1,duration,ease:'none'},0);
+    frames.forEach((frame,index)=>{
+        const at=index*seconds,item=config.items[frame.i-1],col=frame.j;
+        timeline.set('#demo',{attr:{'data-mode':mode,'data-example':preset,'data-step':index}},at);
+        timeline.set('#phase',{textContent:phaseNames[frame.event]},at);
+        timeline.set('#current-item',{textContent:item ? '第 '+frame.i+' 株 '+item.name+' · w='+item.weight+' / v='+item.value : '尚未处理物品'},at);
+        timeline.set('#current-j',{textContent:'j = '+(col ?? '—')},at);
+        timeline.set('#note',{textContent:frame.note,backgroundColor:frame.reused ? '#fff0ec' : '#edf7f2',borderLeftColor:frame.reused ? '#b63c2b' : '#087e6d'},at);
+        for(let i=1;i<=3;i++) timeline.set('#item-'+i,{backgroundColor:i===frame.i ? '#e5f4ec' : '#f7fafc',borderColor:i===frame.i ? '#087e6d' : '#dce5ed'},at);
+        for(let r=0;r<=3;r++) for(let c=0;c<=4;c++){
+            const val=frame.matrix[r]?.[c],target=mode==='two' && frame.i===r && col===c;
+            const skip=mode==='two' && frame.notake && r===frame.i-1 && c===col;
+            const source=mode==='two' && frame.source && r===frame.source.row && c===frame.source.col;
+            timeline.set('#mv-'+r+'-'+c,{textContent:val===null || val===undefined ? '—' : String(val)},at);
+            timeline.set('#mt-'+r+'-'+c,{textContent:target ? '当前目标' : skip ? '不选来源' : source ? '选取来源' : r===0 ? '初始' : val===null || val===undefined ? '待计算' : '已计算'},at);
+            timeline.to('#mc-'+r+'-'+c,{borderColor:target ? '#784ab5' : source ? '#ad7518' : skip ? '#3276b3' : '#dde5ed',backgroundColor:target ? '#f1ebfa' : source ? '#fff1d7' : skip ? '#e9f3fc' : val===null ? '#fff' : '#f1f6f9',duration:.18},at);
+        }
+        for(let c=0;c<=4;c++){
+            const target=mode!=='two' && col===c,source=mode!=='two' && frame.source?.col===c;
+            const bad=source && frame.source.stage==='current';
+            timeline.set('#av-'+c,{textContent:String(frame.values[c])},at);
+            timeline.set('#at-'+c,{textContent:(frame.updated[c] ? '本轮' : '上一轮')+(target ? ' · 目标' : source ? ' · 来源' : '')},at);
+            timeline.set('#sv-'+c,{textContent:String(frame.before[c])},at);
+            timeline.to('#ac-'+c,{backgroundColor:bad ? '#ffe5dd' : source ? '#fff1d7' : frame.updated[c] ? '#e7f3ed' : '#f1f4f8',borderColor:target ? '#784ab5' : bad ? '#b63c2b' : source ? '#ad7518' : '#dde5ed',duration:.18},at);
+        }
+        const source=frame.source,ref=source ? (mode==='two' ? 'f['+source.row+']['+source.col+']' : 'f['+source.col+']') : '';
+        const wrongStage=source?.stage==='current';
+        timeline.set('#read-status',{textContent:source ? '读取 '+ref+' = '+source.value+'（'+(wrongStage ? '本轮已更新' : mode==='two' ? '上一行' : '上一轮')+'）' : frame.event==='done' ? '计算结束，回看每次读取的来源。' : '先保留不选结果，再检查能否选当前药。',color:wrongStage ? '#a83224' : '#375066',backgroundColor:wrongStage ? '#fff0ec' : '#f4f8fb'},at);
+        timeline.set('#skip-value',{textContent:frame.notake ? (mode==='two' ? 'f['+(frame.i-1)+']['+col+']' : '原 f['+col+']')+' = '+frame.notake.value : '—'},at);
+        timeline.set('#take-value',{textContent:frame.take ? ref+' + '+item.value+' = '+source.value+' + '+item.value+' = '+frame.take.value : col!==null && item && col<item.weight ? '容量不足，不能选这一株。' : '—'},at);
+        timeline.set('#take-card',{borderLeftColor:wrongStage ? '#b63c2b' : '#b47c17',backgroundColor:wrongStage ? '#fff5f1' : '#fff'},at);
+        timeline.set('#decision',{textContent:frame.result!==null ? (frame.event==='done' ? '最终结果：' : 'max 比较结果：')+frame.result : frame.notake ? '暂存不选结果：'+frame.notake.value : '等待计算',color:frame.reused ? '#ad3728' : '#096b5c'},at);
+        timeline.set('#selection',{textContent:frame.resultPicks ? '对应选法：'+pickDescription(frame.resultPicks,config.items)+(frame.reused ? '。同一株超过一次，违反 0/1 限制。' : '。每株没有超过一次。') : '这里保存最优价值；选法标记用来帮助你检查是否重复使用。'},at);
+        for(const line of ['item','copy','update']) timeline.set('#code-'+line,{backgroundColor:frame.line===line ? '#e2f2e9' : '#f7f9fb',borderLeftColor:frame.line===line ? '#087e6d' : 'transparent'},at);
+        timeline.set('#code-loop',{backgroundColor:mode==='ascending' ? '#fff0ec' : '#eef3f8',color:mode==='ascending' ? '#a83224' : '#334155'},at);
+    });
+    window.__timelines=window.__timelines || {};window.__timelines.knapsack=timeline;
+    timeline.seek(.01).pause();controls();
+}
+function step(index){timeline.pause();timeline.seek(Math.max(0,Math.min(frames.length-1,index))*seconds+.3);controls();}
+play.addEventListener('click',()=>{if(timeline.paused() || timeline.time()>=duration){if(timeline.time()>=duration)timeline.seek(0);timeline.play();}else timeline.pause();controls();});
+document.querySelector('#previous').addEventListener('click',()=>step(current-1));document.querySelector('#next').addEventListener('click',()=>step(current+1));document.querySelector('#restart').addEventListener('click',()=>step(0));document.querySelector('#key-step').addEventListener('click',()=>step(keyStep));
+slider.addEventListener('input',()=>step(Number(slider.value)));speed.addEventListener('change',()=>timeline.timeScale(Number(speed.value)));
+modes.forEach(button=>button.addEventListener('click',()=>{mode=button.dataset.mode;modes.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));create();}));
+document.querySelector('#example').addEventListener('change',event=>{preset=event.target.value;create();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){timeline.pause();controls();}});
+create();
+</script>
+</body>
+</html>

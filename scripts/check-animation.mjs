@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {values, buildTrace} from '../public/animations/binary-search/trace.mjs';
 import {buildTrace as buildDfsTrace} from '../public/animations/dfs-enumeration/trace.mjs';
+import {buildTrace as buildKnapsackTrace,presets as knapsackPresets} from '../public/animations/knapsack/trace.mjs';
 
 const trace = buildTrace(2);
 assert.deepEqual(trace.map(({le,r,ans,mid})=>[le,r,ans,mid]), [
@@ -84,3 +85,77 @@ assert.ok(dfsHtml.includes('max="38"'));
 assert.equal(buildDfsTrace('two').frames.length,39);
 for(const mode of ['two','three','queens']) assert.ok(dfsHtml.includes('data-mode="'+mode+'"'));
 console.log('DFS animation checks passed: 3 modes, complete enumeration, sound pruning, local loop variables and returns.');
+
+// Enumerate subsets independently of the displayed DP recurrence.
+function subsetBest(items,capacity) {
+    let best=0;
+    for(let mask=0;mask<2**items.length;mask++) {
+        let weight=0,value=0;
+        items.forEach((item,index)=>{if(mask & (1<<index)){weight+=item.weight;value+=item.value;}});
+        if(weight<=capacity) best=Math.max(best,value);
+    }
+    return best;
+}
+for(const preset of Object.keys(knapsackPresets)) for(const mode of ['two','descending','ascending']) {
+    const trace=buildKnapsackTrace(preset,mode),{items,capacity}=trace.config;
+    let written=new Set();
+    for(const frame of trace.frames) {
+        if(frame.event==='prepare') written=new Set();
+        if(frame.event==='read') {
+            const {source,take,notake}=frame;
+            assert.equal(source.col,frame.j-items[frame.i-1].weight);
+            assert.ok(source.col>=0 && source.col<=capacity);
+            assert.equal(source.counts.reduce((sum,count,i)=>sum+count*items[i].value,0),source.value);
+            assert.ok(source.counts.reduce((sum,count,i)=>sum+count*items[i].weight,0)<=source.col);
+            assert.equal(take.value,source.value+items[frame.i-1].value);
+            assert.equal(take.counts[frame.i-1],source.counts[frame.i-1]+1);
+            assert.equal(frame.result,Math.max(notake.value,take.value));
+            if(mode==='two') {
+                assert.equal(source.row,frame.i-1);
+                assert.equal(source.stage,'previous');
+                assert.equal(source.value,frame.matrix[frame.i-1][source.col]);
+                assert.equal(source.counts[frame.i-1],0);
+                assert.equal(frame.matrix[frame.i][frame.j],notake.value);
+            } else {
+                assert.equal(source.stage,written.has(source.col) ? 'current' : 'previous');
+                assert.equal(source.value,frame.values[source.col]);
+                assert.deepEqual(source.counts,frame.picks[source.col]);
+                if(mode==='descending') assert.equal(source.stage,'previous');
+            }
+        }
+        if(frame.event==='write') {
+            const counts=frame.resultPicks;
+            assert.equal(counts.reduce((sum,count,i)=>sum+count*items[i].value,0),frame.result);
+            assert.ok(counts.reduce((sum,count,i)=>sum+count*items[i].weight,0)<=frame.j);
+            if(mode!=='ascending') {
+                assert.ok(counts.every(count=>count<=1));
+                assert.equal(frame.result,subsetBest(items.slice(0,frame.i),frame.j));
+            }
+            if(mode!=='two') written.add(frame.j);
+        }
+    }
+    for(let i=1;i<=items.length;i++) {
+        const order=trace.frames.filter(f=>f.event==='write' && f.i===i).map(f=>f.j);
+        const expected=mode==='two' ? [0,1,2,3,4] : Array.from({length:capacity-items[i-1].weight+1},(_,k)=>mode==='descending' ? capacity-k : items[i-1].weight+k);
+        assert.deepEqual(order,expected);
+    }
+    if(mode!=='ascending') assert.equal(trace.result,subsetBest(items,capacity));
+    const key=trace.frames[trace.keyStep];
+    assert.equal(key.i,1);assert.equal(key.j,capacity);assert.equal(key.event,'read');
+}
+const singleTwo=buildKnapsackTrace('single','two');
+const singleDown=buildKnapsackTrace('single','descending');
+const singleUp=buildKnapsackTrace('single','ascending');
+assert.deepEqual([singleTwo.result,singleDown.result,singleUp.result],[3,3,6]);
+assert.equal(singleTwo.frames.length,16);
+assert.equal(singleDown.frames[singleDown.keyStep].source.value,0);
+assert.equal(singleUp.frames[singleUp.keyStep].source.value,3);
+assert.deepEqual(singleUp.frames[singleUp.keyStep].take.counts,[2]);
+assert.equal(singleUp.frames[singleUp.keyStep].reused,true);
+assert.deepEqual(buildKnapsackTrace('single','two').frames,singleTwo.frames);
+const bagHtml=await readFile('public/animations/knapsack/index.html','utf8');
+assert.ok(bagHtml.includes('data-duration="24"'));
+assert.ok(bagHtml.includes('max="15"'));
+assert.ok(!/__MATRIX__|__ARRAY__|__SNAPSHOT__/.test(bagHtml));
+for(const mode of ['two','descending','ascending']) assert.ok(bagHtml.includes('data-mode="'+mode+'"'));
+console.log('Knapsack animation checks passed: 2 examples × 3 modes, subset oracles, provenance, loop order and the 3-versus-6 counterexample.');

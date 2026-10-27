@@ -49,6 +49,9 @@ for (const file of sources) {
   if (!entry?.text.trim() || !rendered?.includes('<h2') || rendered.includes('这节课还在准备中')) errors.push(`Missing published lesson content: ${slug}`);
 }
 if (!html.get(path.join(root, 'index.html'))?.includes('写给刚入学的你')) errors.push('Missing home content');
+const summary=html.get(path.join(root,'summary','index.html'));
+if(!summary?.includes('恭喜你，完成了 31 天的学习') || !summary.includes('选择想巩固的部分')) errors.push('Missing graduation summary and practice guidance');
+if(!search.some(item=>item.url===`${base}/summary/`)) errors.push('Summary page is missing from search');
 // Every day must occur once, including both backpack days and the shifted game lesson.
 const roadmap = html.get(path.join(root, 'roadmap', 'index.html')) || '';
 const scheduled = [...roadmap.matchAll(/class="day-row">\s*<span class="day">DAY (\d+)<\/span>\s*<a href="([^"]+)"/g)];

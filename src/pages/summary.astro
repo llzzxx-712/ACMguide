@@ -1,0 +1,42 @@
+---
+import Docs from '../layouts/Docs.astro';
+import { href } from '../data/course';
+const headings = [
+  { depth: 2, slug: 'review', text: '这 31 天，我们学会了什么' },
+  { depth: 2, slug: 'practice', text: '选择想巩固的部分，继续练习' },
+  { depth: 2, slug: 'keep-going', text: '带着自己的思路，继续写题' }
+];
+---
+<Docs title="结语 · 恭喜完成 31 天的学习" description="回顾已经学过的知识，选择想巩固的题单，继续练习与进步。" section="结语" headings={headings}>
+  <p class="lead"><strong>恭喜你，完成了 31 天的学习！</strong></p>
+  <p>从第一天安装编辑器，到运行第一个 Hello, World!，再到自己分析题意、设计算法、写代码和调试，你已经走过了算法竞赛入门的一整条路线。现在，程序中的循环、数组、递归和状态，都有了具体的用途：把你想到的解题过程一步步实现出来。</p>
+
+  <h2 id="review">这 31 天，我们学会了什么</h2>
+  <table><thead><tr><th>知识部分</th><th>已经掌握的工具与思路</th></tr></thead><tbody>
+    <tr><td>语言基础</td><td>输入输出、变量、分支、循环、数组、字符与字符串、函数和结构体。能把一个计算流程组织成可运行的 C++ 程序。</td></tr>
+    <tr><td>基础算法</td><td>按规则模拟，用 sort 整理顺序，暴力枚举候选；用递推、前缀和、贪心与二分减少重复计算和尝试次数，并根据数据规模估算能否通过。</td></tr>
+    <tr><td>数据结构与搜索</td><td>用栈、队列安排数据的处理顺序，用 DFS 递归枚举选择，用 BFS 按层扩展状态，理解标记、回溯和边界。</td></tr>
+    <tr><td>基础数学</td><td>整除、质数、筛法、质因数分解、gcd、lcm、进制、取模、快速幂与计数。能利用数学关系缩小枚举或组织计算。</td></tr>
+    <tr><td>动态规划与博弈</td><td>定义状态，推导转移、边界和计算顺序；通过记忆化、线性 DP、网格与背包保存小问题的答案；从必胜态、必败态推导取石子策略。</td></tr>
+  </tbody></table>
+  <div class="callout"><strong>代码是思路的实现。</strong><p>继续写题时，先说清楚要怎样解决问题：枚举什么、记录什么、怎样更新、什么时候结束。再让变量、判断、循环和函数去完成这些步骤。遇到错误，就拿手算过程与程序逐步对照。</p></div>
+
+  <h2 id="practice">选择想巩固的部分，继续练习</h2>
+  <p>如果希望进一步巩固自己的知识，可以到洛谷对应题单中，选择自己想要加强的部分，继续做题练习。比如数组边界还容易写错，就回到数组题；递归的调用与返回还不熟，就继续练搜索；背包状态仍然容易混淆，就手填小表后再独立实现。</p>
+  <table><thead><tr><th>想巩固什么</th><th>可以继续选择的题单</th></tr></thead><tbody>
+    <tr><td>语言基础</td><td><a href="https://www.luogu.com.cn/training/100">顺序结构</a>、<a href="https://www.luogu.com.cn/training/101">分支结构</a>、<a href="https://www.luogu.com.cn/training/102">循环结构</a>、<a href="https://www.luogu.com.cn/training/103">数组</a>、<a href="https://www.luogu.com.cn/training/104">字符串</a>、<a href="https://www.luogu.com.cn/training/105">函数与结构体</a></td></tr>
+    <tr><td>模拟、排序与枚举</td><td><a href="https://www.luogu.com.cn/training/106">模拟</a>、<a href="https://www.luogu.com.cn/training/107">排序</a>、<a href="https://www.luogu.com.cn/training/108">暴力枚举</a></td></tr>
+    <tr><td>递推、递归与贪心</td><td><a href="https://www.luogu.com.cn/training/109">递推与递归</a>、<a href="https://www.luogu.com.cn/training/110">贪心</a></td></tr>
+    <tr><td>二分</td><td><a href="https://www.luogu.com.cn/training/111">二分查找与二分答案</a></td></tr>
+    <tr><td>栈、队列与搜索</td><td><a href="https://www.luogu.com.cn/training/113">线性表</a>、<a href="https://www.luogu.com.cn/training/112">搜索</a></td></tr>
+    <tr><td>基础数学</td><td><a href="https://www.luogu.com.cn/training/117">基础数学问题</a></td></tr>
+    <tr><td>动态规划与综合运用</td><td><a href="https://www.luogu.com.cn/training/1126196">自编入门题单</a>，也可以继续完成各节尚未尝试的选做题。</td></tr>
+    <tr><td>简单博弈</td><td>回到<a href={href('learn/games/')}>第九章的例题与练习</a>，改变游戏规则、手算小局面，再推导策略。</td></tr>
+  </tbody></table>
+  <p>每次选一个明确的目标，独立完成几道同类题，再整理自己出错的地方。隔几天重新做一次，看看能否从读题开始，自己写出思路与完整程序。</p>
+
+  <h2 id="keep-going">带着自己的思路，继续写题</h2>
+  <p>遇到不会的题，先用小数据试一试，画表、枚举或追踪变量的变化。需要帮助时，可以把题目、自己的思路和卡住的位置交给 AI，或者向群里的学长学姐提问，再自己完成修改和验证。</p>
+  <p>接下来，就带着这 31 天积累的工具，去做下一道题吧。祝你在招新赛中发挥顺利，欢迎走进算法竞赛！</p>
+  <nav class="page-links" aria-label="总结前后导航"><a href={href('learn/games/')}><small>← 上一节</small>9.1 必胜态与必败态</a><a href={href('resources/')}><small>继续练习 →</small>题单与学习资源</a></nav>
+</Docs>

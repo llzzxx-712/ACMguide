@@ -53,10 +53,12 @@ npm run preview
 | `src/content/dynamic-programming/*.md` | 第八章的线性 DP、数字三角形与背包教程 |
 | `src/content/game-theory/*.md` | 第九章的胜负状态、巴什博弈与 Nim 游戏教程 |
 | `public/animations/dfs-enumeration/` | DFS 枚举、调用与返回的交互动图，含两层、三层与四皇后三种模式 |
+| `public/animations/knapsack/` | 0/1 背包的二维转移与一维正序、倒序对照动图 |
 | `src/data/content.ts` | 自动加载正文，并为目录、搜索和进度提供发布状态 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/pages/index.astro` | 前言 |
 | `src/pages/roadmap.astro` | 31 天路线与新生组目标 |
+| `src/pages/summary.astro` | 31 天学习总结与按知识点继续巩固的题单入口 |
 | `src/styles/global.css` | 全站样式和移动端布局 |
 | `astro.config.mjs` | GitHub Pages 账号、仓库子路径 |
 

@@ -73,6 +73,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             </div>
           </details>
         ))}
+        <a class:list={['sidebar-link', { selected: isActive('summary/') }]} href={href('summary/')}>结语 · 完成 31 天之后</a>
         <div class="sidebar-separator"></div>
         <a class:list={['sidebar-link', { selected: isActive('resources/') }]} href={href('resources/')}>↗ 题单与学习资源</a>
         <div class="progress-card"><div><span>已发布教程进度</span><strong id="progress-text">0 / {publishedLessonSlugs.length} 节</strong></div><progress id="course-progress" max={publishedLessonSlugs.length} value="0" aria-label="已完成教程节数"></progress><small>学习记录保存在当前浏览器</small></div>
