@@ -83,7 +83,7 @@ for (const chapter of outlineChapters) {
   outlinePages.push(body);
   plannedSections += [...body.matchAll(/data-outline-section/g)].length;
   if (!source || !body.includes('章节与小节') || !body.includes('对应题单')) errors.push(`Missing chapter overview: ${chapter[1]}`);
-  const publishedChapter = ['binary-trees','sets-and-dsu','graph-basics','prefix-difference-compression','linear-optimizations','divide-and-doubling','string-algorithms','advanced-search','heap-and-fenwick','advanced-greedy','segment-trees','tree-algorithms','shortest-paths','minimum-spanning-trees','graph-connectivity'].includes(chapter[1]);
+  const publishedChapter = true;
   if (!search.some(item=>item.planned===!publishedChapter && item.url===url)) errors.push(`Incorrect chapter publication status in search: ${chapter[1]}`);
   if (!source.includes(`data-after-joining-chapter="${chapter[1]}" open`)) errors.push(`Current chapter must open in sidebar: ${chapter[1]}`);
   if (source.includes('id="complete-lesson"')) errors.push(`Planned chapter must not have completion control: ${chapter[1]}`);
@@ -103,7 +103,7 @@ const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
 const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
-if (joinedPublished.length !== 60 || published.length !== 85 || !outline.includes('0 / 85 节')) errors.push('Progress must include 25 original and 60 second-block lessons, but no outline placeholders');
+if (joinedPublished.length !== 103 || published.length !== 128 || !outline.includes('0 / 128 节')) errors.push('Progress must include 25 original and all 103 second-block lessons');
 if (!summary?.includes(`${base}/after-joining/`) || !html.get(path.join(root,'index.html'))?.includes('第二板块 · 入队后—寒假前')) errors.push('Missing entry from first block to second block');
 for (const [file,source] of html) {
   if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);

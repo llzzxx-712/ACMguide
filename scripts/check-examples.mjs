@@ -10,6 +10,9 @@ import { divideStringCases, prefixSumCases } from './divide-string-cases.mjs';
 import { searchHeapCases } from './search-heap-cases.mjs';
 import { greedySegmentCases, switchCases } from './greedy-segment-cases.mjs';
 import { treeGraphCases } from './tree-graph-cases.mjs';
+import { remainingDpCases } from './remaining-dp-cases.mjs';
+import { remainingMathCases } from './remaining-math-cases.mjs';
+import { advancedTreeCases } from './advanced-tree-cases.mjs';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -385,6 +388,9 @@ const cases = {
   ...searchHeapCases,
   ...greedySegmentCases,
   ...treeGraphCases,
+  ...remainingDpCases,
+  ...remainingMathCases,
+  ...advancedTreeCases,
   'counting-precomputation': [...optimizationCases['counting-precomputation'], prefixSumCases],
   'graph-concepts': [vectorIntroCases, ...graphPrefixCases['graph-concepts']],
   games: [
@@ -555,7 +561,12 @@ async function markdownFiles(dir) {
     : entry.name.endsWith('.md') ? [path.join(dir, entry.name)] : []))).flat();
 }
 try {
-  const files = await markdownFiles(path.resolve('src/content'));
+  let files = await markdownFiles(path.resolve('src/content'));
+  const requested = process.env.EXAMPLE_LESSONS?.split(',').map(x=>x.trim()).filter(Boolean);
+  if (requested?.length) {
+    for (const slug of requested) if (!files.some(file=>path.basename(file,'.md')===slug)) throw new Error(`Unknown requested lesson: ${slug}`);
+    files = files.filter(file=>requested.includes(path.basename(file,'.md')));
+  }
   for (const file of files) {
     const slug = path.basename(file, '.md');
     const source = await readFile(file, 'utf8');
@@ -566,7 +577,8 @@ try {
       const cpp = path.join(dir, `${slug}-${i}.cpp`);
       const exe = path.join(dir, `${slug}-${i}${process.platform === 'win32' ? '.exe' : ''}`);
       await writeFile(cpp, blocks[i][1]);
-      const compile = spawnSync(compiler, [`-std=${standard}`, '-Wall', '-Wextra', cpp, '-o', exe], { encoding: 'utf8', timeout: 30000 });
+      // Match contest builds so scale checks measure the algorithm with optimization enabled.
+      const compile = spawnSync(compiler, [`-std=${standard}`, '-O2', '-Wall', '-Wextra', cpp, '-o', exe], { encoding: 'utf8', timeout: 30000 });
       if (compile.error || compile.status !== 0) throw new Error(`${slug} block ${i+1}: ${compile.error || compile.stderr}`);
       if (compile.stderr.trim()) throw new Error(`Compiler warning in ${slug} block ${i+1}: ${compile.stderr}`);
       for (const [input, expected, validate] of cases[slug][i]) {

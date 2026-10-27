@@ -9,7 +9,7 @@ const headings = afterJoiningPhases.map(phase => ({ depth: 2, slug: phase.slug, 
   <div class="tags"><span class="tag">第二板块</span><span class="tag">{publishedAfterJoiningSlugs.length} 节可学习</span><span class="tag">{afterJoiningChapters.length} 章 · {afterJoiningSectionCount} 节</span></div>
   <p class="lead">完成招新前的入门学习、加入集训队后，我们继续扩充解题工具，把已经学过的知识连成体系。</p>
   <p>这一部分先学习<a href="https://www.luogu.com.cn/training/list?type=srqc-jc" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》</a>中的二叉树、集合和图的基本应用，再围绕<a href="https://www.luogu.com.cn/training/list?type=srqc-jj" target="_blank" rel="noopener noreferrer">《深入浅出进阶篇》</a>展开。前缀和、搜索、动态规划等已学内容，会在此基础上继续深入。</p>
-  <p>第一至十五章已提供 {publishedAfterJoiningSlugs.length} 节教程，其余章节先列出大纲。章节顺序按知识之间的依赖组织：先准备基础结构，再学习算法、图论和动态规划，最后补充数学与线段树进阶。</p>
+  <p>二十五章共 {publishedAfterJoiningSlugs.length} 节教程已全部提供。章节顺序按知识之间的依赖组织：先准备基础结构，再学习算法、图论和动态规划，最后补充数学与线段树进阶。每节按讲解、例题、独立重做与练习展开，可以随时返回对应章节继续训练。</p>
   <div class="callout"><strong>继续坚持：代码是思路的实现。</strong><p>学习新算法时，先想清它解决什么问题、维护什么信息、每一步为什么成立，再用手算过程对照代码中的状态变化。</p></div>
   <nav class="outline-jumps" aria-label="大纲分组">{afterJoiningPhases.map(phase => <a href={`#${phase.slug}`}>{phase.title}</a>)}</nav>
   {afterJoiningPhases.map(phase => <section class="outline-phase" aria-labelledby={phase.slug}>
