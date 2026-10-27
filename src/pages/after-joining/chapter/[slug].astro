@@ -1,0 +1,33 @@
+---
+import Docs from '../../../layouts/Docs.astro';
+import { href } from '../../../data/course';
+import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId } from '../../../data/after-joining';
+export function getStaticPaths() {
+  return afterJoiningChapters.map(chapter => ({ params: { slug: chapter.slug }, props: { chapter } }));
+}
+const { chapter } = Astro.props;
+const index = afterJoiningChapters.findIndex(item => item.slug === chapter.slug);
+const previous = afterJoiningChapters[index - 1];
+const next = afterJoiningChapters[index + 1];
+const headings = [
+  { depth: 2, slug: 'goals', text: '本章目标' },
+  { depth: 2, slug: 'lessons', text: '章节与小节' },
+  { depth: 2, slug: 'practice', text: '对应题单' }
+];
+---
+<Docs title={`第${chapter.id}章 · ${chapter.title}`} description={chapter.summary} section="第二板块 · 入队后—寒假前" headings={headings} planned>
+  <div class="callout blue"><strong>章节大纲</strong><p>本章先列出学习目标、小节标题与对应题单，具体讲解和练习会逐节补充。</p></div>
+  <h2 id="goals">本章目标</h2>
+  <p>{chapter.summary}</p>
+  <h2 id="lessons">章节与小节</h2>
+  <ol class="lesson-list planned-lesson-list">{chapter.sections.map((title, sectionIndex) => <li class="lesson-card" data-outline-section>
+    <div><h3 id={afterJoiningSectionId(sectionIndex)}>{chapter.id}.{sectionIndex + 1} {title}</h3></div>
+  </li>)}</ol>
+  <h2 id="practice">对应题单</h2>
+  <p>{chapter.training.map((training, trainingIndex) => <Fragment>{trainingIndex > 0 && '、'}<a href={`https://www.luogu.com.cn/training/${training.id}`} target="_blank" rel="noopener noreferrer">{training.title} ↗</a></Fragment>)}</p>
+  <div class="action-row"><a class="button-secondary" href={href('after-joining/')}>返回第二板块大纲</a></div>
+  <nav class="page-links" aria-label="前后章节">
+    {previous ? <a href={href(afterJoiningChapterPath(previous.slug))}><small>← 上一章</small>第{previous.id}章 · {previous.title}</a> : <a href={href('after-joining/')}><small>← 章节大纲</small>入队后—寒假前</a>}
+    {next ? <a href={href(afterJoiningChapterPath(next.slug))}><small>下一章 →</small>第{next.id}章 · {next.title}</a> : <a href={href('resources/')}><small>学习资源 →</small>题单与学习资源</a>}
+  </nav>
+</Docs>

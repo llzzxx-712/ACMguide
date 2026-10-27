@@ -87,6 +87,21 @@ document.querySelectorAll<HTMLPreElement>('pre').forEach(pre => {
   pre.appendChild(button);
 });
 
+document.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]').forEach(button => {
+  button.addEventListener('click', async () => {
+    const prompt = document.getElementById(button.dataset.copyPrompt || '');
+    const status = document.getElementById(button.getAttribute('aria-describedby') || '');
+    if (!prompt || !status) return;
+    try {
+      await navigator.clipboard.writeText(prompt.textContent?.trim() || '');
+      button.textContent = '已复制 ✓';
+      status.textContent = '复制成功！打开 DeepSeek，将提示词粘贴到聊天输入框并发送。';
+    } catch {
+      status.textContent = '请选中上面的提示词复制，再粘贴到 DeepSeek。';
+    }
+  });
+});
+
 const dialog = $<HTMLDialogElement>('#search-dialog');
 const input = $<HTMLInputElement>('#search-input');
 const results = $('#search-results');

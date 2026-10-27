@@ -1,7 +1,7 @@
 ---
 import { chapters, href, repo, dayLabel } from '../data/course';
 import { isPublished, publishedLessonSlugs } from '../data/content';
-import { afterJoiningPhases } from '../data/after-joining';
+import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId } from '../data/after-joining';
 import '../styles/global.css';
 interface Props {
   title: string;
@@ -14,7 +14,7 @@ interface Props {
 const { title, description, section = '开始之前', headings = [], lesson, planned = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '');
 const isActive = (target: string) => path === href(target).replace(/\/$/, '');
-const afterJoining = isActive('after-joining/');
+const afterJoining = path === href('after-joining') || path.startsWith(href('after-joining/'));
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -83,8 +83,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <div class="sidebar-separator"></div>
         <details class="course-block" open={afterJoining}>
           <summary><span>第二板块 · 入队后—寒假前<small>进阶学习大纲</small></span><span class="chevron">›</span></summary>
-          <a class:list={['sidebar-link', { selected: afterJoining }]} href={href('after-joining/')} aria-current={afterJoining ? 'page' : undefined}>章节大纲总览</a>
-          {afterJoiningPhases.map(phase => <div class="outline-sidebar-phase"><a class="outline-sidebar-heading" href={`${href('after-joining/')}#${phase.slug}`}>{phase.title}</a>{phase.chapters.map(chapter => <a class="sidebar-link outline-sidebar-link" href={`${href('after-joining/')}#${chapter.slug}`}>{chapter.id}. {chapter.title}</a>)}</div>)}
+          <a class:list={['sidebar-link', { selected: isActive('after-joining/') }]} href={href('after-joining/')} aria-current={isActive('after-joining/') ? 'page' : undefined}>章节大纲总览</a>
+          {afterJoiningChapters.map(chapter => <details class="chapter-group" data-after-joining-chapter={chapter.slug} open={isActive(afterJoiningChapterPath(chapter.slug)) || (isActive('after-joining/') && chapter.id === 1)}>
+            <summary><span class:list={['chapter-dot', `dot-${(chapter.id - 1) % 9 + 1}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>规划中</small></span><span class="chevron">›</span></summary>
+            <div class="chapter-lessons">
+              <a class:list={['sidebar-link', 'chapter-overview', { selected: isActive(afterJoiningChapterPath(chapter.slug)) }]} href={href(afterJoiningChapterPath(chapter.slug))}>本章概览</a>
+              {chapter.sections.map((title, index) => <a class="sidebar-link" href={`${href(afterJoiningChapterPath(chapter.slug))}#${afterJoiningSectionId(index)}`}><span>{chapter.id}.{index + 1} {title}</span></a>)}
+            </div>
+          </details>)}
         </details>
         <div class="sidebar-separator"></div>
         <a class:list={['sidebar-link', { selected: isActive('resources/') }]} href={href('resources/')}>↗ 题单与学习资源</a>

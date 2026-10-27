@@ -2,25 +2,25 @@
 import Docs from '../layouts/Docs.astro';
 import { href, lessons } from '../data/course';
 import { isPublished } from '../data/content';
+import { afterJoiningChapters } from '../data/after-joining';
 const publishedLessons = lessons.filter(item => isPublished(item.slug));
 const lastPublishedDay = Math.max(...publishedLessons.flatMap(item => item.days));
 const headings = [
   { depth: 2, slug: 'what-is-acm', text: 'ACM 竞赛是什么' },
   { depth: 2, slug: 'why-learn', text: '为什么值得花时间' },
-  { depth: 2, slug: 'this-month', text: '这一个月，学到哪里' },
+  { depth: 2, slug: 'course-blocks', text: '两大板块，学到哪里' },
   { depth: 2, slug: 'how-to-learn', text: '怎么使用这份指南' },
   { depth: 2, slug: 'learning-channels', text: '更多学习方式/渠道' },
-  { depth: 2, slug: 'course-blocks', text: '两个学习板块' },
-  { depth: 2, slug: 'start', text: '从第一天开始' }
+  { depth: 2, slug: 'start', text: '选择你的起点' }
 ];
-const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教我如何下载deepseek harness或workbuddy以及如何使用它们成为我的伴学';
+const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 ---
-<Docs title="写给刚入学的你" description="从第一行 C++ 代码出发，用一个月认识算法竞赛，准备你的第一场招新赛。" section="前言" headings={headings}>
-  <div class="tags"><span class="tag">零基础起步</span><span class="tag">31 天学习路线</span><span class="tag">C++17</span></div>
-  <p class="lead">你好，欢迎来到大学，也欢迎认识算法竞赛。<br />你不需要提前学过编程，更不需要一开始就很厉害。先把环境装好，写出一个能运行的程序，再慢慢学会用代码解决问题。</p>
-  <p>这份指南由一位校 ACM-ICPC 集训队前队长发起，希望把新生入门时最容易迷路的那段路整理清楚：<strong>今天学什么、去哪里练、做到什么程度，就可以继续往前走。</strong></p>
-  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>开始第 1 天 <span>→</span></a><a class="button-secondary" href={href('roadmap/')}>先看 31 天路线</a></div>
-  <div class="stat-strip"><div><strong>31<small>天</small></strong><p>把入门知识串起来</p></div><div><strong>9<small>章</small></strong><p>语言、算法与博弈入门</p></div><div><strong>1<small>条练习线</small></strong><p>新生组</p></div></div>
+<Docs title="写给刚入学的你" description="从零基础准备招新赛，到入队后系统训练，用两个板块串起算法竞赛的学习路线。" section="前言" headings={headings}>
+  <div class="tags"><span class="tag">零基础起步</span><span class="tag">招新入门与入队训练</span><span class="tag">C++17</span></div>
+  <p class="lead">你好，欢迎来到大学，也欢迎认识算法竞赛。<br />这份指南会陪你从第一行 C++ 代码出发，准备招新赛；加入集训队后，再继续系统学习算法、数据结构、图论、动态规划与数学。</p>
+  <p>这份指南由一位校 ACM-ICPC 集训队前队长发起，希望把从入门到入队训练的学习路线整理清楚：<strong>学什么、怎么想、去哪里练，把学到的知识变成自己解决问题的能力。</strong></p>
+  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>零基础，从第 1 天开始 <span>→</span></a><a class="button-secondary" href={href('after-joining/')}>已入队，继续进阶 →</a></div>
+  <div class="stat-strip"><div><strong>2<small>大学习板块</small></strong><p>招新前 → 入队后</p></div><div><strong>31<small>天入门</small></strong><p>第一板块 · 9 章教程</p></div><div><strong>{afterJoiningChapters.length}<small>章进阶大纲</small></strong><p>第二板块 · 入队后—寒假前</p></div></div>
 
   <h2 id="what-is-acm">ACM 竞赛是什么</h2>
   <p>大家口中的“ACM 竞赛”，通常指以 ICPC（International Collegiate Programming Contest，国际大学生程序设计竞赛）为代表的算法竞赛。你需要读懂题目，设计算法，再用程序在规定的时间和内存限制内算出正确答案。</p>
@@ -36,15 +36,23 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
     <tr><td>综测与奖学金</td><td>招新赛为校赛可加综测，入队后在全国大赛获奖可以获得更高综测以及技能竞赛类奖学金。</td></tr>
   </tbody></table>
 
-  <h2 id="this-month">这一个月，学到哪里</h2>
+  <h2 id="course-blocks">两大板块，学到哪里</h2>
+  <h3 id="this-month">第一板块 · 招新前：31 天入门</h3>
   <p>目标是<strong>学完招新赛涉及的入门知识，能够独立完成相应的基础题，并开始尝试综合题</strong>。招新前的入门学习安排为 31 天，内容较多的部分安排两天学习与巩固。</p>
   <table><thead><tr><th>组别</th><th>洛谷大致范围</th><th>Codeforces 大致范围</th><th>练习重心</th></tr></thead><tbody><tr><td>新生组</td><td>红色—黄色</td><td>800—1500</td><td>基础题做稳，逐步尝试综合运用。</td></tr></tbody></table>
   <p>知识范围按<a href="https://www.luogu.com.cn/training/list" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》题单</a>组织：语言基础、模拟、排序、暴力枚举、递推与递归、贪心、二分、搜索、线性表和基础数学，另加简单动态规划、简单博弈论。</p>
-  <p>招新前不安排<strong>高精度、二叉树、集合、图的基本应用</strong>。保留“模拟与高精度”中的模拟部分；搜索中的网格与状态 BFS 仍在范围内。这些后续内容会在<a href={href('after-joining/')}>入队后—寒假前</a>继续学习。</p>
+  <p>这一部分从语言基础开始，逐步学会读题、手算、写代码、调试和提交。学完后，通过对应题单继续巩固，并准备参加招新赛。</p>
+  <h3>第二板块 · 入队后—寒假前：系统学习与训练</h3>
+  <p>入队后，继续学习基础篇中的二叉树、集合和图的基本应用，再围绕洛谷<a href="https://www.luogu.com.cn/training/list?type=srqc-jj" target="_blank" rel="noopener noreferrer">《深入浅出进阶篇》题单</a>，扩充算法与数据结构、图论、动态规划和数学知识。</p>
+  <p>这一部分按知识依赖组织章节，通过理解算法、独立实现和持续做题，把已经学过的工具组合起来。目前先整理 {afterJoiningChapters.length} 章大纲，后续逐节编写讲解和练习。</p>
+  <div class="resource-grid">
+    <a class="resource-card" href={href('roadmap/')}><h3>第一板块 · 招新前</h3><p>从零开始，跟着 31 天路线准备招新赛。</p></a>
+    <a class="resource-card" href={href('after-joining/')}><h3>第二板块 · 入队后—寒假前</h3><p>查看进阶章节，继续系统学习与训练。</p></a>
+  </div>
 
   <h2 id="how-to-learn">怎么使用这份指南</h2>
-  <ol><li><strong>先跟着写，再关掉教程重写。</strong>复制运行是检查环境，独立写出来才是掌握。</li><li><strong>每天给练习留出时间。</strong>可先按每天 2—4 小时预留，阅读、动手、刷题和复盘都要有；具体速度按自己的基础调整。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
-  <div class="callout blue"><strong>31 天学习路线已备齐</strong><p>目前已提供前言、31 天路线与 {publishedLessons.length} 节教程，完整覆盖第 1—{lastPublishedDay} 天。按顺序阅读、手算、实现和练习，学完后再回到错题中检验自己能否独立运用。</p></div>
+  <ol><li><strong>先选择适合自己的板块。</strong>零基础从第一板块开始，跟着 31 天路线学语言、做基础题；入队后进入第二板块，按章节补齐知识并继续训练。</li><li><strong>先理解思路，再独立实现。</strong>用自然语言和小数据说清解题过程，再让变量、判断、循环和函数去完成这些步骤。看完讲解后，关掉教程重新写一遍。</li><li><strong>给练习和复盘留出时间。</strong>知识点学完后，先独立重做例题，再完成必做练习；需要巩固时继续做选做题，把出错的原因记下来。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向 AI、队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
+  <div class="callout blue"><strong>先入门，再继续训练</strong><p>第一板块已提供 {publishedLessons.length} 节教程，完整覆盖第 1—{lastPublishedDay} 天；第二板块已整理 {afterJoiningChapters.length} 章大纲。按顺序阅读、手算、实现和练习，学完后再回到错题中检验自己能否独立运用。</p></div>
 
   <h2 id="learning-channels">更多学习方式/渠道</h2>
   <p>这份指南给出了学习顺序，下面这些渠道可以配合使用：让 AI 陪你学，用百科和书籍补充知识，在题单里练习，遇到具体问题就去搜索或提问。</p>
@@ -53,8 +61,14 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
   <p>你可以把 AI 当作随时能提问的助教：让它把知识点<strong>详细展开、一步步讲解</strong>，让它根据刚学的内容<strong>设置测验</strong>，等你作答后再讲解答案；细节中有任何不懂的地方，随时接着问。</p>
   <p>没怎么用过 AI 的同学，可以先打开 <a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer">DeepSeek 网页版</a>，按页面提示登录。使用方式和聊天类似：在输入框里写下问题并发送，读完回答后，在同一个对话里继续追问。</p>
   <p>例如，学循环时可以问：“我是零基础，请从头讲解 for 循环，每一步都用具体数字演示。”讲完后再让它“出三道小测验，先等我回答，再逐题讲解”。遇到某行代码看不懂，就把那一行和上下文发过去继续问。</p>
-  <p><strong>提示词</strong>就是你发给 AI 的任务说明。把下面这段提示词复制给 DeepSeek，让它带你下载和使用伴学工具：</p>
-  <pre class="learning-prompt" data-copy-label="复制提示词"><code>{aiPrompt}</code></pre>
+  <p><strong>提示词</strong>就是你发给 AI 的任务说明。下面这段话可以直接复制给 DeepSeek，让它带你准备伴学工具，并配合网站教程一起学习。</p>
+  <section class="ai-companion-card" aria-labelledby="ai-companion-title">
+    <h4 id="ai-companion-title">从这里开始，让 AI 成为你的伴学</h4>
+    <p>点击按钮复制提示词，再粘贴到 DeepSeek 的聊天输入框发送。</p>
+    <p class="ai-companion-prompt" id="ai-companion-prompt">{aiPrompt}</p>
+    <div class="action-row"><button class="button-primary" type="button" data-copy-prompt="ai-companion-prompt" aria-describedby="ai-copy-status">复制伴学提示词</button><a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer">打开 DeepSeek 网页版 ↗</a></div>
+    <p class="ai-copy-status" id="ai-copy-status" role="status"></p>
+  </section>
   <p>准备好伴学工具后，把当前章节的链接发给它，告诉它你已经学到哪里，让它按“讲解 → 测验 → 根据回答继续讲解”的顺序陪你学习。编译报错、题意不明白、某个计算步骤没跟上，也都可以随时提问。</p>
 
   <h3>2. 搜索引擎：学会自己找到答案</h3>
@@ -77,13 +91,7 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/，教
   <h3>7. 视频与网课：按知识点补充</h3>
   <p>笔者更推荐按本指南、书籍和题单主动学习。需要看别人演示某个操作，或者想看算法过程如何一步步变化时，再搜索对应的视频讲解。看完后马上自己写代码、做题，把讲解中的过程亲手实现一遍。</p>
 
-  <h2 id="course-blocks">两个学习板块</h2>
-  <div class="resource-grid">
-    <a class="resource-card" href={href('roadmap/')}><h3>第一板块 · 招新前</h3><p>从零开始的 31 天入门路线，学习语言、基础算法、简单 DP 与博弈，准备招新赛。</p></a>
-    <a class="resource-card" href={href('after-joining/')}><h3>第二板块 · 入队后—寒假前</h3><p>补齐基础篇，继续学习进阶算法、数据结构、图论、动态规划与数学。先查看章节大纲。</p></a>
-  </div>
-
-  <h2 id="start">从第一天开始</h2>
-  <p>今天只需要完成一件事：准备好能写 C++ 的环境。明天，我们一起写下 <code>Hello,World!</code>。</p>
-  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>1.1 编辑器下载与环境准备 →</a><a class="button-secondary" href={href('chapter/1/')}>查看第一章</a></div>
+  <h2 id="start">选择你的起点</h2>
+  <p>刚接触编程的同学，先准备好能写 C++ 的环境，再运行第一个 <code>Hello,World!</code>。已经完成入门并加入集训队的同学，可以从第二板块的二叉树开始，继续学习。</p>
+  <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>从编辑器与环境准备开始 →</a><a class="button-secondary" href={href('after-joining/')}>进入入队后的学习 →</a></div>
 </Docs>
