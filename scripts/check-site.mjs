@@ -44,9 +44,17 @@ const published = search.filter(item => !item.planned && item.url.includes('/lea
 if (published.length !== sources.length) errors.push('Published lesson count differs from Markdown sources');
 for (const file of sources) {
   const slug = path.basename(file, '.md');
-  const entry = published.find(item => item.url === `${base}/learn/${slug}/`);
-  const rendered = html.get(path.join(root, 'learn', slug, 'index.html'));
+  const joined = file.startsWith(path.resolve('src/content/after-joining') + path.sep);
+  const relative = joined ? ['after-joining', 'learn', slug] : ['learn', slug];
+  const entry = published.find(item => item.url === `${base}/${relative.join('/')}/`);
+  const rendered = html.get(path.join(root, ...relative, 'index.html'));
   if (!entry?.text.trim() || !rendered?.includes('<h2') || rendered.includes('这节课还在准备中')) errors.push(`Missing published lesson content: ${slug}`);
+  if (joined) {
+    const body = rendered?.split('<div class="article-content">')[1]?.split('<div class="completion">')[0] || '';
+    if (!body.includes('AI 伴学提示词') || !body.includes('例题精讲') || !body.includes('推荐必做') || !body.includes('选做巩固') || !body.includes('本节验收')) errors.push(`Missing learning structure: ${slug}`);
+    if (!rendered?.includes(`data-lesson="after-joining/${slug}"`)) errors.push(`Missing separate progress identity: ${slug}`);
+    if (/第\s*\d+\s*[—~～-]?\s*\d*\s*天|class="day-number"/.test(body)) errors.push(`Second-block lesson must not schedule study days: ${slug}`);
+  }
 }
 if (!html.get(path.join(root, 'index.html'))?.includes('写给刚入学的你')) errors.push('Missing home content');
 const summary=html.get(path.join(root,'summary','index.html'));
@@ -73,7 +81,8 @@ for (const chapter of outlineChapters) {
   outlinePages.push(body);
   plannedSections += [...body.matchAll(/data-outline-section/g)].length;
   if (!source || !body.includes('章节与小节') || !body.includes('对应题单')) errors.push(`Missing chapter overview: ${chapter[1]}`);
-  if (!search.some(item=>item.planned && item.url===url)) errors.push(`Missing outline search entry: ${chapter[1]}`);
+  const publishedChapter = ['binary-trees','sets-and-dsu'].includes(chapter[1]);
+  if (!search.some(item=>item.planned===!publishedChapter && item.url===url)) errors.push(`Incorrect chapter publication status in search: ${chapter[1]}`);
   if (!source.includes(`data-after-joining-chapter="${chapter[1]}" open`)) errors.push(`Current chapter must open in sidebar: ${chapter[1]}`);
   if (source.includes('id="complete-lesson"')) errors.push(`Planned chapter must not have completion control: ${chapter[1]}`);
 }
@@ -88,7 +97,8 @@ for (const id of [114,115,116,200,201,202,203,204,205,206,207,208,209,210,211,21
 const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
-if (published.length !== 25 || !outline.includes('0 / 25 节')) errors.push('Outline must not count toward published lesson progress');
+const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
+if (joinedPublished.length !== 9 || published.length !== 34 || !outline.includes('0 / 34 节')) errors.push('Progress must include 25 original and 9 second-block lessons, but no outline placeholders');
 if (!summary?.includes(`${base}/after-joining/`) || !html.get(path.join(root,'index.html'))?.includes('第二板块 · 入队后—寒假前')) errors.push('Missing entry from first block to second block');
 for (const [file,source] of html) {
   if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);

@@ -4,7 +4,7 @@
 
 - 网站：<https://llzzxx-712.github.io/ACMguide/>
 - 已提供：前言、31 天路线与第一至九章共 25 节教程，完整覆盖第 1—31 天。第 29—30 天学习网格 DP 与背包，第 31 天学习简单博弈论。
-- 第二板块：已整理“入队后—寒假前”的 24 章、104 个小节大纲，补充二叉树、集合和图的基础，并覆盖《深入浅出进阶篇》的 22 组专题，不安排推荐天数。
+- 第二板块：共 24 章、104 个小节，第一、二章的二叉树、集合、映射与并查集共 9 节教程已提供；其余保留大纲，不安排推荐天数。
 - 后续例题优先参考[自编入门题单](https://www.luogu.com.cn/training/1126196)，按当前章节与教学范围选题。
 - 参考布局：[AIInfraGuide](https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/)，本项目独立实现页面与内容。
 
@@ -18,7 +18,7 @@
 
 ## 第二板块：入队后—寒假前
 
-学习基础篇中的二叉树、集合、图的基本应用，再按知识依赖组织算法与数据结构、图论、动态规划、数学和线段树进阶。大纲见网站 `/after-joining/`，每章有独立概览和对应题单；章节与小节标题集中在 `src/data/after-joining.ts`，具体正文后续逐节编写。
+学习基础篇中的二叉树、集合、图的基本应用，再按知识依赖组织算法与数据结构、图论、动态规划、数学和线段树进阶。大纲见网站 `/after-joining/`，每章有独立概览和对应题单；章节与小节标题集中在 `src/data/after-joining.ts`，正文位于 `src/content/after-joining/章节目录/`。已发布的 9 节进阶教程与第一板块共同计入学习进度，原有 31 天安排保持不变。
 
 ## 本地运行
 
@@ -64,6 +64,9 @@ npm run preview
 | `src/data/after-joining.ts` | 第二板块的分组、章节与知识点大纲及对应题单 |
 | `src/pages/after-joining.astro` | 入队后—寒假前的大纲列表 |
 | `src/pages/after-joining/chapter/[slug].astro` | 第二板块每章的概览、小节列表和对应题单 |
+| `src/content/after-joining/*/*.md` | 第二板块每节教程的正文 |
+| `src/data/after-joining-content.ts` | 第二板块正文加载与发布状态 |
+| `src/pages/after-joining/learn/[slug].astro` | 第二板块教程、进度与前后导航 |
 | `src/pages/index.astro` | 前言 |
 | `src/pages/roadmap.astro` | 31 天路线与新生组目标 |
 | `src/pages/summary.astro` | 31 天学习总结与按知识点继续巩固的题单入口 |

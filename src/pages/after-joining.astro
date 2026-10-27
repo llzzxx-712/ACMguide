@@ -2,20 +2,21 @@
 import Docs from '../layouts/Docs.astro';
 import { href } from '../data/course';
 import { afterJoiningPhases, afterJoiningChapters, afterJoiningSectionCount, afterJoiningChapterPath } from '../data/after-joining';
+import { publishedAfterJoiningSlugs, isAfterJoiningPublished } from '../data/after-joining-content';
 const headings = afterJoiningPhases.map(phase => ({ depth: 2, slug: phase.slug, text: phase.title }));
 ---
 <Docs title="入队后—寒假前" description="从二叉树、集合与图论基础出发，系统学习进阶算法、数据结构、动态规划与数学。" section="第二板块" headings={headings}>
-  <div class="tags"><span class="tag">第二板块</span><span class="tag">章节大纲</span><span class="tag">{afterJoiningChapters.length} 章 · {afterJoiningSectionCount} 节规划</span></div>
+  <div class="tags"><span class="tag">第二板块</span><span class="tag">{publishedAfterJoiningSlugs.length} 节可学习</span><span class="tag">{afterJoiningChapters.length} 章 · {afterJoiningSectionCount} 节</span></div>
   <p class="lead">完成招新前的入门学习、加入集训队后，我们继续扩充解题工具，把已经学过的知识连成体系。</p>
   <p>这一部分先学习<a href="https://www.luogu.com.cn/training/list?type=srqc-jc" target="_blank" rel="noopener noreferrer">洛谷《深入浅出基础篇》</a>中的二叉树、集合和图的基本应用，再围绕<a href="https://www.luogu.com.cn/training/list?type=srqc-jj" target="_blank" rel="noopener noreferrer">《深入浅出进阶篇》</a>展开。前缀和、搜索、动态规划等已学内容，会在此基础上继续深入。</p>
-  <p>下面先列出章节与知识点。章节顺序按知识之间的依赖组织：先准备基础结构，再学习算法、图论和动态规划，最后补充数学与线段树进阶。</p>
+  <p>第一、二章已提供 {publishedAfterJoiningSlugs.length} 节教程，其余章节先列出大纲。章节顺序按知识之间的依赖组织：先准备基础结构，再学习算法、图论和动态规划，最后补充数学与线段树进阶。</p>
   <div class="callout"><strong>继续坚持：代码是思路的实现。</strong><p>学习新算法时，先想清它解决什么问题、维护什么信息、每一步为什么成立，再用手算过程对照代码中的状态变化。</p></div>
   <nav class="outline-jumps" aria-label="大纲分组">{afterJoiningPhases.map(phase => <a href={`#${phase.slug}`}>{phase.title}</a>)}</nav>
   {afterJoiningPhases.map(phase => <section class="outline-phase" aria-labelledby={phase.slug}>
     <h2 id={phase.slug}>{phase.title}</h2>
     <p>{phase.summary}</p>
     <div class="lesson-list">{phase.chapters.map(chapter => <a class="lesson-card" href={href(afterJoiningChapterPath(chapter.slug))} id={chapter.slug} data-outline-chapter={chapter.slug}>
-      <div><h3>第{chapter.id}章 · {chapter.title}</h3><p>{chapter.summary}</p></div><span class="arrow">→</span>
+      <div><h3>第{chapter.id}章 · {chapter.title}</h3><p>{chapter.summary}{chapter.lessonSlugs?.some(isAfterJoiningPublished) ? ' · 教程已提供' : ' · 章节大纲'}</p></div><span class="arrow">→</span>
     </a>)}</div>
   </section>)}
   <nav class="page-links" aria-label="两个板块之间导航"><a href={href('summary/')}><small>← 回顾第一板块</small>31 天学习总结</a><a href={href('resources/')}><small>学习资源 →</small>题单与学习资源</a></nav>

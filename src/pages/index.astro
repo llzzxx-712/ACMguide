@@ -3,6 +3,7 @@ import Docs from '../layouts/Docs.astro';
 import { href, lessons } from '../data/course';
 import { isPublished } from '../data/content';
 import { afterJoiningChapters } from '../data/after-joining';
+import { publishedAfterJoiningSlugs } from '../data/after-joining-content';
 const publishedLessons = lessons.filter(item => isPublished(item.slug));
 const lastPublishedDay = Math.max(...publishedLessons.flatMap(item => item.days));
 const headings = [
@@ -20,7 +21,7 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，�
   <p class="lead">你好，欢迎来到大学，也欢迎认识算法竞赛。<br />这份指南会陪你从第一行 C++ 代码出发，准备招新赛；加入集训队后，再继续系统学习算法、数据结构、图论、动态规划与数学。</p>
   <p>这份指南由一位校 ACM-ICPC 集训队前队长发起，希望把从入门到入队训练的学习路线整理清楚：<strong>学什么、怎么想、去哪里练，把学到的知识变成自己解决问题的能力。</strong></p>
   <div class="action-row"><a class="button-primary" href={href('learn/setup/')}>零基础，从第 1 天开始 <span>→</span></a><a class="button-secondary" href={href('after-joining/')}>已入队，继续进阶 →</a></div>
-  <div class="stat-strip"><div><strong>2<small>大学习板块</small></strong><p>招新前 → 入队后</p></div><div><strong>31<small>天入门</small></strong><p>第一板块 · 9 章教程</p></div><div><strong>{afterJoiningChapters.length}<small>章进阶大纲</small></strong><p>第二板块 · 入队后—寒假前</p></div></div>
+  <div class="stat-strip"><div><strong>2<small>大学习板块</small></strong><p>招新前 → 入队后</p></div><div><strong>31<small>天入门</small></strong><p>第一板块 · 9 章教程</p></div><div><strong>{afterJoiningChapters.length}<small>章进阶专题</small></strong><p>第二板块 · 入队后—寒假前</p></div></div>
 
   <h2 id="what-is-acm">ACM 竞赛是什么</h2>
   <p>大家口中的“ACM 竞赛”，通常指以 ICPC（International Collegiate Programming Contest，国际大学生程序设计竞赛）为代表的算法竞赛。你需要读懂题目，设计算法，再用程序在规定的时间和内存限制内算出正确答案。</p>
@@ -44,7 +45,7 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，�
   <p>这一部分从语言基础开始，逐步学会读题、手算、写代码、调试和提交。学完后，通过对应题单继续巩固，并准备参加招新赛。</p>
   <h3>第二板块 · 入队后—寒假前：系统学习与训练</h3>
   <p>入队后，继续学习基础篇中的二叉树、集合和图的基本应用，再围绕洛谷<a href="https://www.luogu.com.cn/training/list?type=srqc-jj" target="_blank" rel="noopener noreferrer">《深入浅出进阶篇》题单</a>，扩充算法与数据结构、图论、动态规划和数学知识。</p>
-  <p>这一部分按知识依赖组织章节，通过理解算法、独立实现和持续做题，把已经学过的工具组合起来。目前先整理 {afterJoiningChapters.length} 章大纲，后续逐节编写讲解和练习。</p>
+  <p>这一部分按知识依赖组织 {afterJoiningChapters.length} 章，通过理解算法、独立实现和持续做题，把已经学过的工具组合起来。目前已提供二叉树、集合、映射与并查集共 {publishedAfterJoiningSlugs.length} 节教程，其余章节先列大纲。</p>
   <div class="resource-grid">
     <a class="resource-card" href={href('roadmap/')}><h3>第一板块 · 招新前</h3><p>从零开始，跟着 31 天路线准备招新赛。</p></a>
     <a class="resource-card" href={href('after-joining/')}><h3>第二板块 · 入队后—寒假前</h3><p>查看进阶章节，继续系统学习与训练。</p></a>
@@ -52,7 +53,7 @@ const aiPrompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，�
 
   <h2 id="how-to-learn">怎么使用这份指南</h2>
   <ol><li><strong>先选择适合自己的板块。</strong>零基础从第一板块开始，跟着 31 天路线学语言、做基础题；入队后进入第二板块，按章节补齐知识并继续训练。</li><li><strong>先理解思路，再独立实现。</strong>用自然语言和小数据说清解题过程，再让变量、判断、循环和函数去完成这些步骤。看完讲解后，关掉教程重新写一遍。</li><li><strong>给练习和复盘留出时间。</strong>知识点学完后，先独立重做例题，再完成必做练习；需要巩固时继续做选做题，把出错的原因记下来。</li><li><strong>卡住时先缩小问题。</strong>手算一组小数据，读第一条报错，检查边界，再向 AI、队友或学长学姐提问。</li><li><strong>用验收标准决定是否继续。</strong>每节结束后，对照验收标准独立完成练习，再标记学习进度。</li></ol>
-  <div class="callout blue"><strong>先入门，再继续训练</strong><p>第一板块已提供 {publishedLessons.length} 节教程，完整覆盖第 1—{lastPublishedDay} 天；第二板块已整理 {afterJoiningChapters.length} 章大纲。按顺序阅读、手算、实现和练习，学完后再回到错题中检验自己能否独立运用。</p></div>
+  <div class="callout blue"><strong>先入门，再继续训练</strong><p>第一板块已提供 {publishedLessons.length} 节教程，完整覆盖第 1—{lastPublishedDay} 天；第二板块已提供 {publishedAfterJoiningSlugs.length} 节进阶教程，并整理后续章节大纲。按顺序阅读、手算、实现和练习，学完后再回到错题中检验自己能否独立运用。</p></div>
 
   <h2 id="learning-channels">更多学习方式/渠道</h2>
   <p>这份指南给出了学习顺序，下面这些渠道可以配合使用：让 AI 陪你学，用百科和书籍补充知识，在题单里练习，遇到具体问题就去搜索或提问。</p>

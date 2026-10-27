@@ -1,7 +1,8 @@
 ---
 import Docs from '../../../layouts/Docs.astro';
 import { href } from '../../../data/course';
-import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId } from '../../../data/after-joining';
+import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId, afterJoiningLessonPath } from '../../../data/after-joining';
+import { isAfterJoiningPublished } from '../../../data/after-joining-content';
 export function getStaticPaths() {
   return afterJoiningChapters.map(chapter => ({ params: { slug: chapter.slug }, props: { chapter } }));
 }
@@ -9,21 +10,21 @@ const { chapter } = Astro.props;
 const index = afterJoiningChapters.findIndex(item => item.slug === chapter.slug);
 const previous = afterJoiningChapters[index - 1];
 const next = afterJoiningChapters[index + 1];
+const available = chapter.lessonSlugs?.some(isAfterJoiningPublished);
 const headings = [
   { depth: 2, slug: 'goals', text: '本章目标' },
   { depth: 2, slug: 'lessons', text: '章节与小节' },
   { depth: 2, slug: 'practice', text: '对应题单' }
 ];
 ---
-<Docs title={`第${chapter.id}章 · ${chapter.title}`} description={chapter.summary} section="第二板块 · 入队后—寒假前" headings={headings} planned>
-  <div class="callout blue"><strong>章节大纲</strong><p>本章先列出学习目标、小节标题与对应题单，具体讲解和练习会逐节补充。</p></div>
+<Docs title={`第${chapter.id}章 · ${chapter.title}`} description={chapter.summary} section="第二板块 · 入队后—寒假前" headings={headings} planned={!available}>
+  {available ? <p>本章教程已提供。先理解每个知识点解决什么问题，再手算例题、独立实现，最后完成练习与验收。</p> : <div class="callout blue"><strong>章节大纲</strong><p>本章先列出学习目标、小节标题与对应题单，具体讲解和练习会逐节补充。</p></div>}
   <h2 id="goals">本章目标</h2>
   <p>{chapter.summary}</p>
   <h2 id="lessons">章节与小节</h2>
-  <ol class="lesson-list planned-lesson-list">{chapter.sections.map((title, sectionIndex) => <li class="lesson-card" data-outline-section>
-    <div><h3 id={afterJoiningSectionId(sectionIndex)}>{chapter.id}.{sectionIndex + 1} {title}</h3></div>
-  </li>)}</ol>
+  <div class="lesson-list">{chapter.sections.map((title, sectionIndex) => {const slug=chapter.lessonSlugs?.[sectionIndex];return isAfterJoiningPublished(slug) ? <a class="lesson-card" href={href(afterJoiningLessonPath(slug!))} data-outline-section><div><h3 id={afterJoiningSectionId(sectionIndex)}>{chapter.id}.{sectionIndex + 1} {title}</h3><p>讲解、例题、练习与验收</p></div><span class="arrow">→</span></a> : <div class="lesson-card" data-outline-section><div><h3 id={afterJoiningSectionId(sectionIndex)}>{chapter.id}.{sectionIndex + 1} {title}</h3></div></div>;})}</div>
   <h2 id="practice">对应题单</h2>
+  {available && <p>例题和练习优先参考<a href="https://www.luogu.com.cn/training/1126196" target="_blank" rel="noopener noreferrer">自编入门题单</a>，并结合下面的基础篇题单完成本章训练。</p>}
   <p>{chapter.training.map((training, trainingIndex) => <Fragment>{trainingIndex > 0 && '、'}<a href={`https://www.luogu.com.cn/training/${training.id}`} target="_blank" rel="noopener noreferrer">{training.title} ↗</a></Fragment>)}</p>
   <div class="action-row"><a class="button-secondary" href={href('after-joining/')}>返回第二板块大纲</a></div>
   <nav class="page-links" aria-label="前后章节">

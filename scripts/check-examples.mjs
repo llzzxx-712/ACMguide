@@ -3,6 +3,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
+import { afterJoiningCases } from './after-joining-cases.mjs';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -371,6 +372,7 @@ for(let m=1;m<=8;m++) for(let n=0;n<=20;n++) {
   bashCases.push([n+' '+m+'\n',subtractionWinning(n,moves) ? 'First\n' : 'Second\n']);
 }
 const cases = {
+  ...afterJoiningCases,
   games: [
     [stonesCase(4,[2,3]),stonesCase(5,[2,3]),stonesCase(7,[2,3]),stonesCase(20,[1,2,3]),
       stonesCase(21,[1,2,3]),stonesCase(1,[1]),stonesCase(7,[1,3,4]),stonesCase(5,[5]),

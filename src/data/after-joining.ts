@@ -4,6 +4,7 @@ export type OutlineChapter = {
   title: string;
   summary: string;
   sections: string[];
+  lessonSlugs?: string[];
   training: { id: number; title: string }[];
 };
 type OutlinePhase = {
@@ -21,10 +22,12 @@ export const afterJoiningPhases: OutlinePhase[] = [
       { id: 1, slug: 'binary-trees', title: '二叉树',
         summary: '从父子关系与递归性质出发，学习树的表示和遍历。',
         sections: ['根、父亲、孩子、叶子与树的深度', '用数组存储二叉树', '前序、中序、后序遍历与层序遍历', '遍历序列还原与二叉搜索树入门'],
+        lessonSlugs: ['tree-basics', 'tree-storage', 'tree-traversals', 'tree-reconstruction'],
         training: [{ id: 114, title: '二叉树' }] },
       { id: 2, slug: 'sets-and-dsu', title: '集合、映射与并查集',
         summary: '根据需要查询的关系，选择集合容器、哈希或并查集。',
         sections: ['set、multiset 与有序集合的操作', 'map、unordered_map 与键值映射', '哈希的思想与集合去重', '并查集：查找、合并与路径压缩', '按大小合并、连通块统计与关系维护'],
+        lessonSlugs: ['ordered-sets', 'maps', 'hash-basics', 'dsu', 'dsu-size'],
         training: [{ id: 115, title: '集合' }] },
       { id: 3, slug: 'graph-basics', title: '图的存储、遍历与拓扑排序',
         summary: '把对象和关系表示成点与边，将已经学过的搜索应用到图上。',
@@ -158,3 +161,7 @@ export const afterJoiningChapters = afterJoiningPhases.flatMap(phase => phase.ch
 export const afterJoiningSectionCount = afterJoiningChapters.reduce((total, chapter) => total + chapter.sections.length, 0);
 export const afterJoiningChapterPath = (slug: string) => `after-joining/chapter/${slug}/`;
 export const afterJoiningSectionId = (index: number) => `section-${index + 1}`;
+export const afterJoiningLessonPath = (slug: string) => `after-joining/learn/${slug}/`;
+export const afterJoiningLessons = afterJoiningChapters.flatMap(chapter => (chapter.lessonSlugs || []).map((slug, index) => ({
+  slug, chapter, index, title: `${chapter.id}.${index + 1} ${chapter.sections[index]}`
+})));

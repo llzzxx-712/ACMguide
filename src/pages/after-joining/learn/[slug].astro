@@ -1,0 +1,23 @@
+---
+import Docs from '../../../layouts/Docs.astro';
+import { href } from '../../../data/course';
+import { afterJoiningChapters, afterJoiningLessons, afterJoiningLessonPath, afterJoiningChapterPath } from '../../../data/after-joining';
+import { afterJoiningDocs, afterJoiningProgressId, isAfterJoiningPublished } from '../../../data/after-joining-content';
+export function getStaticPaths() {
+  return afterJoiningLessons.filter(item => isAfterJoiningPublished(item.slug)).map(item => ({ params: { slug: item.slug }, props: { item, doc: afterJoiningDocs[item.slug] } }));
+}
+const { item, doc } = Astro.props;
+const Content = doc.Content;
+const available = afterJoiningLessons.filter(lesson => isAfterJoiningPublished(lesson.slug));
+const index = available.findIndex(lesson => lesson.slug === item.slug);
+const previous = available[index - 1];
+const next = available[index + 1];
+const followingChapter = afterJoiningChapters[afterJoiningChapters.findIndex(chapter=>chapter.slug===item.chapter.slug)+1];
+---
+<Docs title={item.title} description={String(doc.frontmatter.description || item.chapter.summary)} section={`第二板块 · 第${item.chapter.id}章 · ${item.chapter.title}`} headings={doc.getHeadings()} lesson={afterJoiningProgressId(item.slug)}>
+  <Content />
+  <nav class="page-links" aria-label="前后小节">
+    {previous ? <a href={href(afterJoiningLessonPath(previous.slug))}><small>← 上一节</small>{previous.title}</a> : <a href={href(afterJoiningChapterPath(item.chapter.slug))}><small>← 本章概览</small>第{item.chapter.id}章 · {item.chapter.title}</a>}
+    {next ? <a href={href(afterJoiningLessonPath(next.slug))}><small>下一节 →</small>{next.title}</a> : <a href={href(followingChapter ? afterJoiningChapterPath(followingChapter.slug) : 'after-joining/')}><small>继续查看大纲 →</small>{followingChapter ? `第${followingChapter.id}章 · ${followingChapter.title}` : '第二板块章节总览'}</a>}
+  </nav>
+</Docs>

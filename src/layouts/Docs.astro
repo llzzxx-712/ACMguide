@@ -1,7 +1,8 @@
 ---
 import { chapters, href, repo, dayLabel } from '../data/course';
 import { isPublished, publishedLessonSlugs } from '../data/content';
-import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId } from '../data/after-joining';
+import { afterJoiningChapters, afterJoiningChapterPath, afterJoiningSectionId, afterJoiningLessonPath } from '../data/after-joining';
+import { isAfterJoiningPublished, publishedAfterJoiningSlugs, afterJoiningProgressId } from '../data/after-joining-content';
 import '../styles/global.css';
 interface Props {
   title: string;
@@ -15,6 +16,7 @@ const { title, description, section = '开始之前', headings = [], lesson, pla
 const path = Astro.url.pathname.replace(/\/$/, '');
 const isActive = (target: string) => path === href(target).replace(/\/$/, '');
 const afterJoining = path === href('after-joining') || path.startsWith(href('after-joining/'));
+const progressIds = [...publishedLessonSlugs, ...publishedAfterJoiningSlugs.map(afterJoiningProgressId)];
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -38,7 +40,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       } catch {}
     </script>
   </head>
-  <body data-base={href()} data-published-lessons={JSON.stringify(publishedLessonSlugs)}>
+  <body data-base={href()} data-published-lessons={JSON.stringify(progressIds)}>
     <a class="skip-link" href="#main-content">跳到正文</a>
     <header class="site-header">
       <a class="brand" href={href()} aria-label="ACM 入门指南首页">
@@ -47,7 +49,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </a>
       <nav class="top-nav" aria-label="主导航">
         <a class:list={{ active: isActive('') }} href={href()}>开始之前</a>
-        <a class:list={{ active: isActive('roadmap/') || Boolean(lesson) || path.startsWith(href('chapter/')) || isActive('summary/') }} href={href('roadmap/')}>招新前 · 31 天</a>
+        <a class:list={{ active: !afterJoining && (isActive('roadmap/') || Boolean(lesson) || path.startsWith(href('chapter/')) || isActive('summary/')) }} href={href('roadmap/')}>招新前 · 31 天</a>
         <a class:list={{ active: afterJoining }} href={href('after-joining/')}>入队后—寒假前</a>
         <a class:list={{ active: isActive('resources/') }} href={href('resources/')}>题单与资源</a>
       </nav>
@@ -82,19 +84,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         </details>
         <div class="sidebar-separator"></div>
         <details class="course-block" open={afterJoining}>
-          <summary><span>第二板块 · 入队后—寒假前<small>进阶学习大纲</small></span><span class="chevron">›</span></summary>
+          <summary><span>第二板块 · 入队后—寒假前<small>进阶学习与训练</small></span><span class="chevron">›</span></summary>
           <a class:list={['sidebar-link', { selected: isActive('after-joining/') }]} href={href('after-joining/')} aria-current={isActive('after-joining/') ? 'page' : undefined}>章节大纲总览</a>
-          {afterJoiningChapters.map(chapter => <details class="chapter-group" data-after-joining-chapter={chapter.slug} open={isActive(afterJoiningChapterPath(chapter.slug)) || (isActive('after-joining/') && chapter.id === 1)}>
-            <summary><span class:list={['chapter-dot', `dot-${(chapter.id - 1) % 9 + 1}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>规划中</small></span><span class="chevron">›</span></summary>
+          {afterJoiningChapters.map(chapter => <details class="chapter-group" data-after-joining-chapter={chapter.slug} open={isActive(afterJoiningChapterPath(chapter.slug)) || chapter.lessonSlugs?.some(slug => lesson === afterJoiningProgressId(slug)) || (isActive('after-joining/') && chapter.id === 1)}>
+            <summary><span class:list={['chapter-dot', `dot-${(chapter.id - 1) % 9 + 1}`]}></span><span>第{chapter.id}章 · {chapter.title}<small>{chapter.lessonSlugs?.some(isAfterJoiningPublished) ? '可学习' : '规划中'}</small></span><span class="chevron">›</span></summary>
             <div class="chapter-lessons">
               <a class:list={['sidebar-link', 'chapter-overview', { selected: isActive(afterJoiningChapterPath(chapter.slug)) }]} href={href(afterJoiningChapterPath(chapter.slug))}>本章概览</a>
-              {chapter.sections.map((title, index) => <a class="sidebar-link" href={`${href(afterJoiningChapterPath(chapter.slug))}#${afterJoiningSectionId(index)}`}><span>{chapter.id}.{index + 1} {title}</span></a>)}
+              {chapter.sections.map((title, index) => {const slug=chapter.lessonSlugs?.[index]; const published=isAfterJoiningPublished(slug); const selected=Boolean(slug && lesson===afterJoiningProgressId(slug)); return <a class:list={['sidebar-link',{selected}]} href={published ? href(afterJoiningLessonPath(slug!)) : `${href(afterJoiningChapterPath(chapter.slug))}#${afterJoiningSectionId(index)}`} aria-current={selected?'page':undefined}><span>{chapter.id}.{index + 1} {title}</span>{published && <i data-lesson-dot={afterJoiningProgressId(slug!)} aria-hidden="true"></i>}</a>;})}
             </div>
           </details>)}
         </details>
         <div class="sidebar-separator"></div>
         <a class:list={['sidebar-link', { selected: isActive('resources/') }]} href={href('resources/')}>↗ 题单与学习资源</a>
-        <div class="progress-card"><div><span>已发布教程进度</span><strong id="progress-text">0 / {publishedLessonSlugs.length} 节</strong></div><progress id="course-progress" max={publishedLessonSlugs.length} value="0" aria-label="已完成教程节数"></progress><small>学习记录保存在当前浏览器</small></div>
+        <div class="progress-card"><div><span>已发布教程进度</span><strong id="progress-text">0 / {progressIds.length} 节</strong></div><progress id="course-progress" max={progressIds.length} value="0" aria-label="已完成教程节数"></progress><small>学习记录保存在当前浏览器</small></div>
       </aside>
       <main id="main-content" class="main-content" tabindex="-1">
         <div class="article-meta"><a href={href()}>ACM 入门指南</a><span>/</span><span>{section}</span>{planned && <span class="status-tag">规划中</span>}</div>
