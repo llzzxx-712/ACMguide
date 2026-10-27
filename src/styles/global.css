@@ -18,3 +18,4 @@
 @media(max-width:450px){.outline-jumps a{font-size:10px;padding:5px 8px}.ai-companion-card{padding:18px 16px}.ai-companion-card h4{font-size:17px}.ai-companion-card .ai-companion-prompt{padding:14px;font-size:13px}.ai-companion-card .action-row{display:grid;gap:12px}.ai-companion-card .button-primary{width:100%}}
 .dsu-animation-frame{height:1220px}@media(max-width:600px){.dsu-animation-frame{height:1400px}}
 .queue-animation-frame{height:1320px}@media(max-width:600px){.queue-animation-frame{height:1540px}}
+.kmp-animation-frame{height:1400px}@media(max-width:600px){.kmp-animation-frame{height:1600px}}

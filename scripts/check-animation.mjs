@@ -5,6 +5,7 @@ import {buildTrace as buildDfsTrace} from '../public/animations/dfs-enumeration/
 import {buildTrace as buildKnapsackTrace,presets as knapsackPresets} from '../public/animations/knapsack/trace.mjs';
 import {buildDsuTrace,seconds as dsuSeconds} from '../public/animations/dsu/trace.mjs';
 import {buildQueueTrace,values as queueValues,windowSize,seconds as queueSeconds} from '../public/animations/monotonic-queue/trace.mjs';
+import {buildKmpTrace,seconds as kmpSeconds} from '../public/animations/kmp/trace.mjs';
 
 const trace = buildTrace(2);
 assert.deepEqual(trace.map(({le,r,ans,mid})=>[le,r,ans,mid]), [
@@ -238,3 +239,38 @@ assert.ok(queueHtml.includes('max="'+(queueFrameCount-1)+'"'));
 for(const id of ['play','previous','next','restart','expire-step','discard-step','equal-step','slider','mode','speed'])assert.ok(queueHtml.includes('id="'+id+'"'));
 assert.equal(windowSize,3);
 console.log('Monotonic queue checks passed: min/max window oracles, exact undominated candidates, expiry, equal-value replacement and reversible snapshots.');
+function kmpPrefixOracle(p){return Array.from({length:p.length},(_,i)=>{let best=0;for(let len=1;len<=i;len++)if(p.slice(0,len)===p.slice(i-len+1,i+1))best=len;return best;});}
+function checkKmp(mode,custom){
+    const trace=buildKmpTrace(mode,custom),{frames,source:s,pattern:p}=trace,expectedPi=kmpPrefixOracle(p);
+    assert.deepEqual(trace,buildKmpTrace(mode,custom));
+    for(let index=0;index<frames.length;index++){
+        const f=frames[index],before=frames[index-1];
+        assert.ok(f.j>=0&&f.j<=p.length);assert.equal(f.alignment,f.consumed-f.j);
+        assert.equal(s.slice(f.consumed-f.j,f.consumed),p.slice(0,f.j));
+        f.pi.forEach((value,i)=>{if(value!==null)assert.equal(value,expectedPi[i]);});
+        if(before){assert.ok(f.i>=before.i);assert.ok(f.consumed>=before.consumed);}
+        if(f.event==='fallback'||f.event==='reset'){
+            assert.equal(f.j,expectedPi[f.from-1]);assert.ok(f.j<f.from);
+            assert.equal(f.i,before.i);assert.equal(f.consumed,before.consumed);assert.equal(f.readIndex,f.from-1);
+        }
+        if(f.event==='found'){assert.equal(f.j,p.length);assert.equal(s.slice(f.i-p.length+1,f.i+1),p);}
+    }
+    assert.deepEqual(frames.at(-1).pi,expectedPi);
+    if(mode!=='pi'){const starts=[];for(let i=0;i+p.length<=s.length;i++)if(s.startsWith(p,i))starts.push(i+1);assert.deepEqual(frames.at(-1).results,starts);}
+    if(frames.length>1){const saved=frames[0].pi[0];frames.at(-1).pi[0]=999;assert.equal(frames[0].pi[0],saved);}
+}
+for(const mode of ['match','pi','overlap'])checkKmp(mode);
+for(let mask=0;mask<64;mask++){
+    const source=Array.from({length:6},(_,i)=>mask&(1<<i)?'A':'B').join('');
+    for(let length=1;length<=4;length++){
+        const pattern=source.slice(0,length);checkKmp('match',{source,pattern});checkKmp('pi',{pattern});
+        checkKmp('match',{source,pattern:pattern.replace(/A/g,'C')});
+    }
+}
+const fall=buildKmpTrace('match');assert.deepEqual([fall.frames[fall.fallbackStep].i,fall.frames[fall.fallbackStep].from,fall.frames[fall.fallbackStep].j],[5,5,3]);
+assert.deepEqual(buildKmpTrace('overlap').frames.at(-1).results,[1,2,3]);
+const kmpHtml=await readFile('public/animations/kmp/index.html','utf8');
+assert.ok(kmpHtml.includes('data-duration="'+Number((fall.frames.length*kmpSeconds).toFixed(1))+'"'));
+assert.ok(kmpHtml.includes('max="'+(fall.frames.length-1)+'"'));
+for(const id of ['mode','play','previous','next','restart','before-fallback','fallback-step','found-step','slider','speed'])assert.ok(kmpHtml.includes('id="'+id+'"'));
+console.log('KMP animation checks passed: prefix and substring oracles, preserved suffixes, stationary text on fallback, overlapping matches and independent snapshots.');

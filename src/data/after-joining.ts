@@ -62,7 +62,8 @@ export const afterJoiningPhases: OutlinePhase[] = [
         training: [{ id: 115, title: '集合 · 字符串哈希' }, { id: 203, title: '字符串' }] },
       { id: 8, slug: 'advanced-search', title: '进阶搜索',
         summary: '继续把搜索看作枚举，通过剪枝、拆分和搜索顺序提高效率。',
-        sections: ['可行性剪枝、最优性剪枝与搜索顺序', '双向搜索与折半搜索', '迭代加深搜索', '估价函数、A* 与 IDA*', '搜索状态设计与综合应用'],
+        sections: ['可行性剪枝、最优性剪枝与搜索顺序', '双向搜索与折半搜索'],
+        lessonSlugs: ['search-pruning', 'meet-in-middle'],
         training: [{ id: 204, title: '进阶搜索' }] }
     ]
   },
@@ -73,6 +74,7 @@ export const afterJoiningPhases: OutlinePhase[] = [
       { id: 9, slug: 'heap-and-fenwick', title: '二叉堆与树状数组',
         summary: '分别处理动态取最值，以及修改后的前缀和与区间和。',
         sections: ['二叉堆的结构与 priority_queue', '合并、调度与动态中位数', '树状数组、lowbit 与单点修改区间查询', '差分树状数组与逆序对统计'],
+        lessonSlugs: ['priority-queues', 'heap-applications', 'fenwick', 'fenwick-applications'],
         training: [{ id: 205, title: '二叉堆与树状数组' }] },
       { id: 10, slug: 'segment-trees', title: '线段树',
         summary: '让每个结点维护一个区间的信息，用递归完成修改与查询。',

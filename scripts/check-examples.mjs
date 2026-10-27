@@ -7,6 +7,7 @@ import { afterJoiningCases } from './after-joining-cases.mjs';
 import { graphPrefixCases } from './graph-prefix-cases.mjs';
 import { optimizationCases, vectorIntroCases } from './optimization-cases.mjs';
 import { divideStringCases, prefixSumCases } from './divide-string-cases.mjs';
+import { searchHeapCases } from './search-heap-cases.mjs';
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -379,6 +380,7 @@ const cases = {
   ...graphPrefixCases,
   ...optimizationCases,
   ...divideStringCases,
+  ...searchHeapCases,
   'counting-precomputation': [...optimizationCases['counting-precomputation'], prefixSumCases],
   'graph-concepts': [vectorIntroCases, ...graphPrefixCases['graph-concepts']],
   games: [
