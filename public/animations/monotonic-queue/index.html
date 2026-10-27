@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单调队列：窗口与候选怎样一起变化</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#20384b;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:900px;margin:auto;padding:22px}h1{font-size:25px;margin:0 0 9px}h2{font-size:17px;margin:16px 0 9px}p{margin:9px 0}button,select{font:inherit;border:1px solid #b9cdd8;border-radius:7px;background:white;color:#244258;padding:7px 11px;cursor:pointer}button.primary{background:#087e6d;color:#fff;border-color:#087e6d}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #176e9f;outline-offset:2px}.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0}.scrub{display:flex;align-items:center;gap:12px}input[type=range]{flex:1;min-width:60px;accent-color:#087e6d}.track{height:4px;background:#e5edf2;overflow:hidden}#progress{height:100%;background:#087e6d;transform-origin:left}.array{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.tile{border:2px solid #d8e4ec;border-radius:9px;text-align:center;padding:8px 2px;background:#f7fafc}.tile small{display:block;font-size:13px}.tile b{font-size:24px}.queue{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.queue .tile{min-height:86px}.queue-label{display:flex;justify-content:space-between;color:#526878;font-size:14px}.vars{padding:10px 13px;border-radius:8px;background:#eef4f8;font-family:Consolas,monospace}#note{min-height:86px;padding:13px 16px;border-left:4px solid #087e6d;background:#edf7f2}#outputs{font-size:20px;letter-spacing:2px;font-weight:700;color:#086a5d;min-height:36px}.code{padding:12px 0;border:1px solid #dae4ed;border-radius:10px;background:#f6f8fb;font:15px/1.8 Consolas,monospace;overflow-x:auto}.code div{white-space:pre;border-left:4px solid transparent;padding:1px 12px}.hint,footer{font-size:14px;color:#526878}footer{margin-top:14px}@media(max-width:560px){main{padding:14px}h1{font-size:21px}.toolbar{gap:6px}button,select{padding:7px 9px}.array{gap:3px}.array .tile{padding:7px 0}.array .tile b{font-size:20px}.array .tile small{font-size:11px}.queue{gap:6px}.code{font-size:13px}#note{min-height:132px}}
+</style>
+</head>
+<body>
+<main id="demo" data-composition-id="monotonic-queue" data-width="900" data-height="1350" data-duration="53.3">
+<h1>窗口往右走，哪些候选可以留下？</h1>
+<p>数组与正文一致，窗口长度 k=3。上方看窗口，下方看候选队列，对照代码逐步执行。</p>
+<div class="toolbar"><label>维护 <select id="mode"><option value="min">最小值</option><option value="max">最大值</option></select></label><button id="play" class="primary">播放</button><button id="previous">上一步</button><button id="next">下一步</button><button id="restart">重来</button></div>
+<div class="toolbar"><button id="expire-step">看候选过期</button><button id="discard-step">看队尾删除</button><button id="equal-step">看相等值</button><label>速度 <select id="speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>
+<div class="scrub"><input id="slider" type="range" min="0" max="40" value="0" aria-label="步骤进度"><span id="step-count">1 / 41</span></div><div class="track"><div id="progress"></div></div>
+<h2>原数组 · 绿色是窗口，黄色是当前数</h2>
+<div class="array"><div class="tile" id="a-1"><small>下标 1</small><b>4</b></div><div class="tile" id="a-2"><small>下标 2</small><b>2</b></div><div class="tile" id="a-3"><small>下标 3</small><b>2</b></div><div class="tile" id="a-4"><small>下标 4</small><b>5</b></div><div class="tile" id="a-5"><small>下标 5</small><b>6</b></div><div class="tile" id="a-6"><small>下标 6</small><b>1</b></div><div class="tile" id="a-7"><small>下标 7</small><b>3</b></div><div class="tile" id="a-8"><small>下标 8</small><b>3</b></div></div>
+<p class="vars" id="vars">i = —　left = —　候选数 = 0</p>
+<h2>候选队列 · 保存下标，再按下标读取值</h2>
+<div class="queue-label"><span>队头：最优候选 →</span><span>→ 队尾：新候选加入处</span></div>
+<div class="queue"><div class="tile" id="q-0"><small id="qi-0">空</small><b id="qv-0">—</b></div><div class="tile" id="q-1"><small id="qi-1">空</small><b id="qv-1">—</b></div><div class="tile" id="q-2"><small id="qi-2">空</small><b id="qv-2">—</b></div></div>
+<p id="note">从左到右移动窗口。候选队列保存下标。</p>
+<h2>已经输出的窗口答案</h2><p id="outputs">尚未输出</p>
+<div class="code" aria-label="与教程对应的单调队列代码"><div>deque&lt;int&gt; q;</div><div>for (int i = 1; i &lt;= n; i++) {</div><div id="code-left">    int left = i - k + 1;</div><div id="code-expire">    while (!q.empty() &amp;&amp; q.front() &lt; left)</div><div id="code-expire-action">        q.pop_front();</div><div id="code-discard">    while (!q.empty() &amp;&amp; a[q.back()] &gt;= a[i])</div><div id="code-discard-action">        q.pop_back();</div><div id="code-push">    q.push_back(i);</div><div id="code-output">    if (i &gt;= k) cout &lt;&lt; a[q.front()];</div><div>}</div></div>
+<footer>过期看下标，能否取代看数值。候选队列不等于窗口，删除的元素可能仍在窗口里。</footer>
+</main>
+<script src="assets/gsap.min.js"></script>
+<script type="module">
+import {buildQueueTrace,values,windowSize,seconds} from './trace.mjs';
+const $=s=>document.querySelector(s),play=$('#play'),slider=$('#slider'),speed=$('#speed');
+let trace,frames,timeline,duration,current=0;
+function controls(){current=Math.min(frames.length-1,Math.floor(timeline.time()/seconds));slider.value=current;$('#step-count').textContent=(current+1)+' / '+frames.length;play.textContent=timeline.paused()||timeline.time()>=duration?'播放':'暂停';}
+function create(){
+    if(timeline)timeline.kill();const mode=$('#mode').value;trace=buildQueueTrace(mode);frames=trace.frames;duration=Number((frames.length*seconds).toFixed(1));slider.max=frames.length-1;$('#demo').dataset.duration=duration;
+    $('#code-discard').textContent='    while (!q.empty() && a[q.back()] '+(mode==='min'?'>=':'<=')+' a[i])';
+    timeline=gsap.timeline({paused:true,onUpdate:controls,onComplete:controls});timeline.timeScale(Number(speed.value));gsap.set('#progress',{scaleX:0});timeline.to('#progress',{scaleX:1,duration,ease:'none'},0);
+    frames.forEach((f,index)=>{
+        const at=index*seconds;
+        timeline.set('#demo',{attr:{'data-step':index,'data-event':f.event}},at);
+        timeline.set('#vars',{textContent:'i = '+(f.i||'—')+'　left = '+(f.i?f.left:'—')+'　候选数 = '+f.queue.length},at);
+        timeline.set('#note',{textContent:f.note,borderLeftColor:f.event==='expire'?'#a84332':f.event==='discard'?'#784ab5':'#087e6d'},at);
+        timeline.set('#outputs',{textContent:f.outputs.length?f.outputs.join('  '):'尚未输出'},at);
+        for(let j=1;j<=values.length;j++){
+            const inWindow=f.i&&j>=Math.max(1,f.left)&&j<=f.i,active=j===f.i,removed=j===f.removed;
+            timeline.to('#a-'+j,{backgroundColor:removed?'#ffe9e2':active?'#fff0cb':inWindow?'#e5f3ec':'#f7fafc',borderColor:removed?'#a84332':active?'#ab7514':inWindow?'#087e6d':'#d8e4ec',color:j<f.left?'#526878':'#20384b',duration:.2},at);
+        }
+        for(let slot=0;slot<windowSize;slot++){
+            const q=f.queue[slot],focused=q!==undefined&&q===f.tail;
+            timeline.set('#qi-'+slot,{textContent:q?'下标 '+q:'空'},at);timeline.set('#qv-'+slot,{textContent:q?String(values[q-1]):'—'},at);
+            timeline.to('#q-'+slot,{backgroundColor:focused?'#fff0cb':q&&slot===0?'#e5f3ec':'#f7fafc',borderColor:focused?'#ab7514':q&&slot===0?'#087e6d':'#d8e4ec',opacity:1,duration:.2},at);
+        }
+        for(const line of ['left','expire','expire-action','discard','discard-action','push','output']){
+            const selected=line===f.line||(f.event==='expire'&&line==='expire-action')||(f.event==='discard'&&line==='discard-action');
+            timeline.set('#code-'+line,{backgroundColor:selected?'#dff1e9':'transparent',borderLeftColor:selected?'#087e6d':'transparent'},at);
+        }
+    });
+    window.__timelines=window.__timelines||{};window.__timelines['monotonic-queue']=timeline;timeline.seek(.3).pause();controls();
+}
+function step(i){timeline.pause().seek(Math.max(0,Math.min(frames.length-1,i))*seconds+.3);controls();}
+play.addEventListener('click',()=>{if(timeline.paused()||timeline.time()>=duration){if(timeline.time()>=duration)timeline.seek(0);timeline.play();}else timeline.pause();controls();});
+$('#previous').addEventListener('click',()=>step(current-1));$('#next').addEventListener('click',()=>step(current+1));$('#restart').addEventListener('click',()=>step(0));$('#expire-step').addEventListener('click',()=>step(trace.expireStep));$('#discard-step').addEventListener('click',()=>step(trace.discardStep));$('#equal-step').addEventListener('click',()=>step(trace.equalStep));
+slider.addEventListener('input',()=>step(Number(slider.value)));speed.addEventListener('change',()=>timeline.timeScale(Number(speed.value)));$('#mode').addEventListener('change',create);document.addEventListener('visibilitychange',()=>{if(document.hidden){timeline.pause();controls();}});create();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import {values, buildTrace} from '../public/animations/binary-search/trace.mjs';
 import {buildTrace as buildDfsTrace} from '../public/animations/dfs-enumeration/trace.mjs';
 import {buildTrace as buildKnapsackTrace,presets as knapsackPresets} from '../public/animations/knapsack/trace.mjs';
 import {buildDsuTrace,seconds as dsuSeconds} from '../public/animations/dsu/trace.mjs';
+import {buildQueueTrace,values as queueValues,windowSize,seconds as queueSeconds} from '../public/animations/monotonic-queue/trace.mjs';
 
 const trace = buildTrace(2);
 assert.deepEqual(trace.map(({le,r,ans,mid})=>[le,r,ans,mid]), [
@@ -200,3 +201,40 @@ assert.ok(dsuHtml.includes('max="'+(fullDsu.frames.length-1)+'"'));
 for(const id of ['play','previous','next','restart','first-find','key-step','repeat-find','slider','mode','speed'])assert.ok(dsuHtml.includes('id="'+id+'"'));
 assert.ok(dsuHtml.includes('window.__timelines.dsu=timeline'));
 console.log('DSU animation checks passed: immutable frames, root-only merges, unchanged partitions during compression, saved next pointer, and 3-versus-1 root walks.');
+for(const mode of ['min','max']){
+    const trace=buildQueueTrace(mode),frames=trace.frames;
+    assert.deepEqual(trace,buildQueueTrace(mode));
+    const pushed=new Set(),removed=new Set();
+    for(let index=0;index<frames.length;index++){
+        const f=frames[index],previous=frames[index-1];
+        assert.ok(f.queue.every((q,i)=>q>=1&&q<=f.i&&(!i||f.queue[i-1]<q)));
+        if(f.event==='push'){
+            assert.ok(!pushed.has(f.i));pushed.add(f.i);
+            const candidates=[];let best=mode==='min'?Infinity:-Infinity;
+            for(let j=f.i;j>=Math.max(1,f.left);j--){const v=queueValues[j-1];if(mode==='min'?v<best:v>best){candidates.unshift(j);best=v;}}
+            assert.deepEqual(f.queue,candidates);
+        }
+        if(f.event==='expire'||f.event==='discard'){
+            assert.ok(!removed.has(f.removed));removed.add(f.removed);
+            if(f.event==='expire')assert.ok(f.removed<f.left);
+            else assert.ok(mode==='min'?queueValues[f.removed-1]>=queueValues[f.i-1]:queueValues[f.removed-1]<=queueValues[f.i-1]);
+            assert.equal(f.queue.length,previous.queue.length-1);
+        }
+        if(f.event==='output'){
+            assert.ok(f.queue.every(q=>q>=f.left));
+            const part=queueValues.slice(f.left-1,f.i),expected=mode==='min'?Math.min(...part):Math.max(...part);
+            assert.equal(f.outputs.at(-1),expected);assert.equal(queueValues[f.queue[0]-1],expected);
+        }
+    }
+    assert.equal(pushed.size,queueValues.length);assert.ok(removed.size<=queueValues.length);
+    assert.equal(frames[trace.expireStep].event,'expire');assert.equal(frames[trace.discardStep].event,'discard');assert.equal(frames[trace.equalStep].equal,true);
+    assert.deepEqual(frames.at(-1).outputs,mode==='min'?[2,2,2,1,1,1]:[4,5,6,6,6,3]);
+    const saved=frames[0].queue.length;frames.at(-1).queue.push(99);assert.equal(frames[0].queue.length,saved);
+}
+const queueHtml=await readFile('public/animations/monotonic-queue/index.html','utf8');
+const queueFrameCount=buildQueueTrace('min').frames.length;
+assert.ok(queueHtml.includes('data-duration="'+Number((queueFrameCount*queueSeconds).toFixed(1))+'"'));
+assert.ok(queueHtml.includes('max="'+(queueFrameCount-1)+'"'));
+for(const id of ['play','previous','next','restart','expire-step','discard-step','equal-step','slider','mode','speed'])assert.ok(queueHtml.includes('id="'+id+'"'));
+assert.equal(windowSize,3);
+console.log('Monotonic queue checks passed: min/max window oracles, exact undominated candidates, expiry, equal-value replacement and reversible snapshots.');
