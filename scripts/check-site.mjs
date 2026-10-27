@@ -49,5 +49,16 @@ for (const file of sources) {
   if (!entry?.text.trim() || !rendered?.includes('<h2') || rendered.includes('这节课还在准备中')) errors.push(`Missing published lesson content: ${slug}`);
 }
 if (!html.get(path.join(root, 'index.html'))?.includes('写给刚入学的你')) errors.push('Missing home content');
+// Every day must occur once, including both backpack days and the shifted game lesson.
+const roadmap = html.get(path.join(root, 'roadmap', 'index.html')) || '';
+const scheduled = [...roadmap.matchAll(/class="day-row">\s*<span class="day">DAY (\d+)<\/span>\s*<a href="([^"]+)"/g)];
+if (scheduled.length !== 31 || scheduled.some((row,i)=>Number(row[1])!==i+1)) errors.push('Roadmap must cover days 1 through 31 exactly once');
+for (const [day,slug] of [[29,'knapsack'],[30,'knapsack'],[31,'games']]) {
+  if (!scheduled.some(row=>Number(row[1])===day && row[2]===`${base}/learn/${slug}/`)) errors.push(`Incorrect lesson on day ${day}`);
+}
+if (search.some(item=>item.planned)) errors.push('All nine chapters should now be published');
+for (const [file,source] of html) {
+  if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);
+}
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 console.log(`Site checks passed: ${htmlFiles.length} pages, ${links} internal links/anchors/assets, ${published.length} published lessons, ${search.length} search entries.`);

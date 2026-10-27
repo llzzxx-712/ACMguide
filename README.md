@@ -1,9 +1,9 @@
 # ACM 入门指南
 
-面向零基础新生的 30 天算法竞赛入门网站。使用 C++17 + Dev-C++，为校内 ACM-ICPC 招新赛准备基础知识。
+面向零基础新生的 31 天算法竞赛入门网站。使用 C++17 + Dev-C++，为校内 ACM-ICPC 招新赛准备基础知识。
 
 - 网站：<https://llzzxx-712.github.io/ACMguide/>
-- 已提供：前言、30 天路线与第一至八章共 24 节教程，覆盖第 1—29 天；第九章简单博弈论为标题与日程规划。第 23 天先学栈与队列，再于第 24—25 天学习 DFS 和 BFS。
+- 已提供：前言、31 天路线与第一至九章共 25 节教程，完整覆盖第 1—31 天。第 29—30 天学习网格 DP 与背包，第 31 天学习简单博弈论。
 - 后续例题优先参考[自编入门题单](https://www.luogu.com.cn/training/1126196)，按当前章节与教学范围选题。
 - 参考布局：[AIInfraGuide](https://caomaolufei.github.io/AIInfraGuide/guides/ai-infra学习路线/)，本项目独立实现页面与内容。
 
@@ -51,11 +51,12 @@ npm run preview
 | `src/content/search/*.md` | 第六章的 DFS 与 BFS 教程 |
 | `src/content/math/*.md` | 第七章的整除、质数、gcd、进制、快速幂与计数教程 |
 | `src/content/dynamic-programming/*.md` | 第八章的线性 DP、数字三角形与背包教程 |
+| `src/content/game-theory/*.md` | 第九章的胜负状态、巴什博弈与 Nim 游戏教程 |
 | `public/animations/dfs-enumeration/` | DFS 枚举、调用与返回的交互动图，含两层、三层与四皇后三种模式 |
 | `src/data/content.ts` | 自动加载正文，并为目录、搜索和进度提供发布状态 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/pages/index.astro` | 前言 |
-| `src/pages/roadmap.astro` | 30 天路线与新生组目标 |
+| `src/pages/roadmap.astro` | 31 天路线与新生组目标 |
 | `src/styles/global.css` | 全站样式和移动端布局 |
 | `astro.config.mjs` | GitHub Pages 账号、仓库子路径 |
 

@@ -308,7 +308,88 @@ const knapsackCases=[
   ['1000 100\n'+'100 100\n'.repeat(100),'1000\n'],
   ['1000 100\n'+'1 100\n'.repeat(100),'10000\n']
 ];
+// Peel local minima in waves: the number of waves is the longest descending path.
+// This uses no recursive DFS or per-cell memoized path lengths.
+function skiingCase(grid) {
+  const rows=grid.length,cols=grid[0].length;
+  const lower=Array(rows*cols).fill(0),queue=[];
+  const neighbors=(r,c)=>[[r-1,c],[r+1,c],[r,c-1],[r,c+1]]
+    .filter(([rr,cc])=>rr>=0 && rr<rows && cc>=0 && cc<cols);
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) {
+    lower[r*cols+c]=neighbors(r,c).filter(([rr,cc])=>grid[rr][cc]<grid[r][c]).length;
+    if(lower[r*cols+c]===0) queue.push([r,c]);
+  }
+  let head=0,waves=0;
+  while(head<queue.length) {
+    const end=queue.length;
+    waves++;
+    while(head<end) {
+      const [r,c]=queue[head++];
+      for(const [rr,cc] of neighbors(r,c)) if(grid[rr][cc]>grid[r][c]) {
+        if(--lower[rr*cols+cc]===0) queue.push([rr,cc]);
+      }
+    }
+  }
+  assert.equal(queue.length,rows*cols);
+  return [rows+' '+cols+'\n'+grid.map(row=>row.join(' ')).join('\n')+'\n',waves+'\n'];
+}
+// Exact game-tree evaluation supplies small-case answers without remainder or XOR rules.
+function subtractionWinning(stones,moves,memo=new Map()) {
+  if(memo.has(stones)) return memo.get(stones);
+  const result=moves.some(take=>take<=stones && !subtractionWinning(stones-take,moves,memo));
+  memo.set(stones,result);
+  return result;
+}
+function stonesCase(stones,moves) {
+  return [moves.length+' '+stones+'\n'+moves.join(' ')+'\n',
+    subtractionWinning(stones,moves) ? 'First\n' : 'Second\n'];
+}
+const nimMemo=new Map();
+function nimWinning(piles) {
+  const sorted=piles.filter(x=>x>0).sort((a,b)=>a-b),key=sorted.join(',');
+  if(nimMemo.has(key)) return nimMemo.get(key);
+  for(let i=0;i<sorted.length;i++) for(let left=0;left<sorted[i];left++) {
+    const next=[...sorted];next[i]=left;
+    if(!nimWinning(next)) {nimMemo.set(key,true);return true;}
+  }
+  nimMemo.set(key,false);
+  return false;
+}
+const smallNimPiles=[
+  ...Array.from({length:125},(_,x)=>[Math.floor(x/25),Math.floor(x/5)%5,x%5]),
+  ...Array.from({length:20},()=>Array.from({length:4},()=>randomInt(5)))
+];
+const smallNimCases=[];
+for(let i=0;i<smallNimPiles.length;i+=10) {
+  const group=smallNimPiles.slice(i,i+10);
+  smallNimCases.push([group.length+'\n'+group.map(p=>p.length+'\n'+p.join(' ')).join('\n')+'\n',
+    group.map(p=>nimWinning(p) ? 'Yes\n' : 'No\n').join('')]);
+}
+const bashCases=[];
+for(let m=1;m<=8;m++) for(let n=0;n<=20;n++) {
+  const moves=Array.from({length:m},(_,i)=>i+1);
+  bashCases.push([n+' '+m+'\n',subtractionWinning(n,moves) ? 'First\n' : 'Second\n']);
+}
 const cases = {
+  games: [
+    [stonesCase(4,[2,3]),stonesCase(5,[2,3]),stonesCase(7,[2,3]),stonesCase(20,[1,2,3]),
+      stonesCase(21,[1,2,3]),stonesCase(1,[1]),stonesCase(7,[1,3,4]),stonesCase(5,[5]),
+      ...Array.from({length:30},()=>{const n=1+randomInt(30);const moves=Array.from({length:n},(_,i)=>i+1).filter(()=>randomInt(3)===0);return stonesCase(n,moves.length?moves:[n]);}),
+      ['1 100000\n1\n','Second\n'],
+      ['100 100000\n'+Array.from({length:100},(_,i)=>i+1).join(' ')+'\n','First\n']
+    ],
+    bashCases.concat([
+      ['1000000000000000000 1\n','Second\n'],['999999999999999999 1\n','First\n'],
+      ['1000000000000000000 999999999\n','Second\n'],
+      ['999999999999999999 1000000000\n','Second\n'],
+      ['1000000000000000000 1000000000\n','First\n'],['0 1000000000\n','Second\n']
+    ]),
+    smallNimCases.concat([
+      ['3\n3\n1 2 3\n3\n3 4 5\n2\n0 0\n','No\nYes\nNo\n'],
+      ['4\n1\n2147483647\n2\n2147483647 2147483647\n3\n2147483647 2147483646 1\n1\n0\n','Yes\nNo\nNo\nNo\n'],
+      ['2\n10000\n'+'1 '.repeat(9999)+'1\n10000\n0 '+'1 '.repeat(9998)+'1\n','No\nYes\n']
+    ])
+  ],
   math: [
     [filterPrimeCase([1,2,9,17,4,17]),filterPrimeCase([1]),filterPrimeCase([2]),filterPrimeCase([4,9,25,49,121]),
       filterPrimeCase(Array(100).fill(99991)),filterPrimeCase(Array(100).fill(100000)),
@@ -345,7 +426,14 @@ const cases = {
       .map(lisCase).concat([
         ['1000\n'+Array.from({length:1000},(_,i)=>i+1).join(' ')+'\n','1000\n'],
         ['1000\n'+'5 '.repeat(999)+'5\n','1\n']
-      ])
+      ]),
+    [skiingCase([[9,8,7],[2,3,6],[1,4,5]]),skiingCase([[9,7],[6,2]]),skiingCase([[0]]),
+      skiingCase([[10000]]),skiingCase([[7,7,7],[7,7,7]]),skiingCase([[0,1,2,3]]),
+      skiingCase([[3],[2],[1],[0]]),skiingCase([[100,1,100],[1,0,1],[100,1,100]]),
+      ...Array.from({length:30},()=>skiingCase(Array.from({length:1+randomInt(7)},()=>Array.from({length:7},()=>randomInt(15))))),
+      skiingCase(Array.from({length:100},()=>Array(100).fill(5))),
+      skiingCase(Array.from({length:100},(_,r)=>Array.from({length:100},(_,c)=>r*100+(r%2 ? 99-c : c))))
+    ]
   ],
   knapsack: [
     [triangleCase([[5],[9,1],[1,1,20],[1,1,1,1]]),triangleCase([[0]]),triangleCase([[100]]),
