@@ -208,7 +208,154 @@ const randomSelectionCases=Array.from({length:20},()=>{
 const randomLakeCases=Array.from({length:25},()=>lakeCase(
   Array.from({length:1+randomInt(6)},()=>Array.from({length:6},()=>randomInt(3)===0 ? 'W' : '.').join(''))
 ));
+// New mathematics and DP tutorials use different oracles from the taught loops.
+function trialPrime(n) {
+  if (n < 2) return false;
+  for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+  return true;
+}
+const smallPrimes = new Set();
+const crossed = new Uint8Array(100001);
+for (let d = 2; d <= 100000; d++) {
+  if (crossed[d]) continue;
+  smallPrimes.add(d);
+  for (let x = 2 * d; x <= 100000; x += d) crossed[x] = 1;
+}
+function filterPrimeCase(values) {
+  return [values.length+'\n'+values.join(' ')+'\n',values.filter(x=>smallPrimes.has(x)).join(' ')+'\n'];
+}
+function sieveQueryCase(n) {
+  const primes = Array.from({length:n-1},(_,i)=>i+2).filter(trialPrime);
+  const queries = [1,primes.length,Math.ceil(primes.length/2),1];
+  return [n+' '+queries.length+'\n'+queries.join('\n')+'\n',queries.map(k=>primes[k-1]).join('\n')+'\n'];
+}
+// Enumerate the original P and Q, instead of factoring y/x and doubling pairs.
+function gcdLcmCase(x,y) {
+  let answer=0;
+  for(let p=x;p<=y;p+=x) for(let q=x;q<=y;q+=x) {
+    let common=Math.min(p,q);
+    while(p%common!==0 || q%common!==0) common--;
+    if(common===x && p*q/common===y) answer++;
+  }
+  return [x+' '+y+'\n',answer+'\n'];
+}
+function baseCase(from,value,to,zeros=0) {
+  const source='0'.repeat(zeros)+BigInt(value).toString(from).toUpperCase();
+  return [from+'\n'+source+'\n'+to+'\n',BigInt(value).toString(to).toUpperCase()+'\n'];
+}
+function powerCase(a,b,p) {
+  // Small cases form the exact huge integer; large cases consume bits from the other end.
+  let result;
+  if(b<=100) result=BigInt(a)**BigInt(b)%BigInt(p);
+  else {
+    result=1n;
+    for(const bit of b.toString(2)) {
+      result=result*result%BigInt(p);
+      if(bit==='1') result=result*BigInt(a)%BigInt(p);
+    }
+  }
+  return [a+' '+b+' '+p+'\n',`${a}^${b} mod ${p}=${result}\n`];
+}
+function combinationCase(n,k) {
+  let exact=1n;
+  for(let i=1;i<=k;i++) exact=exact*BigInt(n-i+1)/BigInt(i);
+  return [n+' '+k+'\n',exact%1000000007n+'\n'];
+}
+function maxSegmentCase(values) {
+  let best=-Infinity;
+  for(let left=0;left<values.length;left++) {
+    let sum=0;
+    for(let right=left;right<values.length;right++) {sum+=values[right];best=Math.max(best,sum);}
+  }
+  return [values.length+'\n'+values.join(' ')+'\n',best+'\n'];
+}
+// Exhaust all subsequences, independently of the endpoint DP recurrence.
+function lisCase(values) {
+  let best=0;
+  for(let mask=1;mask<2**values.length;mask++) {
+    const selected=values.filter((_,i)=>mask & (1<<i));
+    if(selected.every((x,i)=>i===0 || selected[i-1]<x)) best=Math.max(best,selected.length);
+  }
+  return [values.length+'\n'+values.join(' ')+'\n',best+'\n'];
+}
+// Enumerate all left/right paths in small triangles; do not reuse the bottom-up DP.
+function triangleCase(rows) {
+  let best=0;
+  for(let mask=0;mask<2**(rows.length-1);mask++) {
+    let column=0,sum=rows[0][0];
+    for(let r=1;r<rows.length;r++) {column+=(mask>>(r-1))&1;sum+=rows[r][column];}
+    best=Math.max(best,sum);
+  }
+  return [rows.length+'\n'+rows.map(row=>row.join(' ')).join('\n')+'\n',best+'\n'];
+}
+// Exhaust all subsets for small 0/1 knapsacks, catching accidental item reuse.
+function knapsackCase(capacity,items) {
+  let best=0;
+  for(let mask=0;mask<2**items.length;mask++) {
+    let used=0,value=0;
+    for(let i=0;i<items.length;i++) if(mask & (1<<i)) {used+=items[i][0];value+=items[i][1];}
+    if(used<=capacity) best=Math.max(best,value);
+  }
+  return [capacity+' '+items.length+'\n'+items.map(item=>item.join(' ')).join('\n')+'\n',best+'\n'];
+}
+const randomKnapsackCases=Array.from({length:35},()=>knapsackCase(
+  1+randomInt(35),Array.from({length:1+randomInt(10)},()=>[1+randomInt(12),1+randomInt(20)])
+));
+const knapsackCases=[
+  knapsackCase(4,[[3,5],[2,3],[2,3]]),knapsackCase(4,[[2,3]]),knapsackCase(1,[[2,100]]),
+  knapsackCase(10,[[6,30],[4,19],[5,20]]),knapsackCase(5,[[3,7],[3,7]]),
+  knapsackCase(100,[[100,100]]),knapsackCase(1000,[[100,100]]),...randomKnapsackCases,
+  ['1000 100\n'+'100 100\n'.repeat(100),'1000\n'],
+  ['1000 100\n'+'1 100\n'.repeat(100),'10000\n']
+];
 const cases = {
+  math: [
+    [filterPrimeCase([1,2,9,17,4,17]),filterPrimeCase([1]),filterPrimeCase([2]),filterPrimeCase([4,9,25,49,121]),
+      filterPrimeCase(Array(100).fill(99991)),filterPrimeCase(Array(100).fill(100000)),
+      ...Array.from({length:20},()=>filterPrimeCase(Array.from({length:100},()=>1+randomInt(100000))))],
+    [2,3,4,20,50,100,997,5000].map(sieveQueryCase).concat([
+      ['1000000 4\n1\n25\n1000\n78498\n','2\n97\n7919\n999983\n'],
+      ['2 1000000\n'+'1\n'.repeat(1000000),'2\n'.repeat(1000000)]
+    ]),
+    [gcdLcmCase(3,60),gcdLcmCase(2,2),gcdLcmCase(60,3),gcdLcmCase(4,18),gcdLcmCase(2,32),
+      ...Array.from({length:35},()=>gcdLcmCase(2+randomInt(18),2+randomInt(70))),
+      ['100000 100000\n','1\n'],['2 100000\n','4\n']]
+  ],
+  'math-applications': [
+    [baseCase(16,26,2),baseCase(2,0,16),baseCase(10,1,2),baseCase(16,15,10),
+      baseCase(2,1000000000,16),baseCase(16,1000000000,2),baseCase(8,12345,8,6),
+      ...Array.from({length:30},()=>baseCase(2+randomInt(15),randomInt(1000000001),2+randomInt(15)))],
+    [[2,10,9],[2,13,100000],[0,1,2],[0,2147483647,2147483647],[1,0,2],
+      [2147483647,0,2147483647],[2,2147483646,2147483647],[2,2147483647,2147483647],
+      [2147483646,2147483647,2147483647],
+      ...Array.from({length:30},()=>[randomInt(2147483648),1+randomInt(100),2+randomInt(2147483645)]),
+      ...Array.from({length:15},()=>[1+randomInt(2147483647),randomInt(2147483648),2+randomInt(2147483645)])].map(args=>powerCase(...args)),
+    [[0,0],[1,0],[1,1],[5,2],[60,30],[1000,0],[1000,1],[1000,500],[1000,999],[1000,1000],
+      ...Array.from({length:20},()=>{const n=randomInt(61);return [n,randomInt(n+1)];})].map(args=>combinationCase(...args))
+  ],
+  dp: [
+    [[-2,1,-3,4,-1,2,1,-5,4],[-5,-2,-7],[0],[10000],[-10000],[5,-100,4],[0,0,0],
+      [2,-1,2],[-1,5,-10,8],...Array.from({length:35},()=>Array.from({length:1+randomInt(30)},()=>randomInt(31)-15))]
+      .map(maxSegmentCase).concat([
+        ['200000\n'+'10000 '.repeat(199999)+'10000\n','2000000000\n'],
+        ['200000\n'+'-10000 '.repeat(199999)+'-10000\n','-10000\n']
+      ]),
+    [[3,1,2,2,5,4],[7],[3,2,1],[1,1,1],[1,2,3],[-1000000000,0,1000000000],
+      ...Array.from({length:30},()=>Array.from({length:1+randomInt(11)},()=>randomInt(12)-6))]
+      .map(lisCase).concat([
+        ['1000\n'+Array.from({length:1000},(_,i)=>i+1).join(' ')+'\n','1000\n'],
+        ['1000\n'+'5 '.repeat(999)+'5\n','1\n']
+      ])
+  ],
+  knapsack: [
+    [triangleCase([[5],[9,1],[1,1,20],[1,1,1,1]]),triangleCase([[0]]),triangleCase([[100]]),
+      triangleCase([[1],[2,3]]),triangleCase([[7],[3,8],[8,1,0],[2,7,4,4],[4,5,2,6,5]]),
+      ...Array.from({length:25},()=>triangleCase(Array.from({length:1+randomInt(8)},(_,r)=>Array.from({length:r+1},()=>randomInt(101))))),
+      ['1000\n'+Array.from({length:1000},(_,r)=>Array(r+1).fill(100).join(' ')).join('\n')+'\n','100000\n']
+    ],
+    knapsackCases,
+    knapsackCases
+  ],
   linear: [
     ['@','a+b@','(a+(b*c))@',')(@','((a)@','a)@','()()@','('.repeat(19)+')'.repeat(19)+'@'].map(bracketsCase).concat(randomBracketCases),
     [translationCase(3,[1,2,1,5,4,4,1]),translationCase(1,[0,0,1000,0,1000]),translationCase(100,Array(1000).fill(0)),
