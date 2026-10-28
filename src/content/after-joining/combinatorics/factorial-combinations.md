@@ -13,19 +13,26 @@ description: 把组合数的除法改写为乘逆元，用一次快速幂预处�
 
 ## 为什么只需要一次快速幂
 
-记 fac[i]=i! mod p，ifac[i]=(i!) 的逆元。先用费马小定理算 ifac[N]=fac[N]^(p−2) mod p。因为 i!=i·(i−1)!，两边取逆可得 ifac[i−1]=ifac[i]·i mod p。
+记 $\operatorname{fac}_i=i!\bmod p$，$\operatorname{ifac}_i=(i!)^{-1}\bmod p$，分别对应代码中的 `fac[i]` 与 `ifac[i]`。先用费马小定理计算最后一项，再由 $i!=i(i-1)!$ 倒着递推：
 
-于是先顺序算阶乘，再倒序算逆阶乘。查询 C(n,k) 时返回 fac[n]·ifac[k]·ifac[n−k] mod p。每次乘法后取模，避免把三个接近 p 的数直接相乘。
+$
+\begin{aligned}
+\operatorname{ifac}_N&=\operatorname{fac}_N^{\,p-2}\bmod p,\\
+\operatorname{ifac}_{i-1}&=\operatorname{ifac}_i\cdot i\bmod p.
+\end{aligned}
+$
 
-例如模 7 求 C(5,2)，5!余 1，2!逆元为 4，3!逆元为 6，因此答案余 1×4×6≡3，与 10 mod 7 一致。
+于是先顺序算阶乘，再倒序算逆阶乘。查询 $\binom nk$ 时，计算 $\operatorname{fac}_n\operatorname{ifac}_k\operatorname{ifac}_{n-k}\bmod p$。每次乘法后取模，避免把三个接近 p 的数直接相乘。
+
+例如模 7 求 $\binom52$，5!余 1，2!逆元为 4，3!逆元为 6，因此答案余 1×4×6≡3，与 10 mod 7 一致。
 
 > **先检查分母是否可逆**
 >
-> 本节要求 N<p，因此 1…N 都不是 p 的倍数，阶乘才有逆元。若 n≥p，fac[n] 可能为 0，不能继续套这个式子；应根据范围选择杨辉三角、Lucas 定理等方法。
+> 本节要求 N<p，因此 1…N 都不是 p 的倍数，阶乘才有逆元。若 n≥p，`fac[n]` 可能为 0，不能继续套这个式子；应根据范围选择杨辉三角、Lucas 定理等方法。
 
 ## 例题精讲：[P1313 计算系数](https://www.luogu.com.cn/problem/P1313)
 
-**题意简述：** 求 (ax+by)ᵏ 展开后 xⁿyᵐ 的系数，对 10007 取模。输入 a、b、k、n、m，n+m=k，0≤k≤1000，a、b≤10⁶。输出系数。
+**题意简述：** 求 (ax+by)ᵏ 展开后 xⁿyᵐ 的系数，对 10007 取模。输入 a、b、k、n、m，`n + m = k`，0≤k≤1000，a、b≤10⁶。输出系数。
 
 自编输入：
 
@@ -41,9 +48,9 @@ description: 把组合数的除法改写为乘逆元，用一次快速幂预处�
 
 ### 先把思路讲清楚
 
-k 个括号中选 n 个提供 ax，剩下 m 个提供 by，选择位置有 C(k,n) 种，每种贡献 aⁿbᵐ，因此答案是 C(k,n)·aⁿ·bᵐ。样例为 3×4×3=36。
+k 个括号中选 n 个提供 ax，剩下 m 个提供 by，选择位置有 $\binom{k}{n}$ 种，每种贡献 aⁿbᵐ，因此答案是 $\binom kn a^n b^m$。样例为 3×4×3=36。
 
-先预处理 fact[i]=i!，再用一次快速幂求 fact[k] 的逆元，倒着得到全部逆阶乘。于是 C(k,n)=fact[k]·inverseFact[n]·inverseFact[m]。10007 是质数，且 k≤1000<10007，阶乘不会变成模意义下的 0，逆元存在。
+先预处理 `fact[i] = i`!，再用一次快速幂求 `fact[k]` 的逆元，倒着得到全部逆阶乘。于是 $\binom kn=k!\,(n!)^{-1}(m!)^{-1}$。10007 是质数，且 k≤1000<10007，阶乘不会变成模意义下的 0，逆元存在。
 
 公式落实成代码时，先计算组合数，再乘两个快速幂，每步取模。k=0 时空乘积为 1，两个幂的指数也为 0，同一代码可直接处理。
 
@@ -79,15 +86,15 @@ int main() {
 }
 ```
 
-预处理 O(k)，快速幂 O(log MOD+log k)，空间 O(k)。组合数公式的条件要与原题的模数、范围一起核对。
+预处理 $\mathcal{O}(k)$，快速幂 $\mathcal{O}(\log  \mathrm{MOD}+\log  k)$，空间 $\mathcal{O}(k)$。组合数公式的条件要与原题的模数、范围一起核对。
 
 ## 练习：同一个公式换一个问题外壳
 
-先**独立重做例题**，用杨辉三角核对 C(k,n)，再乘 aⁿbᵐ，检查 k=0、n=0、m=0。
+先**独立重做例题**，用杨辉三角核对 $\binom{k}{n}$，再乘 aⁿbᵐ，检查 k=0、n=0、m=0。
 
 ### 推荐必做
 
-1. [CF300C Beautiful Numbers](https://codeforces.com/problemset/problem/300/C)：长度 n 的数只由 a、b 两个非零数字组成，且数位和也只能含 a、b，统计方案数。枚举 a 出现的个数，检查数位和，再累计 C(n,k)；n≤10⁶，练习阶乘与逆阶乘预处理。
+1. [CF300C Beautiful Numbers](https://codeforces.com/problemset/problem/300/C)：长度 n 的数只由 a、b 两个非零数字组成，且数位和也只能含 a、b，统计方案数。枚举 a 出现的个数，检查数位和，再累计 $\binom nk$；n≤10⁶，练习阶乘与逆阶乘预处理。
 
 ### 选做巩固
 

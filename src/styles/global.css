@@ -24,3 +24,24 @@
 @media (max-width: 700px) { .fenwick-animation-frame { height: 1800px; } }
 .dag-animation-frame { height: 2040px; }
 @media (max-width: 600px) { .dag-animation-frame { height: 1950px; } }
+
+/* Prose: keep code expressions and mathematical reasoning visually distinct. */
+:root{--inline-code-text:#285b70;--inline-code-bg:#f1f5f8;--inline-code-border:#e2eaf0}
+.dark{--inline-code-text:#9dd8dd;--inline-code-bg:#192b38;--inline-code-border:#2a4353}
+.article-content{line-height:1.95}
+.article-content p{margin:1.15em 0}
+.article-content li{margin:.65em 0;padding-left:.15em}
+.article-content li>p{margin:.55em 0}
+.article-content :not(pre)>code{font-family:Consolas,"SFMono-Regular","Liberation Mono",monospace;font-size:.92em;font-variant-ligatures:none;letter-spacing:0;line-height:inherit;background:var(--inline-code-bg);color:var(--inline-code-text);border:1px solid var(--inline-code-border);border-radius:5px;padding:.08em .34em;margin:0 .12em;white-space:break-spaces;overflow-wrap:anywhere;word-break:normal;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.article-content blockquote{font-size:.96em;line-height:1.95;padding:15px 22px}
+.article-content blockquote>p{margin:.4em 0}
+.article-content blockquote>p+p{margin-top:.8em}
+.article-content table{font-size:.94em;line-height:1.9;margin:24px 0}
+.article-content th,.article-content td{padding:13px 17px}
+.article-content td code{white-space:pre;overflow-wrap:normal}
+.article-content .katex{font-size:1.07em;line-height:1.35;text-indent:0}
+.article-content .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;margin:1.5em 0;padding:1.1em 1.25em;border:1px solid var(--line);border-radius:9px;background:var(--surface);scrollbar-width:thin}
+.article-content .katex-display>.katex{display:block;min-width:max-content;text-align:left;font-size:1.1em}
+.article-content .katex-display>.katex>.katex-html{padding:2px 0}
+.article-content .katex-display .tag{position:static;margin-left:1.5em}
+@media(max-width:599px){.article-content{line-height:1.95}.article-content :not(pre)>code{padding:.08em .28em;margin:0 .08em}.article-content th,.article-content td{padding:11px 13px}.article-content .katex-display{padding:.9em .8em;margin:1.25em 0}.article-content .katex-display>.katex{font-size:1.04em}.article-content blockquote{padding:12px 16px}}
