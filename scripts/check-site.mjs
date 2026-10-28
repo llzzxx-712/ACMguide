@@ -13,7 +13,7 @@ const html = new Map(await Promise.all(htmlFiles.map(async file => [file, await 
 const errors = [];
 let links = 0;
 for (const [file, source] of html) {
-  if (!source.includes('lang="zh-CN"') || !source.includes('<h1>')) errors.push(`Missing page identity: ${file}`);
+  if (!source.includes('lang="zh-CN"') || !/<h1(?:\s|>)/.test(source)) errors.push(`Missing page identity: ${file}`);
   for (const match of source.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const value = match[1].replaceAll('&amp;', '&');
     if (/^(?:https?:|mailto:|data:|javascript:)/.test(value)) continue;

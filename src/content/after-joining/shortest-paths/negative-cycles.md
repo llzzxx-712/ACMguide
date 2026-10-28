@@ -39,6 +39,12 @@ description: 通过反复松弛处理负边，区分负边与负环，并准确�
 
 输出 `YES`、`NO`，每项一行。第一组从 1 可到环 2→3→2，总权为 −2；第二组只存在一条不可从 1 到达的负边。
 
+![负环图：从 1 进入 2、3 之间的负环，每绕一圈总代价减少 2](/ACMguide/diagrams/graphs/negative.svg)
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/bellman.html" title="Bellman–Ford 动图：逐轮扫描边与第 n 轮仍能松弛的负环" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/bellman.html)。动图展开第一组输入中实际存下的四条有向边。跟着每轮扫描观察 `dist[2]`、`dist[3]`，到第 $n$ 轮仍在下降时，再回到图上找让代价反复降低的环。
+
 ### 完整代码
 
 本算法要逐轮扫描全部边，所以用 `vector` 保存边表；这与遍历某个点的邻居时使用的 `vector` 邻接表分别服务于不同的访问方式。

@@ -41,6 +41,12 @@ d[i][j] = min(d[i][j], d[i][k] + d[k][j])
 
 输出 `3`。必须先出现 `1 2 3`，但 1 到 2 可以先经过 3，走 $1\to3\to2$ 费用 2，再走 $2\to3$ 费用 1。经过一个未来要求的点，并不妨碍以后再次按序经过它。
 
+![Floyd 图：原始直接代价为 1 到 2 花费 5，经 3 只花费 2](/ACMguide/diagrams/graphs/floyd.svg)
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/floyd.html" title="Floyd 动图：允许的中间点集合、距离矩阵与路径更新" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/floyd.html)。观察允许 1、2 中转时矩阵为什么不变，再看允许 3 后，$1\to2$ 和 $2\to1$ 两项怎样变为 2。图上的数字保留原始边权，表格记录当前最短距离；两者不要混淆。
+
 ### 完整代码
 
 本题直接输入矩阵，用二维 `vector` 保存。先求任意两岛最短代价，再将要求序列中相邻两项的代价相加。

@@ -30,6 +30,14 @@ description: 分别按边合并连通块，或从一个点集向外扩张，将�
 
 输出 `6`，选权值 `1 2 3` 的三条边。
 
+![Kruskal 与 Prim 的共同示例：四点五边，最小生成树选权 1、2、3](/ACMguide/diagrams/graphs/mst.svg)
+
+### 动手看：两种贪心，在同一张图上怎样选边
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/mst.html" title="最小生成树动图：Kruskal 并查集判环与 Prim 从当前树扩张" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/mst.html)。Kruskal 模式下，先比较边的两端是否同组，再决定合并或跳过；切换到 Prim 后，留意堆中候选的 $\mathrm{cost}$ 是连接到当前树的**单条边代价**，不是源点到它的路程。动图与下方代码一样，将候选边入堆，弹出时跳过已入树的点。两种过程最终都选出总权为 6 的树。
+
 ## Kruskal：从便宜边开始，能合并就合并
 
 按权升序扫描边。两端属于不同集合就加入，并查集合并；相同集合则成环，跳过。当前已选边保持森林，所选边又是某个当前块跨出的最小候选，因此可以应用割性质。

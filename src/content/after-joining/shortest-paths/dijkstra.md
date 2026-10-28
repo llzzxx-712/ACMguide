@@ -36,6 +36,14 @@ $0/1$ BFS 靠双端队列安排距离顺序，任意非负边权则交给小根�
 
 输出 `0 3 1 4`。堆中最初有 $(10,2)$、$(1,3)$；弹出 3 后，将 2 改为 `3、4` 改为 9；弹出 2 后，将 4 改为 4。旧的 $(10,2)$、$(9,4)$ 仍在堆中，但已没有作用。
 
+![Dijkstra 自拟输入的有向带权图：从 1 经 3、2 到 4 费用最小](/ACMguide/diagrams/graphs/dijkstra.svg)
+
+### 动手看：一条路线改善后，旧候选去了哪里
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/dijkstra.html" title="Dijkstra 动图：最小候选弹出、距离松弛、入堆与过期记录跳过" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/dijkstra.html)。每次先看候选表最小的一项，再对照图上的出边与高亮代码。点击“看过期堆记录”，观察为什么记录中的距离与 `dist[u]` 不同时可以直接跳过。候选表按弹出优先级排列，方便手算。
+
 ### 完整代码
 
 ```cpp

@@ -43,6 +43,14 @@ description: 打开邻居名单枚举下一步，用访问标记处理环，并�
 
 6 无法从 1 到达，不输出它。先给每份名单排序，得到 $g[1]=\{2,3\}$、$g[2]=\{3,4\}$、$g[3]=\{5\}$，其余为空。
 
+![文献引用图：1 指向 2、3，2 指向 3、4，3 指向 5，6 独立](/ACMguide/diagrams/graphs/traversal.svg)
+
+### 动手看：换一个容器，探索顺序怎样改变
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/traversal.html" title="图遍历动图：DFS 的显式栈、BFS 的等待队列与访问标记" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/traversal.html)。先比较两种模式的输出，再观察 DFS 中重复的 3 为什么可以暂时留在栈里，以及 BFS 为什么在入队时就标记。动图采用下方完整代码的显式栈写法，栈顶在右端，队头在左端。
+
 ### DFS：栈保存尚待尝试的选择
 
 递归 DFS 的思路是访问 $u$，然后按名单顺序逐个递归访问未访问的邻居。本题路径可以很长，我们用显式栈保存待处理的点，避免产生十万层函数调用。

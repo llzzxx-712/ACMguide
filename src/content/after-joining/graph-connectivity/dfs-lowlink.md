@@ -55,6 +55,14 @@ description: 记录子树能否绕过来时的树边回到更早结点，从搜�
 
 三角形中一条边断开还能绕另一侧；后面链上的边没有替代路线。
 
+![无向图的绕行与桥：三角形有替代路线，3—4、4—5 两条桥没有](/ACMguide/diagrams/graphs/lowlink.svg)
+
+### 动手看：孩子返回的 low 是哪条绕行带来的
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/lowlink.html" title="无向图 DFS low 动图：发现时间、父边跳过、回边更新与桥判断" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/lowlink.html)。点击“看绕回早期点”，观察回到 1 的边如何降低 3 的 $\mathrm{low}$；再逐步返回，看这个信息怎样交给父亲。点击“看判断桥”，对照 $\mathrm{low}[v]>\mathrm{dfn}[u]$ 判断链上的边。
+
 ### 为什么是 $\mathrm{low}[v]>\mathrm{dfn}[u]$
 
 对树边 $u$—$v$，若 $v$ 子树能回到 $u$ 或 $u$ 的祖先，删掉这条边仍能绕回来。只有 `low[v]` 严格大于 `dfn[u]`，才说明 $v$ 子树无法绕过它，这条边是桥。

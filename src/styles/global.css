@@ -23,6 +23,9 @@
 .fenwick-animation-frame { height: 1540px; }
 @media (max-width: 700px) { .fenwick-animation-frame { height: 1800px; } }
 .dag-animation-frame { height: 2040px; }
+.graph-process-frame { height: 1500px; }
+.article-content img[src*="/diagrams/graphs/"] { display:block;width:100%;max-width:760px;height:auto;margin:24px auto;border:1px solid var(--line);border-radius:10px;background:#fbfdfe;padding:14px; }
+@media(max-width:600px){.graph-process-frame{height:1900px}.article-content img[src*="/diagrams/graphs/"]{padding:4px;margin:20px auto}}
 @media (max-width: 600px) { .dag-animation-frame { height: 1950px; } }
 
 /* Prose: keep code expressions and mathematical reasoning visually distinct. */

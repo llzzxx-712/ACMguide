@@ -312,3 +312,4 @@ for(const id of ['mode','play','previous','next','restart','change-step','done-s
 console.log('Fenwick animation checks passed: disjoint prefix coverage, exact sums, every containing update interval, boundaries and independent snapshots.');
 
 await import('./check-topological-animation.mjs');
+await import('./check-graph-visuals.mjs');

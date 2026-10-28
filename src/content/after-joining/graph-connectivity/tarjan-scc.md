@@ -15,6 +15,8 @@ description: 用尚未归组的点栈保存相互可达的候选区域，在搜�
 
 例如 $1\to2\to3\to1$，且 $3\to4$、$4\to5$、$5\to4$。`1 2 3` 互相可达，`4 5` 互相可达；前一组能到后一组，后一组回不来，所以是两个 SCC。
 
+![强连通分量图：1、2、3 互相可达，4、5 互相可达，只有前一组到后一组的单向边](/ACMguide/diagrams/graphs/scc.svg)
+
 单个点也属于一个 SCC，即使没有自环。“至少两个点组成的环形区域”和“一般 SCC”在统计时要分清。
 
 ## $\mathrm{dfn}$、$\mathrm{low}$ 与尚未归组的点栈
@@ -48,6 +50,12 @@ description: 用尚未归组的点栈保存相互可达的候选区域，在搜�
 ```
 
 输出 `2`。从 1 搜索时会先完成并弹出 $\{4,5\}$，再弹出 $\{1,2,3\}$；两组之间的单向边不能把它们合并。
+
+### 动手看：返回一层调用，不一定弹出一个分量
+
+<iframe class="lesson-animation-frame graph-process-frame" src="/ACMguide/animations/graph-process/tarjan.html" title="Tarjan 动图：有向 DFS、low 更新、调用栈与 active 栈及分量弹出" loading="lazy"></iframe>
+
+[单独打开动图](/ACMguide/animations/graph-process/tarjan.html)。先比较两个栈的内容：5 的函数调用结束后，为什么还要留在 $\mathrm{active}$ 中？再点击“看分量弹栈”，观察满足 $\mathrm{low}[u]=\mathrm{dfn}[u]$ 时，怎样连续弹到入口 $u$。同色结点已经被分到同一个 SCC，颜色对应表中的分量编号。
 
 ### 完整代码
 
