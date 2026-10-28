@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import rehypeMathjax from 'rehype-mathjax/svg';
+import { captureMathSources, labelMathOutput } from './src/lib/math-labels.mjs';
 
 export default defineConfig({
   site: 'https://llzzxx-712.github.io',
@@ -12,7 +13,16 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
-      rehypePlugins: [[rehypeKatex, { strict: 'error', trust: false, output: 'htmlAndMathml' }]]
+      rehypePlugins: [
+        captureMathSources,
+        [rehypeMathjax, {
+          tex: {
+            packages: ['base', 'ams', 'newcommand', 'configmacros', 'boldsymbol']
+          },
+          svg: { fontCache: 'local', displayAlign: 'center' }
+        }],
+        labelMathOutput
+      ]
     }),
     shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } }
   }
