@@ -29,6 +29,9 @@ for(const mode of ['kruskal','prim'])assert.equal(mstTrace(mode).result.total,6)
 assert.deepEqual(lowlinkTrace().result.bridges.slice().sort(),[3,4]);
 const scc=tarjanTrace();assert.equal(scc.result.count,2);assert.deepEqual(scc.result.component.slice(1),[2,2,2,1,1]);
 assert(scc.frames.some(f=>f.event==='return'&&f.panels[1][1].includes('5')),'A returned call must remain on active until its SCC root finishes');
+for(const f of scc.frames.filter(f=>['return','root','pop'].includes(f.event))){
+    const u=f.active[0];assert(!f.panels[0][1].split(' → ').includes(String(u)),'The explicit calls stack pops before SCC root testing and active-stack popping');
+}
 
 // Small independent oracles: distances, all spanning trees, reachability and deleting an edge.
 function graph(n,edges,directed){return {title:'test',directed,nodes:Array.from({length:n},(_,i)=>({id:i+1,x:70+i*85,y:150,label:String(i+1)})),edges:edges.map(([from,to,weight=1],id)=>({id,from,to,weight}))};}

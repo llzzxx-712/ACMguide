@@ -106,7 +106,7 @@ export function floydTrace() {
         ['init','// d 初始化为直接代价，d[i][i] = 0'],['middle','for (int k = 0; k < n; k++) {'],['test','    // 枚举 i、j，比较原路线和 i → k → j'],['relax','    d[i][j] = min(d[i][j], d[i][k] + d[k][j]);'],['done','// 每对点之间的最短路都已算好']
     ],'与 P2910 自拟矩阵相同。图上始终标原始边权；表格才是逐轮更新的最短距离。只把会改善的比较单步展开，其余比较在轮次说明中汇总。');
     let k=-1;
-    const emit=(event,line,note,active=[],chosen=[])=>t.emit({event,line,note,active,chosen,rows:d.map((r,i)=>[i+1,...r]),panels:[['当前中间点',k<0?'尚未放开':String(k+1)],['允许的中间点',k<0?'空集':Array.from({length:k+1},(_,i)=>i+1).join('  ')]]});
+    const emit=(event,line,note,active=[],chosen=[])=>t.emit({event,line,note,active,chosen,rows:d.map((r,i)=>[i+1,...r]),panels:[['当前中间点',k<0?'尚未放开':`${k+1}（代码下标 k = ${k}）`],['允许的中间点',k<0?'空集':Array.from({length:k+1},(_,i)=>i+1).join('  ')]]});
     emit('init','init','矩阵开始保存直接代价。');
     for(k=0;k<3;k++){emit('middle','middle',`现在允许 ${k+1} 也作为中间点；完整枚举全部起点和终点。`,[k+1]);let count=0;
         for(let i=0;i<3;i++)for(let j=0;j<3;j++){if(d[i][k]+d[k][j]<d[i][j]){const candidate=d[i][k]+d[k][j],chosen=g.edges.filter(e=>(e.from===i+1&&e.to===k+1)||(e.from===k+1&&e.to===j+1)).map(e=>e.id);emit('test','test',`${i+1}→${k+1}→${j+1}：${d[i][k]} + ${d[k][j]} = ${candidate}，比原来的 ${d[i][j]} 小。`,[i+1,k+1,j+1],chosen);d[i][j]=candidate;emit('relax','relax',`更新 d[${i+1}][${j+1}] = ${candidate}。`,[i+1,k+1,j+1],chosen);count++;}}
@@ -161,18 +161,18 @@ export function tarjanTrace(custom) {
     // The animation must reveal groups, not display the completed SCC partition at the start.
     delete g.groups;
     const t=recorder(g,'Tarjan：调用返回与整组弹栈是两件事',['点','dfn','low','在 active 中','分量编号'],[
-        ['enter','dfn[u] = low[u] = ++timer; active.push_back(u); inStack[u] = true;'],['edge','for (int v : g[u]) {'],['tree','    if (!dfn[v]) { dfs(v); low[u] = min(low[u], low[v]); }'],['back','    else if (inStack[v]) low[u] = min(low[u], dfn[v]);'],['ignore','    // 已经归组的 v 不参与 low 更新'],['root','if (low[u] == dfn[u]) {'],['pop','    // active 连续弹到 u，赋相同 component 编号'],['return','// 当前调用返回；active 中可能仍然留有 u'],['done','// 每个点恰好属于一个 SCC']
+        ['enter','// enter(u): 初始化 dfn、low，并加入 calls、active'],['edge','int v = g[u][next[u]++];'],['tree','if (!dfn[v]) { parent[v] = u; enter(v); }'],['back','else if (inStack[v]) low[u] = min(low[u], dfn[v]);'],['ignore','// 已经归组的 v 不参与 low 更新'],['return','// 邻居枚举完：calls.pop_back();'],['root','if (low[u] == dfn[u]) {'],['pop','    // active 连续弹到 u，赋相同 component 编号'],['propagate','if (parent[u]) low[parent[u]] = min(low[parent[u]], low[u]);'],['done','// 每个点恰好属于一个 SCC']
     ],'与 P2863 自拟输入相同。calls 模拟函数调用，active 保存尚未归组的点；它们不能合成一个栈。两栈的右端都是栈顶。');
     const emit=(event,line,note,u=0,edge=-1)=>t.emit({event,line,note,edge,active:u?[u]:[],chosen:tree,done:g.nodes.filter(x=>component[x.id]).map(x=>x.id),groups:component,rows:g.nodes.map(x=>[x.id,dfn[x.id]||'—',low[x.id]||'—',active.includes(x.id)?'是':'否',component[x.id]||'—']),panels:[['calls · 当前函数栈',calls.join(' → ')||'空'],['active · 尚未归组',active.join(' → ')||'空'],['归组进度 · 弹栈中的组还会增加',Array.from({length:count},(_,i)=>`${i+1}: {${g.nodes.filter(x=>component[x.id]===i+1).map(x=>x.id).join(',')}}`).join('  ')||'尚无']]});
     function dfs(u){calls.push(u);active.push(u);dfn[u]=low[u]=++timer;emit('enter','enter',`进入 ${u}，同时加入 calls 与 active；dfn 和 low 初始化为 ${timer}。`,u);
         for(const e of a[u]){const v=e.to;emit('edge','edge',`查看有向边 ${u}→${v}。`,u,e.id);
-            if(!dfn[v]){tree.push(e.id);emit('tree','tree',`${v} 尚未发现，调用 dfs(${v})。当前这一层的邻居循环暂停。`,u,e.id);dfs(v);low[u]=Math.min(low[u],low[v]);emit('propagate','tree',`${v} 返回，用孩子的 low[${v}] = ${low[v]} 更新，low[${u}] = ${low[u]}。`,u,e.id);}
+            if(!dfn[v]){tree.push(e.id);emit('tree','tree',`${v} 尚未发现，设置 parent[${v}] = ${u}，再 enter(${v})。当前这一层的邻居循环暂停。`,u,e.id);dfs(v);low[u]=Math.min(low[u],low[v]);emit('propagate','propagate',`${v} 这一层完成归组判断后，将 low[${v}] = ${low[v]} 交给父亲 ${u}，low[${u}] 更新为 ${low[u]}。`,v,e.id);}
             else if(active.includes(v)){low[u]=Math.min(low[u],dfn[v]);emit('back','back',`${v} 已发现且尚在 active，用 dfn[${v}] = ${dfn[v]} 更新，low[${u}] = ${low[u]}。`,u,e.id);}
             else emit('ignore','ignore',`${v} 已弹栈归组。只有通向它的单向路线，不能据此把两个分量合并，忽略这条边。`,u,e.id);
         }
-        emit('root','root',`邻居处理完：low[${u}] = ${low[u]}，dfn[${u}] = ${dfn[u]}，${low[u]===dfn[u]?'相等，准备弹出一个完整分量':'不相等，暂不归组'}。`,u);
+        calls.pop();emit('return','return',`${u} 的邻居已经全部枚举完，先从 calls 弹出。它此时仍在 active 中；接下来单独判断是否需要弹出一个 SCC。`,u);
+        emit('root','root',`检查刚处理完的 ${u}：low[${u}] = ${low[u]}，dfn[${u}] = ${dfn[u]}，${low[u]===dfn[u]?'相等，准备弹出一个完整分量':'不相等，暂不归组，仍留在 active'}。`,u);
         if(low[u]===dfn[u]){count++;let v;do{v=active.pop();component[v]=count;emit('pop','pop',`从 active 弹出 ${v}，清除 inStack 并赋分量编号 ${count}；${v===u?'已弹到入口 '+u+'，本组结束':'还未弹到入口 '+u+'，继续弹'}。`,u);}while(v!==u);}
-        calls.pop();emit('return','return',`调用 dfs(${u}) 结束。${active.includes(u)?u+' 仍留在 active，等待更早入口统一归组。':u+' 已经归组。'}`,calls.at(-1)||0);
     }
     for(const x of g.nodes)if(!dfn[x.id])dfs(x.id);
     emit('done','done',`全部调用结束，共 ${count} 个 SCC。分量之间的单向边没有让它们成为同一组。`);t.result={component,count,dfn,low};return t;
