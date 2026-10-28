@@ -100,11 +100,11 @@ int main() {
 
 若 $a_{i+1}=2a_i+3$，可以加入永远为 $1$ 的状态：
 
-$
+$$
 \begin{bmatrix}a_{i+1}\\1\end{bmatrix}
 =\begin{bmatrix}2&3\\0&1\end{bmatrix}
 \begin{bmatrix}a_i\\1\end{bmatrix}.
-$
+$$
 
 若还要求前缀和 $S_i$，则把 $S_i$ 也加进去，用 $S_{i+1}=S_i+a_{i+1}$ 填一行。先确定每个新状态依赖哪些旧状态，再填系数，矩阵就不会变成需要死记的表格。
 

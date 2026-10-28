@@ -25,14 +25,22 @@ assert.ok(!probe.code.includes('katex-error'));
 
 async function walk(dir){return(await Promise.all((await readdir(dir,{withFileTypes:true})).map(e=>e.isDirectory()?walk(path.join(dir,e.name)):path.join(dir,e.name)))).flat();}
 const root=path.resolve('dist'), files=await walk(root);
-let mathPages=0, formulas=0;
+let mathPages=0, formulas=0, displayFormulas=0;
 for(const file of files.filter(p=>p.endsWith('.html'))){
     const source=await readFile(file,'utf8');
     assert.ok(!source.includes('class="katex-error"'),`Invalid formula: ${file}`);
     const count=[...source.matchAll(/class="katex"/g)].length;
+    displayFormulas += [...source.matchAll(/class="katex-display"/g)].length;
     if(count){mathPages++;formulas+=count;assert.ok(source.includes('<math'),`Missing accessible MathML: ${file}`);}
 }
 assert.ok(mathPages>=100,'Math typography must be available across the tutorials');
+assert.ok(displayFormulas>=10,'Long derivations must retain display-math layout');
+const factorial=await readFile(path.join(root,'after-joining/learn/factorial-combinations/index.html'),'utf8');
+assert.ok(factorial.includes('class="katex-display"'),'Factorial derivation must use display-math layout');
+for(const file of(await walk('src/content')).filter(p=>p.endsWith('.md')&&!p.endsWith(path.join('language','arrays.md')))){
+    const source=(await readFile(file,'utf8')).replace(/```[\s\S]*?```/g,'');
+    assert.ok(!/^\s*\$\s*$/m.test(source),`Standalone formulas need paired double-dollar delimiters: ${file}`);
+}
 const reconstruction=await readFile(path.join(root,'after-joining/learn/tree-reconstruction/index.html'),'utf8');
 assert.ok(reconstruction.includes('<code>solve(inLe, inRi, postLe, postRi)</code>'));
 assert.ok(reconstruction.includes('<code>[postLe, postLe + leftSize - 1]</code>'));
@@ -51,4 +59,4 @@ for(const file of files.filter(p=>p.endsWith('.css'))){
  }
 }
 assert.ok(fonts>=20,'Missing bundled KaTeX fonts');
-console.log(`Math and typography checks passed: ${mathPages} pages, ${formulas} formulas, ${fonts} local font references, accessible MathML and literal code preserved.`);
+console.log(`Math and typography checks passed: ${mathPages} pages, ${formulas} formulas (${displayFormulas} display), ${fonts} local font references, accessible MathML and literal code preserved.`);

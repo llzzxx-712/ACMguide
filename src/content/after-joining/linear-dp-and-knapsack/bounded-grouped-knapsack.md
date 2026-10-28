@@ -15,9 +15,9 @@ description: 先根据每类物品的可选数量组织决策，再把有限件�
 
 某类物品重量 w、价值 v、上限 count，二维转移为：
 
-$
+$$
 f_{i,c}=\max_{0\le k\le\min(\mathrm{count},\lfloor c/w\rfloor)}\left(f_{i-1,c-kw}+kv\right).
-$
+$$
 
 其中 $f_{i,c}$ 对应 `f[i][c]`。枚举的 $k$ 表示取几件，最多取 `min(count, c / w)` 件。这个式子直接反映选几件，但大上限会让枚举太多。
 

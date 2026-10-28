@@ -100,13 +100,13 @@ r=n 时，`add(n + 1, -value)` 的循环不执行，因为原数组没有 n 之�
 
 原数组前 x 项的和中，差分 `d[j]` 会被累计 x−j+1 次，因此：
 
-$
+$$
 \begin{aligned}
 \sum_{i=1}^{x}a_i
 &=\sum_{j=1}^{x}(x-j+1)d_j\\
 &=x\sum_{j=1}^{x}d_j-\sum_{j=1}^{x}(j-1)d_j.
 \end{aligned}
-$
+$$
 
 上式的 $d_j$ 就是 `d[j]`。分别用两份树状数组维护 `d[j]` 与 `(j - 1) * d[j]`。一次差分位置 p 加 value，就向第一份 `add(p, value)`，向第二份 `add(p, (p - 1) * value)`。原数组前缀和写成代码就是 `x * query1(x) - query2(x)`，再作两次前缀相减，就得到区间和。
 

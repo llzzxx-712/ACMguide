@@ -15,12 +15,12 @@ description: 把组合数的除法改写为乘逆元，用一次快速幂预处�
 
 记 $\operatorname{fac}_i=i!\bmod p$，$\operatorname{ifac}_i=(i!)^{-1}\bmod p$，分别对应代码中的 `fac[i]` 与 `ifac[i]`。先用费马小定理计算最后一项，再由 $i!=i(i-1)!$ 倒着递推：
 
-$
+$$
 \begin{aligned}
 \operatorname{ifac}_N&=\operatorname{fac}_N^{\,p-2}\bmod p,\\
 \operatorname{ifac}_{i-1}&=\operatorname{ifac}_i\cdot i\bmod p.
 \end{aligned}
-$
+$$
 
 于是先顺序算阶乘，再倒序算逆阶乘。查询 $\binom nk$ 时，计算 $\operatorname{fac}_n\operatorname{ifac}_k\operatorname{ifac}_{n-k}\bmod p$。每次乘法后取模，避免把三个接近 p 的数直接相乘。
 
