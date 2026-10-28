@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>拓扑排序与 DAG 动态规划：前驱何时到齐</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#20384b;font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:900px;margin:auto;padding:22px}h1{font-size:25px;line-height:1.4;margin:0 0 10px}h2{font-size:18px;margin:18px 0 8px}p{margin:9px 0}button,select{font:inherit;color:#244258;border:1px solid #b9cdd8;background:#fff;border-radius:7px;padding:7px 10px;cursor:pointer}button.primary{background:#087e6d;color:white;border-color:#087e6d}button:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #176e9f;outline-offset:2px}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:12px 0}.scrub{display:flex;gap:10px;align-items:center}.scrub input{flex:1;min-width:70px;accent-color:#087e6d}.track{height:4px;background:#e5edf2;overflow:hidden}#progress{width:100%;height:100%;background:#087e6d;transform-origin:left}.graph-wrap{overflow-x:auto;border:1px solid #dae4ed;border-radius:10px;background:#fbfdfe}.graph-wrap svg{display:block;width:100%;min-width:500px;height:auto}.edge{fill:none;stroke:#8ba1b2;stroke-width:3}.weight{font:20px Consolas,monospace;fill:#29465b;paint-order:stroke;stroke:#fbfdfe;stroke-width:7px;stroke-linejoin:round}.node circle{fill:white;stroke:#b3c6d9;stroke-width:3}.node text{font:700 26px system-ui;fill:#173d50;text-anchor:middle;dominant-baseline:central}.hint,footer{font-size:13px;color:#526878}.queue{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.chip{min-height:42px;border:2px solid #b8d4e6;border-radius:7px;text-align:center;padding:4px;background:#eaf3fa;font-weight:700}.state-table{border-collapse:collapse;width:100%;font-size:15px}.state-table th,.state-table td{border:1px solid #dbe5ec;padding:6px 8px;text-align:center}.state-table th{background:#eef4f8}.state-table td{font-variant-numeric:tabular-nums}.topology-only .dp-cell{display:none}[hidden]{display:none!important}.vars{background:#eef4f8;border-radius:7px;padding:9px 12px;font:14px/1.8 Consolas,monospace;overflow-wrap:anywhere}#note{min-height:106px;border-left:4px solid #087e6d;background:#edf7f2;padding:12px 15px}#answer{min-height:28px;color:#086a5d;font-weight:700}.code{border:1px solid #dae4ed;border-radius:9px;background:#f6f8fb;padding:9px 0;font:14px/1.8 Consolas,monospace;overflow-x:auto}.code div{white-space:pre;border-left:4px solid transparent;padding:1px 10px}footer{margin-top:12px}@media(max-width:600px){main{padding:14px}h1{font-size:21px}.toolbar{gap:6px}button,select{padding:7px 8px}.state-table{font-size:12px}.state-table th,.state-table td{padding:5px 4px}.code{font-size:12px}.vars{font-size:12px}#note{min-height:152px}.chip{padding:5px 1px}.graph-wrap svg{min-width:0}.weight{font-size:24px}.node text{font-size:28px}}
+</style>
+</head>
+<body>
+<main id="demo" data-composition-id="topological-dp" data-width="900" data-height="2100" data-duration="39.6">
+<section id="lesson-scene" class="clip" data-start="0" data-duration="39.6" data-track-index="0">
+<h1>前驱到齐了，这个点才能处理</h1>
+<p>先看入度与队列，再接上最长路。每一步只做一件事：取点、传播候选、释放依赖，或把新点入队。</p>
+<div class="toolbar"><label>例子 <select id="mode"><option value="topology">先看拓扑排序</option><option value="longest">接上最长路 DP</option><option value="unreachable">不可达点也要出队</option><option value="cycle">有环时为何停下</option></select></label><button id="play" class="primary">播放</button><button id="previous">上一步</button><button id="next">下一步</button><button id="restart">重来</button></div>
+<div class="toolbar"><button id="join-step">看前驱未到齐</button><button id="unlock-step">看入度归零</button><button id="answer-step">看结束</button><label>速度 <select id="speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>
+<div class="scrub"><input id="slider" type="range" min="0" max="21" value="0" aria-label="步骤进度"><span id="step-count">1 / 22</span></div><div class="track"><div id="progress"></div></div>
+<h2>图上的前后依赖</h2>
+<div class="graph-wrap"><svg viewBox="0 0 620 400" role="img" aria-label="有向图：箭头表示前驱到后继，虚线表示已经释放的依赖">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path></marker></defs>
+<path id="edge-0" class="edge" marker-end="url(#arrow)"></path><text id="weight-0" class="weight"></text>
+<path id="edge-1" class="edge" marker-end="url(#arrow)"></path><text id="weight-1" class="weight"></text>
+<path id="edge-2" class="edge" marker-end="url(#arrow)"></path><text id="weight-2" class="weight"></text>
+<path id="edge-3" class="edge" marker-end="url(#arrow)"></path><text id="weight-3" class="weight"></text>
+<path id="edge-4" class="edge" marker-end="url(#arrow)"></path><text id="weight-4" class="weight"></text>
+<g id="node-1" class="node"><circle r="28"></circle><text>1</text></g><g id="node-2" class="node"><circle r="28"></circle><text>2</text></g><g id="node-3" class="node"><circle r="28"></circle><text>3</text></g><g id="node-4" class="node"><circle r="28"></circle><text>4</text></g><g id="node-5" class="node"><circle r="28"></circle><text>5</text></g>
+</svg></div>
+<p class="hint">黄色：当前点或边；蓝色：排队等待；绿色：已处理。虚线边的依赖已释放，原图仍保存在邻接表中。</p>
+<h2>等待队列 · 左边是队头</h2><div class="queue"><div class="chip" id="queue-0">—</div><div class="chip" id="queue-1">—</div><div class="chip" id="queue-2">—</div><div class="chip" id="queue-3">—</div><div class="chip" id="queue-4">—</div></div>
+<p class="vars" id="order">已取出的拓扑顺序：尚无</p>
+<table class="state-table" aria-label="每个点的剩余入度、最长路和处理状态"><thead><tr><th>点</th><th>剩余入度</th><th class="dp-cell">f：最长路</th><th>状态</th></tr></thead><tbody>
+<tr id="row-1"><th>1</th><td id="degree-1">0</td><td id="f-1" class="dp-cell">0</td><td id="status-1">未处理</td></tr>
+<tr id="row-2"><th>2</th><td id="degree-2">1</td><td id="f-2" class="dp-cell">不可达</td><td id="status-2">未处理</td></tr>
+<tr id="row-3"><th>3</th><td id="degree-3">1</td><td id="f-3" class="dp-cell">不可达</td><td id="status-3">未处理</td></tr>
+<tr id="row-4"><th>4</th><td id="degree-4">2</td><td id="f-4" class="dp-cell">不可达</td><td id="status-4">未处理</td></tr>
+<tr id="row-5"><th>5</th><td id="degree-5">0</td><td id="f-5" class="dp-cell">不可达</td><td id="status-5">未处理</td></tr>
+</tbody></table>
+<p class="vars" id="vars">当前点 u = —</p><p id="note" aria-live="polite">先统计每个点还有几条入边。</p><p id="answer">等待开始</p>
+<h2>对照代码执行</h2>
+<div class="code" aria-label="拓扑排序与最长路代码"><div id="code-init">// 先统计 indegree；最长路初值：f[1]=0，其余 NEG</div><div id="code-seed">for (int u=1; u&lt;=n; u++) if (!indegree[u]) q.push(u);</div><div id="code-while">while (!q.empty()) {</div><div id="code-pop">    int u = q.front(); q.pop(); order.push_back(u);</div><div id="code-each">    for (const Edge &amp;e : g[u]) {</div><div id="code-guard" class="dp-cell">        if (f[u] != NEG)</div><div id="code-relax" class="dp-cell">            f[e.to] = max(f[e.to], f[u] + e.weight);</div><div id="code-decrease">        indegree[e.to]--;</div><div id="code-enqueue">        if (indegree[e.to] == 0) q.push(e.to);</div><div>    }</div><div>}</div><div id="code-done">// 检查取出点数；DAG 中此时可读取最终答案</div></div>
+<footer>表里的 f 在点出队前可能还会改善；出队时，所有前驱贡献已经到齐。入度归零决定处理时机，从起点可达决定是否传播 DP。</footer>
+</section></main>
+<script src="/ACMguide/animations/fenwick/assets/gsap.min.js"></script>
+<script type="module">
+import {buildTopoTrace,seconds} from './trace.mjs';
+const $=s=>document.querySelector(s),slider=$('#slider'),play=$('#play'),speed=$('#speed');
+let trace,frames,timeline,duration,current=0;
+const lines=['init','seed','while','pop','each','guard','relax','decrease','enqueue','done'];
+function controls(){current=Math.min(frames.length-1,Math.floor(timeline.time()/seconds));slider.value=current;$('#step-count').textContent=(current+1)+' / '+frames.length;play.textContent=timeline.paused()||timeline.time()>=duration?'播放':'暂停';}
+function graphLayout(){
+    const positions=trace.n===5?{1:[80,95],2:[80,305],3:[300,95],4:[300,305],5:[540,200]}:{1:[80,200],2:[300,80],3:[300,320],4:[540,200],5:[540,200]};
+    for(let i=1;i<=5;i++){$('#node-'+i).setAttribute('transform','translate('+positions[i].join(' ')+')');$('#node-'+i).setAttribute('opacity',i<=trace.n?'1':'0');$('#node-'+i).setAttribute('aria-hidden',i>trace.n?'true':'false');$('#row-'+i).hidden=i>trace.n;}
+    for(let i=0;i<5;i++){
+        const edge=trace.edges[i],path=$('#edge-'+i),label=$('#weight-'+i);path.setAttribute('opacity',edge?'1':'0');label.setAttribute('opacity',edge&&trace.dp?'1':'0');
+        if(!edge)continue;
+        const [x1,y1]=positions[edge.from],[x2,y2]=positions[edge.to],dx=x2-x1,dy=y2-y1,length=Math.hypot(dx,dy),nx=-dy/length,ny=dx/length;
+        const bend=trace.edges.some(e=>e.from===edge.to&&e.to===edge.from)?46:0;
+        const sx=x1+dx/length*31,sy=y1+dy/length*31,ex=x2-dx/length*35,ey=y2-dy/length*35,cx=(x1+x2)/2+nx*bend,cy=(y1+y2)/2+ny*bend;
+        path.setAttribute('d',`M ${sx} ${sy} Q ${cx} ${cy} ${ex} ${ey}`);
+        label.setAttribute('x',(x1+x2)/2+nx*(bend/2+17));label.setAttribute('y',(y1+y2)/2+ny*(bend/2+17));label.textContent=trace.dp?edge.weight:'';
+    }
+}
+function create(){
+    if(timeline)timeline.kill();trace=buildTopoTrace($('#mode').value);frames=trace.frames;duration=frames.length*seconds;
+    $('#demo').dataset.duration=duration;$('#lesson-scene').dataset.duration=duration;slider.max=frames.length-1;$('#demo').classList.toggle('topology-only',!trace.dp);
+    $('#join-step').disabled=trace.joinStep<0;$('#unlock-step').disabled=trace.unlockStep<0;
+    $('#code-init').textContent=trace.dp?'// 统计 indegree；f[1]=0，其余 NEG':'// 统计每个点的 indegree，队列和 order 初始为空';
+    $('#code-each').textContent=trace.dp?'    for (const Edge &e : g[u]) {':'    for (int v : g[u]) {';
+    $('#code-decrease').textContent=trace.dp?'        indegree[e.to]--;':'        indegree[v]--;';$('#code-enqueue').textContent=trace.dp?'        if (indegree[e.to] == 0) q.push(e.to);':'        if (indegree[v] == 0) q.push(v);';
+    graphLayout();timeline=gsap.timeline({paused:true,onUpdate:controls,onComplete:controls});timeline.timeScale(Number(speed.value));
+    timeline.fromTo('#progress',{scaleX:0},{scaleX:1,duration,ease:'none'},0);
+    frames.forEach((f,index)=>{
+        const at=index*seconds;timeline.set('#demo',{attr:{'data-step':index,'data-event':f.event}},at);
+        timeline.set('#order',{textContent:'已取出的拓扑顺序：'+(f.order.join(' → ')||'尚无')},at);
+        timeline.set('#vars',{textContent:'u = '+(f.u||'—')+'　v = '+(f.v||'—')+(trace.dp?'　候选 = '+(f.candidate===null?'—':f.candidate):'')},at);
+        timeline.set('#note',{textContent:f.note},at);timeline.set('#answer',{textContent:f.event==='done'?(trace.cycle?'未取出全部点：存在有向环':trace.dp?'最终 f['+trace.target+'] = '+(f.f[trace.target]===null?'不可达':f.f[trace.target]):'拓扑排序完成'):'已处理 '+f.processed.length+' / '+trace.n+' 个点'},at);
+        for(let slot=0;slot<5;slot++)timeline.set('#queue-'+slot,{textContent:f.queue[slot]??'—',opacity:slot<f.queue.length?1:.25},at);
+        for(let i=1;i<=trace.n;i++){
+            const done=f.processed.includes(i),active=f.u===i&&!done,queued=f.queue.includes(i),blocked=f.event==='done'&&trace.cycle&&!done;
+            const fill=active?'#fff0cc':done?'#dff1e9':queued?'#e1effa':blocked?'#fce4e3':'#fff',stroke=active?'#ab7514':done?'#087e6d':queued?'#337aab':blocked?'#ad4038':'#b3c6d9';
+            timeline.to('#node-'+i+' circle',{fill,stroke,duration:.25},at);timeline.set('#row-'+i,{backgroundColor:fill},at);
+            timeline.set('#degree-'+i,{textContent:String(f.indegree[i])},at);timeline.set('#f-'+i,{textContent:f.f[i]===null?'不可达':String(f.f[i])},at);
+            timeline.set('#status-'+i,{textContent:done?'已处理':active?'处理中':queued?'队列中':blocked?'被依赖阻塞':f.indegree[i]===0?'待入队':'等待前驱'},at);
+        }
+        for(const edge of trace.edges){const removed=f.removed.includes(edge.id),active=f.activeEdge===edge.id;timeline.to('#edge-'+edge.id,{stroke:active?'#ab7514':removed?'#b5c7bd':'#8ba1b2',strokeWidth:active?5:3,duration:.25},at);timeline.set('#edge-'+edge.id,{attr:{'stroke-dasharray':removed?'8 7':'none'}},at);}
+        for(const line of lines)timeline.set('#code-'+line,{backgroundColor:line===f.line?'#dff1e9':'transparent',borderLeftColor:line===f.line?'#087e6d':'transparent'},at);
+    });
+    window.__timelines=window.__timelines||{};window.__timelines['topological-dp']=timeline;timeline.seek(.5).pause();controls();
+}
+function step(index){timeline.pause().seek(Math.max(0,Math.min(frames.length-1,index))*seconds+.5);controls();}
+play.addEventListener('click',()=>{if(timeline.paused()||timeline.time()>=duration){if(timeline.time()>=duration)timeline.seek(0);timeline.play();}else timeline.pause();controls();});
+$('#previous').addEventListener('click',()=>step(current-1));$('#next').addEventListener('click',()=>step(current+1));$('#restart').addEventListener('click',()=>step(0));$('#join-step').addEventListener('click',()=>step(trace.joinStep));$('#unlock-step').addEventListener('click',()=>step(trace.unlockStep));$('#answer-step').addEventListener('click',()=>step(trace.lastStep));slider.addEventListener('input',()=>step(Number(slider.value)));speed.addEventListener('change',()=>timeline.timeScale(Number(speed.value)));$('#mode').addEventListener('change',create);document.addEventListener('visibilitychange',()=>{if(document.hidden){timeline.pause();controls();}});create();
+</script>
+</body></html>

@@ -22,3 +22,5 @@
 
 .fenwick-animation-frame { height: 1540px; }
 @media (max-width: 700px) { .fenwick-animation-frame { height: 1800px; } }
+.dag-animation-frame { height: 2040px; }
+@media (max-width: 600px) { .dag-animation-frame { height: 1950px; } }

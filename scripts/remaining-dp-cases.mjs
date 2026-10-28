@@ -64,3 +64,28 @@ jumpCases.push(['200000 1 1\n'+'1000000000 '.repeat(199999)+'1000000000\n','2000
 hullCases.push(['100000 0\n'+'1 '.repeat(99999)+'1\n','100000\n'],['100000 1\n'+'1 '.repeat(99999)+'1\n','0\n'],partitionCase([33333,33333,33334],100000));
 divideCases.push(['100000 30\n'+'1 '.repeat(99999)+'1\n','333333340\n'],partitionCase([0,0,0,0,0],0,3));
 Object.assign(remainingDpCases,{'dp-dimension':[valueCases],'dp-window-optimization':[jumpCases],'convex-hull-dp':[hullCases],'divide-conquer-dp':[divideCases]});
+
+// The DAG lesson now first teaches standalone topological ordering.
+// Existence is checked by exhaustive permutations on small graphs, not Kahn's algorithm.
+function topologicalCase(n,edges,knownCycle=null) {
+  let possible=false;
+  function permute(order,used) {
+    if(possible)return;
+    if(order.length===n){const rank=Array(n+1);order.forEach((u,i)=>rank[u]=i);possible=edges.every(([u,v])=>rank[u]<rank[v]);return;}
+    for(let u=1;u<=n;u++)if(!(used&(1<<(u-1))))permute(order.concat(u),used|(1<<(u-1)));
+  }
+  if(knownCycle===null)permute([],0);else possible=!knownCycle;
+  return[`${n} ${edges.length}\n${lines(edges)}\n`,possible?'':'CYCLE\n',output=>{
+    if(!possible)return output.trim()==='CYCLE';
+    const order=output.trim().split(/\s+/).map(Number);
+    if(order.length!==n||new Set(order).size!==n||!order.every(u=>Number.isInteger(u)&&u>=1&&u<=n))return false;
+    const rank=Array(n+1);order.forEach((u,i)=>rank[u]=i);
+    return edges.every(([u,v])=>rank[u]<rank[v]);
+  }];
+}
+const topoCases=[topologicalCase(4,[[1,2],[1,3],[2,4],[3,4]]),topologicalCase(4,[[1,2],[2,3],[3,2],[3,4]]),topologicalCase(1,[]),topologicalCase(1,[[1,1]]),topologicalCase(3,[[1,2],[1,2],[2,3]])];
+for(let t=0;t<45;t++){const n=1+rnd(7),edges=[];for(let u=1;u<=n;u++)for(let v=1;v<=n;v++)if(rnd(7)===0)edges.push([u,v]);topoCases.push(topologicalCase(n,edges));}
+topoCases.push(topologicalCase(200000,Array.from({length:199999},(_,i)=>[200000-i,199999-i]),false));
+remainingDpCases['dag-dp'].unshift(topoCases);
+remainingDpCases['tree-knapsack'][0].push(['5 3\n0 3\n1 4\n1 7\n0 5\n4 6\n','15\n']);
+remainingDpCases['dag-dp'][1].push(['5 5\n1 3 2\n2 3 8\n3 5 4\n2 4 -2\n4 5 1\n','6\n']);

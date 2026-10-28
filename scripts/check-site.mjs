@@ -103,6 +103,8 @@ const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
 const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
+const dagLesson = html.get(path.join(root,'after-joining','learn','dag-dp','index.html')) || '';
+if (!dagLesson.includes('animations/topological-dp/index.html') || dagLesson.indexOf('先讲拓扑排序') < 0 || dagLesson.indexOf('先讲拓扑排序') > dagLesson.indexOf('例题精讲二')) errors.push('DAG lesson must teach topological ordering before longest-path DP and embed the animation');
 if (joinedPublished.length !== 104 || published.length !== 129 || !outline.includes('0 / 129 节')) errors.push('Progress must include 25 original and all 104 second-block lessons');
 const advancedTreeChapter = html.get(path.join(root,'after-joining','chapter','advanced-segment-trees','index.html')) || '';
 if (!advancedTreeChapter.includes('25.1 势能线段树与稳定区间剪枝') || !advancedTreeChapter.includes('25.5 离线处理、偏序与动态排名')) errors.push('Potential segment trees must open chapter 25 and shift the remaining sections');

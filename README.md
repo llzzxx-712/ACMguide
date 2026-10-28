@@ -59,6 +59,7 @@ npm run preview
 | `src/content/game-theory/*.md` | 第九章的胜负状态、巴什博弈与 Nim 游戏教程 |
 | `public/animations/dfs-enumeration/` | DFS 枚举、调用与返回的交互动图，含两层、三层与四皇后三种模式 |
 | `public/animations/knapsack/` | 0/1 背包的二维转移与一维正序、倒序对照动图 |
+| `public/animations/topological-dp/` | 拓扑排序、DAG 最长路、不可达前驱与有向环的逐步动图 |
 | `src/data/content.ts` | 自动加载正文，并为目录、搜索和进度提供发布状态 |
 | `src/data/course.ts` | 所有章节标题、日程与提纲 |
 | `src/data/after-joining.ts` | 第二板块的分组、章节与知识点大纲及对应题单 |

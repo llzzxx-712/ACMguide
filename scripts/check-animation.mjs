@@ -310,3 +310,5 @@ const fenwickHtml=await readFile('public/animations/fenwick/index.html','utf8');
 assert(fenwickHtml.includes(`data-duration="${fenwickQuery.frames.length*fenwickSeconds}"`));
 for(const id of ['mode','play','previous','next','restart','change-step','done-step','slider','bar-8','code-move'])assert(fenwickHtml.includes(`id="${id}"`));
 console.log('Fenwick animation checks passed: disjoint prefix coverage, exact sums, every containing update interval, boundaries and independent snapshots.');
+
+await import('./check-topological-animation.mjs');
