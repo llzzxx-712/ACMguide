@@ -91,7 +91,7 @@ for (const chapter of outlineChapters) {
 const combinedOutline = outlinePages.join('');
 if (/第\s*\d+\s*[—~～-]?\s*\d*\s*天|Day\s*\d|推荐天数|建议用时|class="day-number"/.test(combinedOutline)) errors.push('Second-block outline must not schedule study days');
 if (combinedOutline.includes('高精度') || search.some(item=>item.url.includes('/after-joining/') && /高精度|high-precision/.test(JSON.stringify(item)))) errors.push('High precision must not appear in the second block');
-if (plannedSections !== 103) errors.push('Expected 103 sections after adding advanced greedy');
+if (plannedSections !== 104) errors.push('Expected 104 sections including potential segment trees');
 const searchChapter=html.get(path.join(root,'after-joining','chapter','advanced-search','index.html')) || '';
 const searchChapterBody=searchChapter.split('<div class="article-content">')[1]?.split('<footer class="article-footer">')[0] || '';
 if ([...searchChapterBody.matchAll(/data-outline-section/g)].length !== 2 || /迭代加深|IDA\*|A\*|搜索状态设计与综合应用/.test(searchChapterBody)) errors.push('Chapter 8 must contain only sections 8.1 and 8.2');
@@ -103,7 +103,9 @@ const home = html.get(path.join(root,'index.html')) || '';
 const prompt = '我在学习教程https://llzzxx-712.github.io/ACMguide/ ，教我如何下载deepseekharness或workbuddy以及如何使用它们搭配网站教程成为我的伴学';
 if (!home.includes(prompt) || !home.includes('data-copy-prompt="ai-companion-prompt"') || !home.includes('两大板块，学到哪里')) errors.push('Missing updated two-block preface or companion prompt');
 const joinedPublished = published.filter(item=>item.url.includes('/after-joining/learn/'));
-if (joinedPublished.length !== 103 || published.length !== 128 || !outline.includes('0 / 128 节')) errors.push('Progress must include 25 original and all 103 second-block lessons');
+if (joinedPublished.length !== 104 || published.length !== 129 || !outline.includes('0 / 129 节')) errors.push('Progress must include 25 original and all 104 second-block lessons');
+const advancedTreeChapter = html.get(path.join(root,'after-joining','chapter','advanced-segment-trees','index.html')) || '';
+if (!advancedTreeChapter.includes('25.1 势能线段树与稳定区间剪枝') || !advancedTreeChapter.includes('25.5 离线处理、偏序与动态排名')) errors.push('Potential segment trees must open chapter 25 and shift the remaining sections');
 if (!summary?.includes(`${base}/after-joining/`) || !html.get(path.join(root,'index.html'))?.includes('第二板块 · 入队后—寒假前')) errors.push('Missing entry from first block to second block');
 for (const [file,source] of html) {
   if (/30\s*天(?:学习路线|路线|安排)/.test(source)) errors.push(`Stale 30-day route label: ${file}`);

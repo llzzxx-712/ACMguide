@@ -176,9 +176,9 @@ export const afterJoiningPhases: OutlinePhase[] = [
     summary: '在普通线段树的基础上，继续处理值域、历史版本与多维查询。',
     chapters: [
       { id: 25, slug: 'advanced-segment-trees', title: '线段树进阶',
-        summary: '从权值信息出发，学习版本复用与多层结构的组合。',
-        sections: ['权值线段树与动态开点', '可持久化线段树与静态区间第 k 小', '线段树合并与树状数组套线段树', '离线处理、偏序与动态排名'],
-        lessonSlugs: ['dynamic-value-tree','persistent-kth','segment-tree-merging','offline-dominance'],
+        summary: '先用有限变化次数跳过稳定区间，再学习权值信息、版本复用与多层结构的组合。',
+        sections: ['势能线段树与稳定区间剪枝', '权值线段树与动态开点', '可持久化线段树与静态区间第 k 小', '线段树合并与树状数组套线段树', '离线处理、偏序与动态排名'],
+        lessonSlugs: ['potential-segment-tree','dynamic-value-tree','persistent-kth','segment-tree-merging','offline-dominance'],
         training: [{ id: 221, title: '线段树的进阶用法' }] }
     ]
   }

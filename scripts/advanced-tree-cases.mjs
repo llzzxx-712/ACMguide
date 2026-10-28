@@ -23,3 +23,31 @@ function dominanceCase(points,K){const distribution=Array(points.length).fill(0)
 const dominance=[];for(let t=0;t<40;t++)dominance.push(dominanceCase(Array.from({length:1+rnd(45)},()=>[1+rnd(6),1+rnd(6),1+rnd(6)]),6));
 dominance.push(dominanceCase([[1,1,1],[1,1,1],[2,2,2],[1,2,1]],2),[`100000 200000\n${'200000 200000 200000\n'.repeat(100000)}`,'0\n'.repeat(99999)+'100000\n'],[`100000 200000\n${rows(Array.from({length:100000},(_,i)=>[i+1,i+1,i+1]))}\n`,'1\n'.repeat(100000)]);
 Object.assign(advancedTreeCases,{'dynamic-value-tree':[multisets],'persistent-kth':[persistents],'segment-tree-merging':[colors,dynamics],'offline-dominance':[dominance]});
+
+// Use exact BigInt binary search instead of the tutorial's floating estimate and correction.
+function squareRootOracle(x) {
+  let le=0n,r=x,ans=0n;
+  while(le<=r){const mid=(le+r)/2n;if(mid*mid<=x){ans=mid;le=mid+1n;}else r=mid-1n;}
+  return ans;
+}
+function potentialCase(initial,operations) {
+  const a=initial.map(BigInt),answers=[];
+  for(const[type,left,right]of operations){const l=Math.min(left,right)-1,r=Math.max(left,right)-1;
+    if(type===0){for(let i=l;i<=r;i++)a[i]=squareRootOracle(a[i]);}
+    else answers.push(a.slice(l,r+1).reduce((sum,x)=>sum+x,0n));
+  }
+  return[initial.length+'\n'+initial.join(' ')+'\n'+operations.length+'\n'+rows(operations)+'\n',answers.join('\n')+'\n'];
+}
+const potentials=[potentialCase([16,1,10,81,2],[[1,1,5],[0,1,5],[1,1,5],[0,5,1],[1,1,5],[0,1,5],[1,1,5]]),potentialCase([1],[[0,1,1],[1,1,1],[0,1,1],[1,1,1]]),potentialCase([1000000000000],Array.from({length:9},()=>[[1,1,1],[0,1,1]]).flat())];
+const squareBoundaries=[];
+for(const root of [2,3,4,7,999999,1000000])for(const delta of [-1,0,1]){const x=root*root+delta;if(x<=1000000000000)squareBoundaries.push(x);}
+potentials.push(potentialCase(squareBoundaries,Array.from({length:8},()=>[[1,squareBoundaries.length,1],[0,1,squareBoundaries.length]]).flat()));
+for(let t=0;t<40;t++){
+  const n=1+rnd(25),a=Array.from({length:n},()=>1+rnd(1000000)),ops=[];
+  for(let i=0;i<80;i++)ops.push([i%4===0?1:rnd(2),1+rnd(n),1+rnd(n)]);
+  ops.push([1,1,n]);potentials.push(potentialCase(a,ops));
+}
+// A naive per-element implementation would perform about ten billion updates here.
+potentials.push([`100000\n${'1000000000000 '.repeat(99999)}1000000000000\n100000\n1 100000 1\n${'0 100000 1\n'.repeat(99998)}1 1 100000\n`,'100000000000000000\n100000\n']);
+potentials.push(potentialCase(Array.from({length:100000},(_,i)=>i===99999?1000000000000:1),Array.from({length:8},()=>[[0,1,100000],[1,100000,100000],[1,1,100000]]).flat()));
+advancedTreeCases['potential-segment-tree']=[potentials];
