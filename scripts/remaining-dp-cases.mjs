@@ -31,13 +31,32 @@ Object.assign(remainingDpCases,{
 
 function partyCase(values,relations){let best=0;for(let mask=0;mask<2**values.length;mask++){if(relations.some(([u,v])=>(mask&(1<<(u-1)))&&(mask&(1<<(v-1)))))continue;let sum=0;for(let i=0;i<values.length;i++)if(mask&(1<<i))sum+=values[i];best=Math.max(best,sum);}return[values.length+'\n'+values.join('\n')+'\n'+lines(relations)+(relations.length?'\n':''),best+'\n'];}
 function courseCase(records,m){let best=-Infinity;for(let mask=0;mask<2**records.length;mask++){let count=0,value=0,ok=true;for(let i=0;i<records.length;i++)if(mask&(1<<i)){count++;value+=records[i][1];const p=records[i][0];if(p&&!(mask&(1<<(p-1))))ok=false;}if(ok&&count===m)best=Math.max(best,value);}return[records.length+' '+m+'\n'+lines(records)+'\n',best+'\n'];}
-function rerootCase(n,edges){const g=Array.from({length:n+1},()=>[]);for(const[u,v,w]of edges){g[u].push([v,w]);g[v].push([u,w]);}const sums=[];for(let root=1;root<=n;root++){let sum=0;const q=[[root,0,0]];for(let i=0;i<q.length;i++){const[u,p,d]=q[i];sum+=d;for(const[v,w]of g[u])if(v!==p)q.push([v,u,d+w]);}sums.push(sum);}return[n+'\n'+lines(edges)+(edges.length?'\n':''),sums.join(' ')+'\n'];}
+function rerootCase(n,edges,knownBest=null){
+  let best=knownBest;
+  if(best===null){
+    // Independently traverse from every possible root; do not reuse the reroot formula.
+    const graph=Array.from({length:n+1},()=>[]);
+    for(const[u,v]of edges){graph[u].push(v);graph[v].push(u);}
+    const sums=[];
+    for(let root=1;root<=n;root++){
+      let sum=0;const queue=[[root,0,0]];
+      for(let i=0;i<queue.length;i++){const[u,p,d]=queue[i];sum+=d;for(const v of graph[u])if(v!==p)queue.push([v,u,d+1]);}
+      sums.push(sum);
+    }
+    const maximum=Math.max(...sums);best=sums.flatMap((sum,i)=>sum===maximum?[i+1]:[]);
+  }
+  const accepted=new Set(best);
+  return[n+'\n'+lines(edges)+(edges.length?'\n':''),best[0]+'\n',output=>/^\d+\s*$/.test(output)&&accepted.has(Number(output.trim()))];
+}
 function dagCase(n,edges){const g=Array.from({length:n+1},()=>[]);for(const[u,v,w]of edges)g[u].push([v,w]);let answer=-Infinity;function dfs(u,sum){if(u===n)answer=Math.max(answer,sum);for(const[v,w]of g[u])dfs(v,sum+w);}dfs(1,0);return[n+' '+edges.length+'\n'+lines(edges)+(edges.length?'\n':''),(answer===-Infinity?-1:answer)+'\n'];}
 const party=[],courses=[],roots=[],dags=[];
-for(let t=0;t<35;t++){const n=1+rnd(11),edges=Array.from({length:n-1},(_,i)=>[i+2,1+rnd(i+1)]);const labels=Array.from({length:n},(_,i)=>n-i);party.push(partyCase(Array.from({length:n},()=>rnd(31)-15),edges.map(([u,v])=>[labels[u-1],labels[v-1]])));courses.push(courseCase(Array.from({length:n},(_,i)=>[rnd(i+1),1+rnd(20)]),1+rnd(n)));roots.push(rerootCase(n,edges.map(e=>[...e,rnd(20)])));const graph=[];for(let u=1;u<=n;u++)for(let v=u+1;v<=n;v++)if(rnd(3)===0)graph.push([u,v,rnd(31)-15]);dags.push(dagCase(n,graph));}
+// Retain the old RNG draws for edge weights so unrelated fixtures keep their seed sequence.
+for(let t=0;t<35;t++){const n=1+rnd(11),edges=Array.from({length:n-1},(_,i)=>[i+2,1+rnd(i+1)]);const labels=Array.from({length:n},(_,i)=>n-i);party.push(partyCase(Array.from({length:n},()=>rnd(31)-15),edges.map(([u,v])=>[labels[u-1],labels[v-1]])));courses.push(courseCase(Array.from({length:n},(_,i)=>[rnd(i+1),1+rnd(20)]),1+rnd(n)));const unweighted=edges.map(([u,v])=>{rnd(20);return[u,v];});roots.push(rerootCase(n,unweighted));const graph=[];for(let u=1;u<=n;u++)for(let v=u+1;v<=n;v++)if(rnd(3)===0)graph.push([u,v,rnd(31)-15]);dags.push(dagCase(n,graph));}
 party.push(['6000\n'+'1\n'.repeat(6000)+lines(Array.from({length:5999},(_,i)=>[i+2,i+1]))+'\n','3000\n']);
 courses.push(['300 150\n'+lines(Array.from({length:300},(_,i)=>[i,1]))+'\n','150\n']);
-roots.push(['200000\n'+lines(Array.from({length:199999},(_,i)=>[i+1,i+2,1000000]))+'\n',Array.from({length:200000},(_,i)=>{const a=BigInt(i),b=199999n-a;return (a*(a+1n)+b*(b+1n))*500000n;}).join(' ')+'\n']);
+roots.push(rerootCase(1,[]),rerootCase(2,[[1,2]]),rerootCase(5,[[1,2],[1,3],[3,4],[3,5]]),rerootCase(5,[[3,1],[3,2],[3,4],[3,5]]),rerootCase(6,[[6,5],[5,4],[4,3],[3,2],[2,1]]),rerootCase(8,[[1,2],[1,3],[2,4],[2,5],[3,6],[3,7],[7,8]]));
+for(const n of [65537,1000000])roots.push(rerootCase(n,Array.from({length:n-1},(_,i)=>[i+1,i+2]),[1,n]));
+roots.push(rerootCase(100000,Array.from({length:99999},(_,i)=>[100000,i+1]),Array.from({length:99999},(_,i)=>i+1)));
 dags.push(['1500 1499\n'+lines(Array.from({length:1499},(_,i)=>[i+1,i+2,-100000]))+'\n','-149900000\n']);
 Object.assign(remainingDpCases,{'tree-dp-states':[party],'tree-knapsack':[courses],'rerooting-dp':[roots],'dag-dp':[dags]});
 
