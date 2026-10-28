@@ -1,6 +1,6 @@
 ---
 title: 异或方程组与行列式初步
-description: 保留消元思路，分别更换为二元域的异或运算和质数模数下的行列式计算。
+description: 保留消元思路，分别更换为二元域的异或运算和任意正模数下的行列式计算。
 ---
 
 ## 这一节学什么
@@ -15,25 +15,36 @@ description: 保留消元思路，分别更换为二元域的异或运算和质�
 
 变量只取 0、1 时，0+0=0，0+1=1，1+1=0，这与异或相同。在 GF(2) 中唯一非零元素是 1，不需要除主元，也不需要 EPS。两条方程异或相加，可以把共同出现的变量抵消。
 
-## 例题精讲一：自编 · 0/1 开关方程
+## 例题精讲一：[P2447 外星千足虫](https://www.luogu.com.cn/problem/P2447)
 
-**题意简述：** 输入 m 条方程、n 个变量，1≤m,n≤200。每行给 n 个 0/1 系数和右侧 0/1。求解数 mod 10⁹+7，并输出任意一组解；无解输出 `NO SOLUTION`。
+**题意简述：** N 个虫子的足数奇偶未知，每次给一个 N 位 01 串表示参与检测的虫子，再给总足数 mod 2。按时间输入 M 条检测，保证不矛盾。求最早何时能唯一判断所有虫子；不能则输出 Cannot Determine。唯一时先输出最早检测编号，再对每只输出奇数 ?y7M#、偶数 Earth。N≤1000，M≤2000。
 
-输入：
-
-```text
-1 2
-1 1 1
-```
-
-输出可为：
+自编输入：
 
 ```text
-2
-1 0
+2 3
+10 1
+10 1
+01 0
 ```
 
-这表示 x₁ xor x₂=1，有 (1,0)、(0,1) 两组。rank 个主元以外的 n−rank 个变量可以自由取值，因此无矛盾时有 2^(n−rank) 组解。要构造一组，让所有自由变量为 0，主元变量就等于该行右侧常数。
+输出：
+
+```text
+3
+?y7M#
+Earth
+```
+
+### 先把思路讲清楚
+
+用 x[i]=0/1 表示偶/奇，每次检测就是若干变量的异或和。前两次都只是 x[1]=1，第二次没有增加信息；第三次给出 x[2]=0，才首次唯一确定全部变量，所以输出 3。
+
+### 按输入顺序加入独立信息
+
+为每个主元列保存一行 basis[col]。新方程从左往右：该列为 1 且已有主元，就整行异或消去；若该列还没有主元，就将这一行作为新的独立方程，rank 加 1。最后只剩零行说明信息重复。
+
+保证有解时，rank=n 当且仅当没有自由变量，解唯一。按时间加入，所以首次达到 n 的 step 就是最早时刻；不能只对所有方程统一消元后输出 M。主元行的左侧已清零，从最右列往左回代，便能得到每只虫子的身份。
 
 ### 完整代码
 
@@ -42,38 +53,48 @@ description: 保留消元思路，分别更换为二元域的异或运算和质�
 using namespace std;
 
 int main() {
-    int m, n;
-    cin >> m >> n;
-    vector<vector<int>> a(m, vector<int>(n + 1));
-    for (auto &row : a) for (auto &x : row) cin >> x;
-    vector<int> pivotColumn;
-    int rank = 0;
-    for (int col = 0; col < n && rank < m; col++) {
-        int pivot = rank;
-        while (pivot < m && a[pivot][col] == 0) pivot++;
-        if (pivot == m) continue;
-        swap(a[pivot], a[rank]);
-        for (int i = 0; i < m; i++) if (i != rank && a[i][col]) {
-            for (int j = col; j <= n; j++) a[i][j] ^= a[rank][j];
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int n, m;
+    cin >> n >> m;
+    vector<bitset<1001>> basis(n);
+    int rank = 0, earliest = -1;
+    for (int step = 1; step <= m; step++) {
+        string s;
+        int result;
+        cin >> s >> result;
+        bitset<1001> row;
+        for (int i = 0; i < n; i++) row[i] = s[i] == '1';
+        row[n] = result;
+        for (int col = 0; col < n; col++) if (row[col]) {
+            if (basis[col][col]) row ^= basis[col];
+            else {
+                basis[col] = row;
+                rank++;
+                break;
+            }
         }
-        pivotColumn.push_back(col);
-        rank++;
+        if (rank == n) {
+            earliest = step;
+            break;
+        }
     }
-    for (int i = rank; i < m; i++) if (a[i][n]) {
-        cout << "NO SOLUTION\n";
+    if (earliest == -1) {
+        cout << "Cannot Determine\n";
         return 0;
     }
-    long long ways = 1;
-    for (int i = 0; i < n - rank; i++) ways = ways * 2 % 1000000007;
     vector<int> answer(n);
-    for (int i = 0; i < rank; i++) answer[pivotColumn[i]] = a[i][n];
-    cout << ways << '\n';
-    for (int i = 0; i < n; i++) cout << answer[i] << (i + 1 == n ? '\n' : ' ');
+    for (int col = n - 1; col >= 0; col--) {
+        answer[col] = basis[col][n];
+        for (int j = col + 1; j < n; j++) answer[col] ^= basis[col][j] & answer[j];
+    }
+    cout << earliest << '\n';
+    for (int x : answer) cout << (x ? "?y7M#" : "Earth") << '\n';
     return 0;
 }
 ```
 
-消元结束后，剩余行左侧全为 0，右侧若为 1 就是矛盾。时间 O(mn·min(m,n))，空间 O(mn)；更大规模可以用 bitset 并行异或整行。
+bitset 将整行异或并行执行，宽度 1001 足够保存 1000 个变量和右侧常数。消元约 O(MN·⌈N/字长⌉)，回代 O(N²)，空间 O(N²) 位。本题只需判断唯一性；一般无矛盾系统若 rank<n，有 2^(n−rank) 组解。
 
 ## 行列式怎样理解
 
@@ -83,53 +104,75 @@ int main() {
 
 因此可以向下消元，不将主元行除成 1，只记录换行的负号和各主元的乘积。
 
-## 例题精讲二：自编 · 质数模数下的行列式
+## 例题精讲二：[P7112 行列式求值](https://www.luogu.com.cn/problem/P7112)
 
-**题意简述：** 输入 n≤200 的方阵，元素绝对值≤10⁹，输出行列式 mod 10⁹+7。输入 n=2、两行为 `1 2`、`3 4`，行列式为 −2，输出 `1000000005`。
+**题意简述：** 输入 n 阶方阵与模数 p，求行列式 mod p 的非负结果。n≤600，p≤10⁹+7，p 不保证质数；元素为小于 10⁹+7 的正整数。输入 n、p，再给矩阵，输出一个整数。
 
-这次使用模质数运算，非零主元有逆元，因此可以用它求消元倍数。只在模意义下找非零主元，不使用浮点 EPS。
+自编输入：
+
+```text
+2 6
+1 2
+3 4
+```
+
+输出：
+
+```text
+4
+```
+
+### 先把思路讲清楚
+
+2×2 行列式为 1×4−2×3=−2，对 6 取模得到 4。模数 6 下非零元素不一定有逆元，例如 2 没有逆元，所以不能把所有非零主元直接做费马逆元。
+
+### 用欧几里得式行变换，避开除以主元
+
+设当前列两行的数为 a、b，b≠0。取整数商 q=a/b，让第一行减去 q 倍第二行，再交换两行；这一列就从 (a,b) 变成 (b,a mod b)，与欧几里得算法一致。重复后下方变成 0，期间只用“加减整数倍”和“换行”两条合法规则。
+
+行减去另一行整数倍不改变行列式，换行则变号。列处理完后乘入主元，最终得到上三角对角线乘积。所有元素每次取模，保持非负；整个过程中没有计算模逆元，因而质数和合数模数都能处理。
 
 ### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
-const long long MOD = 1000000007;
-
-long long power(long long a, long long b) {
-    long long answer = 1;
-    while (b > 0) {
-        if (b & 1) answer = answer * a % MOD;
-        a = a * a % MOD;
-        b >>= 1;
-    }
-    return answer;
-}
 
 int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
     int n;
-    cin >> n;
+    long long mod;
+    cin >> n >> mod;
     vector<vector<long long>> a(n, vector<long long>(n));
-    for (auto &row : a) for (auto &x : row) { cin >> x; x = (x % MOD + MOD) % MOD; }
-    long long answer = 1;
+    for (auto &row : a) for (auto &x : row) {
+        cin >> x;
+        x %= mod;
+    }
+    long long answer = 1 % mod;
     for (int col = 0; col < n; col++) {
-        int pivot = col;
-        while (pivot < n && a[pivot][col] == 0) pivot++;
-        if (pivot == n) { cout << 0 << '\n'; return 0; }
-        if (pivot != col) { swap(a[pivot], a[col]); answer = (MOD - answer) % MOD; }
-        answer = answer * a[col][col] % MOD;
-        long long inverse = power(a[col][col], MOD - 2);
         for (int i = col + 1; i < n; i++) {
-            long long factor = a[i][col] * inverse % MOD;
-            for (int j = col; j < n; j++) a[i][j] = (a[i][j] - factor * a[col][j] % MOD + MOD) % MOD;
+            while (a[i][col] != 0) {
+                long long q = a[col][col] / a[i][col];
+                for (int j = col; j < n; j++) {
+                    a[col][j] = (a[col][j] - q * a[i][j] % mod + mod) % mod;
+                }
+                swap(a[col], a[i]);
+                answer = (mod - answer) % mod;
+            }
         }
+        if (a[col][col] == 0) {
+            cout << 0 << '\n';
+            return 0;
+        }
+        answer = answer * a[col][col] % mod;
     }
     cout << answer << '\n';
     return 0;
 }
 ```
 
-消元只加减另一行的倍数，不改变行列式；每次换行单独变号。时间 O(n³+n log MOD)，空间 O(n²)。若模数为合数，非零元素也可能没有逆元，不能把这个版本直接用于一般合数模数的行列式。
+时间上界 O(n³ log p)，空间 O(n²)。q 与元素都不超过约 10⁹，乘积使用 long long。p=1 时所有余数为 0，输出 0。
 
 ## 练习：同样的消元，不同的运算规则
 
@@ -137,14 +180,12 @@ int main() {
 
 ### 推荐必做
 
-1. **自编 · 异或唯一解：** 在例题一输出是否唯一，说明“有解且 rank=n”对应什么。
-2. **自编 · 三角矩阵行列式：** 随机生成上三角矩阵，再交换若干行，按对角线乘积与换行次数独立验证。
+1. [P4783 矩阵求逆](https://www.luogu.com.cn/problem/P4783)：在模 10⁹+7 下求矩阵逆，无逆时输出指定信息。练习模质数下的行变换和逆元。
 
 ### 选做巩固
 
-- **自编 · bitset 消元：** 将异或方程的一行放入 bitset，整行 XOR，保持主元和解数逻辑一致。
-- **自编 · 相关的行：** 令一行是另外两行之和，检查行列式为 0，并解释它与秩不足的关系。
-- **自编 · 模质数方程组：** 将本节逆元消元用于 Ax=b，区分无解、唯一解、多个解，比较实数与模质数两种环境。
+- [P2962 Lights](https://www.luogu.com.cn/problem/P2962)：每次切换一盏灯及所有相邻灯，求点亮所有灯的最少切换次数。练习建立异或方程，并进一步处理最少操作数。
+- [P2455 线性方程组](https://www.luogu.com.cn/problem/P2455)：判断实数方程组无解、唯一解或无穷多解。练习比较实数运算与异或、模运算下的消元。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[基础线性代数 #219](https://www.luogu.com.cn/training/219)。
 

@@ -25,20 +25,37 @@ P(A|B)=P(A 且 B)/P(B)，要求 P(B)>0。已知 B 发生后，只在 B 的范围
 P(A|B) = P(A)P(B|A) / [P(A)P(B|A) + P(非A)P(B|非A)]
 ```
 
-## 例题精讲：自编 · 告警来自哪里
+## 例题精讲：[P8804 故障](https://www.luogu.com.cn/problem/P8804)
 
-**题意简述：** 一个随机任务属于异常的概率为 p。异常任务触发告警的概率为 s，正常任务触发告警的概率为 f。输入 p、s、f，均在 [0,1]，求已知触发告警时任务异常的概率，输出六位小数；若告警根本不会发生，输出 `UNDEFINED`。
+**题意简述：** 同一时刻只有一种故障原因。输入 N 个原因的先验概率、N×M 的条件概率表和当前出现的 K 个现象，求各原因的后验概率。N≤40、M≤20，所有输入概率都是整数百分比。同一原因下各现象独立。输出按后验概率降序的“原因编号 百分比”，两位小数，同概率编号小者在前。
 
-输入 `0.01 0.99 0.05`，输出 `0.166667`。
+自编输入：
 
-用一万份任务的比例表来算：
+```text
+2 2
+50 50
+80 20
+20 80
+1
+1
+```
 
-| 来源 | 总量 | 触发告警的量 |
-| --- | --- | --- |
-| 异常 | 100 | 99 |
-| 正常 | 9900 | 495 |
+输出：
 
-告警里异常只占 99/(99+495)=1/6。99% 描述的是“异常中多少会告警”，没有包含正常任务的大量误报；两种条件的分母不同，答案当然可以相差很大。
+```text
+1 94.12
+2 5.88
+```
+
+### 先把思路讲清楚
+
+设观测事件 B 为“现象 1 出现、现象 2 不出现”。原因 1 产生这份观测的概率为 0.8×(1−0.2)=0.64，与先验相乘得 0.32；原因 2 的对应联合概率为 0.5×0.2×(1−0.8)=0.02。
+
+全部观测的概率为 0.34，故原因 1 的后验概率是 0.32/0.34≈94.12%，原因 2 为 5.88%。这里只看“80% 会产生现象 1”会漏掉现象 2 没有出现这条信息。原题给的是当前出现的完整现象列表，未列出的也要乘对应的不出现概率。
+
+### 把贝叶斯公式落到两层循环
+
+对原因 i，先取先验 prior[i]，按每个现象是否出现乘 p 或 1−p，得到 joint[i]=P(原因 i 且 B)。所有 joint 的和就是全概率 P(B)，每项再除以总和，即 P(原因 i|B)。所有后验有同一分母，排序时直接比较 joint，最后才转换为百分比输出。
 
 ### 完整代码
 
@@ -47,32 +64,59 @@ P(A|B) = P(A)P(B|A) / [P(A)P(B|A) + P(非A)P(B|非A)]
 using namespace std;
 
 int main() {
-    double prior, hitRate, falseAlarm;
-    cin >> prior >> hitRate >> falseAlarm;
-    double abnormalAlarm = prior * hitRate;
-    double normalAlarm = (1 - prior) * falseAlarm;
-    double totalAlarm = abnormalAlarm + normalAlarm;
-    if (totalAlarm == 0) cout << "UNDEFINED\n";
-    else printf("%.6f\n", abnormalAlarm / totalAlarm);
+    int n, m;
+    cin >> n >> m;
+    vector<long double> prior(n), joint(n);
+    for (auto &x : prior) {
+        cin >> x;
+        x /= 100;
+    }
+    vector<vector<long double>> probability(n, vector<long double>(m));
+    for (auto &row : probability) for (auto &x : row) {
+        cin >> x;
+        x /= 100;
+    }
+    int k;
+    cin >> k;
+    vector<bool> observed(m, false);
+    while (k--) {
+        int x;
+        cin >> x;
+        observed[x - 1] = true;
+    }
+    long double total = 0;
+    for (int i = 0; i < n; i++) {
+        joint[i] = prior[i];
+        for (int j = 0; j < m; j++) {
+            joint[i] *= observed[j] ? probability[i][j] : 1 - probability[i][j];
+        }
+        total += joint[i];
+    }
+    vector<int> order(n);
+    iota(order.begin(), order.end(), 0);
+    sort(order.begin(), order.end(), [&](int a, int b) {
+        if (joint[a] != joint[b]) return joint[a] > joint[b];
+        return a < b;
+    });
+    for (int i : order) printf("%d %.2Lf\n", i + 1, 100 * joint[i] / total);
     return 0;
 }
 ```
 
-两项都非负，因此本例检查分母是否恰为 0 就能识别不可能事件，不应把很小但非零的合法概率随意判掉。代码没有关闭流同步；两条输出分支每次只执行一条。时间、空间 O(1)。
+时间 O(NM+N log N)，空间 O(NM)。数组里统一存 0…1 概率，输入除以 100，输出乘以 100，避免混用比例和百分数。使用 long double 保留多次相乘的精度，printf 的 %.2Lf 与参数类型对应。
 
 ## 练习：先写条件方向
 
-先**独立重做例题**，分别写出 P(告警|异常)、P(异常|告警) 的分子分母，再代数计算。
+先**独立重做例题**，分别写出 P(观测|原因 i)、P(原因 i|观测)，核对出现与未出现现象的乘积，以及所有后验概率之和为 1。
 
 ### 推荐必做
 
-1. **自编 · 三个来源：** 三台机器的产量占比与告警率已知，随机抽到一份告警任务，求来自每台机器的概率；练习全概率分母中的三条路径。
-2. **自编 · 不告警的条件：** 求已知没有告警时任务正常的概率；先重新列出事件，不直接对原答案取反。
+1. [P2111 考场奇遇](https://www.luogu.com.cn/problem/P2111)：已知判断题的对答案结果和一人的正确率，求另一人至少答对指定题数的概率。练习在已知答案相同或不同时，分别确定正确的概率。
 
 ### 选做巩固
 
-- **自编 · 基础比例变化：** 固定 s、f，让 p 从 0.001 逐渐变大，观察后验概率如何改变，并用人数表解释。
-- **自编 · 两次检测：** 明确给定“在任务类型固定时两次结果独立”，计算两次告警后的后验；注意条件独立不等于无条件独立。
+- [Codeforces 312B Archer](https://codeforces.com/problemset/problem/312/B)：两人轮流射击，首次命中者获胜，求先手获胜的概率。练习按前一轮是否全部未命中分类，建立概率方程。
+- [Codeforces 442B Andrey and Problem](https://codeforces.com/problemset/problem/442/B)：选择若干朋友征题，使恰有一人提供题目的概率最大。练习按哪位朋友成功划分互斥事件。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[概率与统计 #218](https://www.luogu.com.cn/training/218)。
 

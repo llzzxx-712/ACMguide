@@ -13,6 +13,11 @@ import { treeGraphCases } from './tree-graph-cases.mjs';
 import { remainingDpCases } from './remaining-dp-cases.mjs';
 import { remainingMathCases } from './remaining-math-cases.mjs';
 import { advancedTreeCases } from './advanced-tree-cases.mjs';
+import { applyRealFoundationCases } from './real-foundation-cases.mjs';
+import { applyRealTreeDpCases } from './real-tree-dp-cases.mjs';
+import { applyRealMathCases } from './real-math-cases.mjs';
+import { applyRealAdvancedCases } from './real-advanced-cases.mjs';
+
 
 // Each array corresponds to one complete cpp block in the named tutorial.
 // Cases include boundaries that reveal integer division, off-by-one and tie bugs.
@@ -549,6 +554,10 @@ const cases = {
   checkpoint: [[['3\n100 100 100\n104 103 102\n105 105 105\n','2\n'],['2\n100 100 100\n106 100 100\n','0\n'],['2\n100 100 100\n104 104 104\n','0\n'],['2\n100 100 100\n105 105 100\n','1\n'],['1000\n'+'150 150 150\n'.repeat(1000),'499500\n']]]
 };
 cases.checkpoint.unshift(switchCases);
+applyRealFoundationCases(cases);
+applyRealTreeDpCases(cases);
+applyRealMathCases(cases);
+applyRealAdvancedCases(cases);
 const compiler = process.env.CXX || 'g++';
 const standard = process.env.CXX_STANDARD || 'c++17';
 const dir = await mkdtemp(path.join(os.tmpdir(), 'acmguide-examples-'));

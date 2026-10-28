@@ -41,31 +41,37 @@ DFS 进入一棵子树后，必须把这棵子树全部走完，才会访问外�
 
 这使树上的问题能转成数组问题：把原点权 value[u] 放到数组 a[tin[u]]，子树求和就变成区间求和。
 
-## 例题精讲：自编 · 修改点权与查询子树和
+## 例题精讲：[CF1006E Military Problem](https://codeforces.com/problemset/problem/1006/E)
 
-**题意简述：** 给 n 个点的树，根固定为 1，每点有一个整数权值。操作 `1 u delta` 将 u 的点权增加 delta，操作 `2 u` 查询 u 的整棵子树权值和。n、q≤2×10⁵，初值及增量绝对值≤10⁹。输入先给 n、q、n 个点权，再给 n−1 条边与 q 次操作。
+**题意简述：** 军队是一棵以 1 为根的树，输入 2…n 各点的直属父亲。命令从 u 出发，按孩子编号升序进行 DFS，u 自己是第一个接令者；询问第 k 个接令者，人数不足输出 −1。n、q≤2×10⁵。第一行 n、q，第二行 n−1 个父亲，之后 q 行 u、k。
 
-输入：
+自编输入：
 
 ```text
-5 3
-1 2 3 4 5
-1 2
-1 3
-2 4
-2 5
-2 2
-1 4 10
+5 4
+1 1 2 2
 2 1
+2 3
+2 4
+1 5
 ```
 
-输出 `11`、`25`，每项一行。第一次取结点 2、4、5 的权值，随后第 4 点由 4 变成 14，整棵树总和变为 25。
+输出：
 
-### 先排成序列，再用已有的数据结构
+```text
+2
+5
+-1
+3
+```
 
-单点增加与区间求和交给上一章的树状数组。新增的工作只有：确定 parent、tin、size，并把原编号转换成 DFS 序编号。
+### 先把思路讲清楚
 
-完整代码用显式栈实现 DFS：弹出一个点时编号，把它的孩子压入栈。后压入的先访问，具体兄弟顺序不重要，深度优先形成的连续性才重要。
+树为 1 的孩子 2、3，2 的孩子 4、5。从 1 进行 DFS 得 [1,2,4,5,3]，从 2 开始的 [2,4,5] 正是其中一段。
+
+先记录 order 和每点 tin、size。若 k≤size[u]，答案就是 order[tin[u]+k−1]。本段代码的 tin 从 0 开始，因此子树为 [tin[u],tin[u]+size[u]−1]，与上面从 1 编号的推导只差整体平移。
+
+输入按 v=2…n 追加孩子，名单天然升序。栈后进先出，要把孩子逆序入栈，才能先处理最小编号。倒序 order 合并 size 时，孩子先算完，父亲再累加。
 
 ### 完整代码
 
@@ -78,76 +84,52 @@ int main() {
     cin.tie(nullptr);
     int n, q;
     cin >> n >> q;
-    vector<long long> value(n + 1), bit(n + 1);
-    for (int i = 1; i <= n; i++) cin >> value[i];
-    vector<vector<int>> g(n + 1);
-    for (int i = 1, u, v; i < n; i++) {
-        cin >> u >> v;
-        g[u].push_back(v);
-        g[v].push_back(u);
+    vector<vector<int>> child(n + 1);
+    for (int v = 2; v <= n; v++) {
+        int p;
+        cin >> p;
+        child[p].push_back(v);
     }
-    vector<int> parent(n + 1), tin(n + 1), size(n + 1, 1), order;
+    vector<int> tin(n + 1), size(n + 1, 1), order;
     stack<int> pending;
     pending.push(1);
     while (!pending.empty()) {
         int u = pending.top();
         pending.pop();
-        order.push_back(u);
         tin[u] = order.size();
-        for (int v : g[u]) if (v != parent[u]) {
-            parent[v] = u;
-            pending.push(v);
-        }
+        order.push_back(u);
+        int count = child[u].size();
+        for (int i = count - 1; i >= 0; i--) pending.push(child[u][i]);
     }
-    for (int i = n - 1; i > 0; i--) {
+    for (int i = n - 1; i >= 0; i--) {
         int u = order[i];
-        size[parent[u]] += size[u];
+        for (int v : child[u]) size[u] += size[v];
     }
-    auto add = [&](int pos, long long delta) {
-        for (int x = pos; x <= n; x += x & -x) bit[x] += delta;
-    };
-    auto prefix = [&](int pos) {
-        long long answer = 0;
-        for (int x = pos; x > 0; x -= x & -x) answer += bit[x];
-        return answer;
-    };
-    for (int u = 1; u <= n; u++) add(tin[u], value[u]);
     while (q--) {
-        int op, u;
-        cin >> op >> u;
-        if (op == 1) {
-            long long delta;
-            cin >> delta;
-            add(tin[u], delta);
-        } else {
-            cout << prefix(tin[u] + size[u] - 1) - prefix(tin[u] - 1) << '\n';
-        }
+        int u, k;
+        cin >> u >> k;
+        if (k > size[u]) cout << -1 << '\n';
+        else cout << order[tin[u] + k - 1] << '\n';
     }
     return 0;
 }
 ```
 
-树上每个点只有一条从根出发的简单路径，跳过父亲就足以避免返回；普通有环图还要使用访问标记，不能照搬这个条件。
-
-这里的 `auto add = [&](...) { ... };` 把函数直接写在 main 内，`[&]` 使它能使用外面的 n、bit；调用仍写 add(pos,delta)。prefix 同理。它们分别实现之前已经学过的修改和前缀查询。
-
-显式栈把待处理的点存到容器中，链形树也不会消耗 n 层函数调用栈。这里的栈是控制遍历的工具，倒序 order 则负责“孩子先算，父亲后算”的依赖。
-
-建 DFS 序 O(n)，树状数组逐点初始化 O(n log n)，每次操作 O(log n)，总存储 O(n)。累计和用 long long。
+预处理 O(n)，每次询问 O(1)，空间 O(n)。显式栈能处理长链。如果以后需要修改点权、查询子树和，只需把 value[u] 放到 DFS 序位置，再用树状数组处理这个连续区间。
 
 ## 练习：在原编号和序列编号之间转换
 
-先**独立重做本例**，在纸上记录每个点的 tin、size、子树区间，再用普通遍历对子树求和对拍。
+先**独立重做本例**，在纸上记录每个点的 tin、size、子树区间，再从询问的 u 单独做一次按编号升序的 DFS，与第 k 个结点的回答对照。
 
 ### 推荐必做
 
-1. **自编 · 第 k 个子树结点：** 在本例树上，询问 u 的子树中按 DFS 序的第 k 个点。用反向数组 vertex[tin[u]]=u；若 k>size[u] 输出 −1，否则取 vertex[tin[u]+k−1]。
-2. **自编 · 判断祖先：** 询问 u 是否为 v 的祖先，允许 u=v。判断 tin[v] 是否落在 u 的子树区间，练习将关系转成区间包含。
+1. [P3605 · Promotion Counting](https://www.luogu.com.cn/problem/P3605)：对每个结点，统计其子树中能力值比它大的下属数量。用 DFS 序表示子树区间，按能力值排序并用树状数组计数。
 
 ### 选做巩固
 
-- **自编 · 子树赋值后求最大值：** 沿用 DFS 序，将子树范围交给线段树维护，操作规模仍为 2×10⁵。
-- **自编 · 换根后重建：** 分别以 1、n 为根，输出同一个点的父亲与子树大小，解释为什么原树没变，有根关系却变了。
+- [P3178 · 树上操作](https://www.luogu.com.cn/problem/P3178)：支持单点加、子树加及节点到根的路径和。先将子树加转换为 DFS 序区间，再思考根路径和如何维护。
+- [CF 383C · Propagating tree](https://codeforces.com/problemset/problem/383/C)：给一个点加值后，增量沿子树逐层变号，查询单点当前值。用 DFS 序处理子树范围，按深度奇偶区分符号。
+- [CF 620E · New Year Tree](https://codeforces.com/problemset/problem/620/E)：给整棵子树重新染色，查询子树内不同颜色数。用 DFS 序映射区间，并在线段树中用位集合合并颜色。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[树 #207](https://www.luogu.com.cn/training/207)。
 

@@ -25,24 +25,28 @@ description: 给小集合中的元素分配二进制位，用整数作为状态�
 
 本章 n 很小，所有 mask 在非负 int 范围内；涉及更高位时应像 1.9 一样选择足够宽的类型。补集若只限于 n 个元素，应写 full^mask，full=(1<<n)−1，不能直接把整数全部高位也取反。
 
-## 例题精讲：自编 · 指定物品中的可行子集
+## 例题精讲：[CF550B Preparing Olympiad](https://codeforces.com/problemset/problem/550/B)
 
-**题意简述：** n≤20，每件有非负重量，只有 mask 指定的物品可用，统计其中总重量≤预算 B 的子集数，空集也算。输入 n、mask、B，再输入 n 个重量，重量≤10⁶、B≤10⁹。
+**题意简述：** 从 n 道题中选至少两道，总难度在 [L,R]，最高与最低难度之差至少 X，求选题方案数。n≤15，每题难度≤10⁶。输入 n、L、R、X，接着 n 个难度，输出方案数。
 
-输入：
+自编输入：
 
 ```text
-3 5 3
-1 9 3
+3 5 6 1
+1 2 3
 ```
 
-输出 `3`。mask=101，只能用 0、2，四个子集为空、{0}、{2}、{0,2}，最后一个重量 4 超预算。
+输出：
 
-## 让减一只在允许的位置上变化
+```text
+2
+```
 
-从 s=mask 开始，反复执行 `(s-1)&mask`，可以按数值递减枚举它的全部子集。减一会清掉最低的 1，并把它右边置为 1；再与 mask，只保留允许出现的位。
+### 先把思路讲清楚
 
-例如 mask=101：101→100→001→000。到 0 就结束；若继续算，(0−1)&mask 又回到 mask，会无限循环。
+每道题只有选与不选，直接把选择集合写成 mask。枚举 0…2ⁿ−1，对每个为 1 的位累计数量、和、最小值、最大值，再检查三个条件。样例中 {2,3} 与 {1,2,3} 合法，所以答案为 2；相同难度的不同题目仍是不同位置，不能去重。
+
+第 i 位对应 a[i]，`(mask>>i)&1` 就是在问“这一道题选没选”。n=15 时仅有 32768 个集合，每个最多检查 15 个位置，暴力足够。先用它理解集合与位的对应，后面再学习只枚举某个指定集合的子集。
 
 ### 完整代码
 
@@ -51,40 +55,54 @@ description: 给小集合中的元素分配二进制位，用整数作为状态�
 using namespace std;
 
 int main() {
-    int n, mask;
-    long long budget;
-    cin >> n >> mask >> budget;
-    vector<int> weight(n);
-    for (int &x : weight) cin >> x;
+    int n, L, R, difference;
+    cin >> n >> L >> R >> difference;
+    vector<int> a(n);
+    for (int &x : a) cin >> x;
     int answer = 0;
-    for (int subset = mask; ; subset = (subset - 1) & mask) {
-        long long total = 0;
-        for (int i = 0; i < n; i++) if ((subset >> i) & 1) total += weight[i];
-        if (total <= budget) answer++;
-        if (subset == 0) break;
+    for (int mask = 0; mask < (1 << n); mask++) {
+        int count = 0, sum = 0, smallest = INT_MAX, largest = INT_MIN;
+        for (int i = 0; i < n; i++) if ((mask >> i) & 1) {
+            count++;
+            sum += a[i];
+            smallest = min(smallest, a[i]);
+            largest = max(largest, a[i]);
+        }
+        if (count >= 2 && L <= sum && sum <= R && largest - smallest >= difference) answer++;
     }
     cout << answer << '\n';
     return 0;
 }
 ```
 
-若可用集合有 k 个元素，一共 2ᵏ 个子集，时间 O(n2ᵏ)，空间 O(n)。代码先处理 0 再 break，因此 mask=0 时也恰好计入一个空集。
+时间 O(n2ⁿ)，空间 O(n)。先检查 count≥2，才把最大最小差作为合法候选条件；空集和单元素都不能算入。
 
-如果还对所有 mask 都枚举其子集，总次数是 3ⁿ：每个元素只有“不在 mask”“在 mask 不在 subset”“在 subset”三种位置。不能把这样的双层枚举误估成 O(2ⁿ)。
+## 只枚举指定集合的子集
+
+当题目只允许使用 mask 中的元素，可以从 s=mask 开始，反复令 s=(s−1)&mask。减一清除最低的 1，并把右边置 1；再与 mask，筛掉不允许的位。例如 mask=101 时依次得到 101→100→001→000。
+
+```text
+for (int s = mask; ; s = (s - 1) & mask) {
+    // 处理子集 s
+    if (s == 0) break;
+}
+```
+
+先处理 0 再退出，空集也恰好枚举一次；不退出会重新回到 mask。若 mask 有 k 个元素，共有 2ᵏ 个子集。如果对所有 mask 又枚举全部子集，总数为 3ⁿ，因为每个元素有“不在 mask”“在 mask 但不在 s”“在 s”三种归属。
 
 ## 练习：先画集合，再看整数
 
-先**独立重做本例**，用普通 0/1 选择搜索核对，测试 mask=0、全部元素允许和预算为 0。
+先**独立重做本例**，用普通“选/不选”递归核对，检查不足两道、总难度恰好在边界、难度差恰好等于 X。
 
 ### 推荐必做
 
-1. **自编 · 预处理子集和：** 对所有 mask 保存重量和，去掉一个最低位 1，从更小集合转移，做到 O(2ⁿ) 预处理。
-2. **自编 · 两组划分：** 给定 mask，将它拆成 subset 与 mask^subset，枚举所有划分；若两组无序，解释怎样避免交换两组造成重复。
+1. [P1441 砝码称重](https://www.luogu.com.cn/problem/P1441)：去掉指定数量的砝码后，使剩余砝码能称出的不同正重量最多。练习枚举去掉的集合，并用背包统计可达重量。
+2. [P5911 PRZ](https://www.luogu.com.cn/problem/P5911)：按承重限制分批过桥，每批时间由最慢的人决定，求最少总时间。练习预处理子集重量和耗时，再枚举可行子集。
 
 ### 选做巩固
 
-- **自编 · 固定数量：** 只统计恰好选 k 件的子集，用位数统计或搜索次数核对。
-- **自编 · 差集与补集：** 对 n=4 输出集合 a\b 与全集\a，比较 `~a` 为什么还含有不属于全集的高位。
+- [P3052 Cows in a Skyscraper](https://www.luogu.com.cn/problem/P3052)：把奶牛分批装入限重电梯，使运行次数最少。练习用集合记录已经运送的奶牛，并判断一批的重量。
+- [P2831 愤怒的小鸟](https://www.luogu.com.cn/problem/P2831)：选择最少抛物线轨迹消灭所有小猪。练习用位集合表示一次覆盖的小猪，以及已经消灭的集合。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[状态压缩动态规划 #215](https://www.luogu.com.cn/training/215)。
 

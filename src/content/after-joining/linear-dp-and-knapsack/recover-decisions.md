@@ -11,33 +11,39 @@ DP 表不只是一组最终数值，每次更新都来自一个具体选择。�
 >
 > 为我讲解 DP 方案恢复，用 0/1 背包追踪每件物品选或不选，解释为什么恢复过程不能被后续更新覆盖，并引导我提问。
 
-## 例题精讲：自编 · 输出一种最优装包方案
+## 例题精讲：[P1759 通天之潜水](https://www.luogu.com.cn/problem/P1759)
 
-**题意简述：** n 件物品、容量 W，每件最多一次，输入每件的正重量与非负价值。输出最大价值，再输出所选数量和按编号升序的物品编号；同样最优时允许任意方案。n≤200、W≤5000、价值≤10⁶。
+**题意简述：** 每件潜水工具有重量 a、阻力 b、可支持时间 c，重量总和不超过 m，阻力总和不超过 v，求最长时间并输出所选编号。第一行 m、v、n，后面 n 行 a、b、c。m、v≤200，n≤100。有多个最优方案时，编号序列要尽量靠前，按字典序最小输出。
 
-输入：
-
-```text
-3 5
-2 3
-3 4
-4 5
-```
-
-一组输出：
+自编输入：
 
 ```text
-7
-2 1 2
+5 5 3
+3 3 5
+2 2 5
+5 5 10
 ```
 
-前两件重量 5、价值 7。只输出一个数 7 还不能说明具体选了什么。
+输出：
 
-## 保存二维表，按物品层逆向走
+```text
+10
+1 2
+```
 
-f[i][c] 为前 i 件在容量 c 内的最大价值。不选第 i 件的候选是 f[i−1][c]，选它的候选是 f[i−1][c−w[i]]+v[i]。
+### 先把思路讲清楚
 
-从 (n,W) 出发：如果 f[i][c] 比 f[i−1][c] 大，这个最优值一定使用了第 i 件，记录编号并令 c-=w[i]；否则选择不选它的那份最优方案。每次 i 都减一，因此不会重复取同一件。
+选 {1,2} 与 {3} 都有时间 10，但 [1,2] 的字典序更小。题目要求的不仅是一个最优值，还要求按规则选出对应的决策。
+
+### 用后缀状态，方便优先尝试小编号
+
+令 f[i][w][r] 表示仅用 i…n 号工具，在剩余重量 w、阻力 r 内能得到的最大时间。第 i 件不取，读 f[i+1][w][r]；能取则读 c[i]+f[i+1][w−a[i]][r−b[i]]。从 i=n 往前算，全部依赖都在下一层。
+
+### 从小编号开始恢复
+
+从 i=1、完整容量出发。如果“取第 i 件”仍能达到当前最优值，就先取它，并扣减两种容量；否则跳过。两种选择同样最优时，取当前较小编号能使第一个不同位置尽量小。如果剩余最优值已经为 0，则结束，避免在方案末尾额外追加无收益工具。
+
+这比在已滚动覆盖的一维表里随意跟随 parent 更清楚：每次决定都能查到物品层没有被改写的下一层状态。
 
 ### 完整代码
 
@@ -46,34 +52,43 @@ f[i][c] 为前 i 件在容量 c 内的最大价值。不选第 i 件的候选是
 using namespace std;
 
 int main() {
-    int n, W;
-    cin >> n >> W;
-    vector<int> weight(n + 1), value(n + 1);
-    for (int i = 1; i <= n; i++) cin >> weight[i] >> value[i];
-    vector<vector<long long>> f(n + 1, vector<long long>(W + 1));
-    for (int i = 1; i <= n; i++) {
-        for (int c = 0; c <= W; c++) {
-            f[i][c] = f[i-1][c];
-            if (c >= weight[i]) f[i][c] = max(f[i][c], f[i-1][c-weight[i]] + value[i]);
-        }
-    }
-    vector<int> selected;
-    int c = W;
+    int weightLimit, resistanceLimit, n;
+    cin >> weightLimit >> resistanceLimit >> n;
+    vector<int> weight(n + 1), resistance(n + 1);
+    vector<long long> value(n + 1);
+    for (int i = 1; i <= n; i++) cin >> weight[i] >> resistance[i] >> value[i];
+    vector<vector<vector<long long>>> f(n + 2,
+        vector<vector<long long>>(weightLimit + 1, vector<long long>(resistanceLimit + 1)));
     for (int i = n; i >= 1; i--) {
-        if (f[i][c] > f[i-1][c]) {
-            selected.push_back(i);
-            c -= weight[i];
+        for (int w = 0; w <= weightLimit; w++) {
+            for (int r = 0; r <= resistanceLimit; r++) {
+                f[i][w][r] = f[i + 1][w][r];
+                if (weight[i] <= w && resistance[i] <= r) {
+                    f[i][w][r] = max(f[i][w][r], value[i]
+                        + f[i + 1][w - weight[i]][r - resistance[i]]);
+                }
+            }
         }
     }
-    reverse(selected.begin(), selected.end());
-    cout << f[n][W] << '\n' << selected.size();
-    for (int id : selected) cout << ' ' << id;
-    cout << '\n';
+    int w = weightLimit, r = resistanceLimit;
+    cout << f[1][w][r] << '\n';
+    vector<int> answer;
+    for (int i = 1; i <= n && f[i][w][r] > 0; i++) {
+        if (weight[i] <= w && resistance[i] <= r
+            && f[i][w][r] == value[i] + f[i + 1][w - weight[i]][r - resistance[i]]) {
+            answer.push_back(i);
+            w -= weight[i];
+            r -= resistance[i];
+        }
+    }
+    int count = answer.size();
+    for (int i = 0; i < count; i++) cout << answer[i] << (i + 1 == count ? '\n' : ' ');
+    if (answer.empty()) cout << '\n';
     return 0;
 }
 ```
 
-相等时选择不选，是一种固定的取舍，不代表选它一定不最优。时间与空间 O(nW)，表格最大约 8 MB。
+时间 O(nmv)，保存完整表的空间 O(nmv)，最大约四百万个 long long，约 32 MB。恢复只扫 n 件。独立检查输出编号不重复、两种约束都满足、总时间等于最优值，并检查同值时的字典序。
 
 ## 一维优化为什么可能弄丢前驱
 
@@ -83,17 +98,16 @@ LCS 可以从右下角看相等字符与上下候选；编辑距离可以记录�
 
 ## 练习：不仅验证最优值，还要验证输出方案
 
-先**独立重做本例**。检查编号互异、总重量不超 W、总价值等于输出值；小数据再用子集枚举检查这个值是否最优。
+先**独立重做本例**。检查编号互异、总重量和总阻力均不超限制、总时间等于输出值；小数据再用子集枚举检查这个值是否最优。
 
 ### 推荐必做
 
-1. **自编 · 输出一条 LCS：** 两串长度≤1000，保存完整 LCS 表，沿相等字符与最优来源回溯，最后反转结果。
-2. **自编 · 输出网格路径：** 每步向右或向下，求最大收益并输出方向串，记录前驱方向后反向还原。
+1. [CF 4D · Mysterious Present](https://codeforces.com/problemset/problem/4/D)：选择最多个长宽均严格递增且能装下卡片的信封，并输出编号。记录每个状态的前驱，回溯后按从小到大输出。
 
 ### 选做巩固
 
-- **自编 · 输出编辑操作：** 为编辑距离记录来源，依次解释每步操作针对原串哪个前缀，避免位置变化导致操作编号错乱。
-- **自编 · 固定并列规则：** 给背包增加“价值相同时选件数少”的要求，将件数作为第二个比较字段，再恢复符合规则的方案。
+- [P1040 · 加分二叉树](https://www.luogu.com.cn/problem/P1040)：给定中序顺序和节点分数，求最高加分及对应的前序遍历。记录各区间选择的根，再递归恢复树。
+- [CF 20C · Dijkstra?](https://codeforces.com/problemset/problem/20/C)：在无向带权图中输出从 1 到 n 的一条最短路径，不可达输出 −1。每次改善距离时记录前驱，比较图上路径与 DP 方案的恢复方式。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[线性状态动态规划 #212](https://www.luogu.com.cn/training/212)。
 

@@ -29,80 +29,90 @@ dist 是“当前最好方案”，更新之前不一定等于最终最短路。
 
 如果权值只有 0、1，从距离 d 出发：走 0 边仍是 d，应优先处理；走 1 边变成 d+1，放在后面。用双端队列 deque，0 边 push_front、1 边 push_back，即 0/1 BFS。
 
-## 例题精讲：自编 · 免费与收费通道
+## 例题精讲：[P1346 电车](https://www.luogu.com.cn/problem/P1346)
 
-**题意简述：** n 个点、m 条有向边，每边费用为 0 或 1，求从 1 到 n 的最低费用，不可达输出 −1。n≤2×10⁵，m≤4×10⁵。输入 n、m 后，每行给 u、v、w。
+**题意简述：** 每个路口的开关默认指向名单中的第一条轨道，走其他轨道需要切换一次。求从 A 到 B 的最少切换数，不可达输出 −1。输入 N、A、B，再输入 N 行，每行先给轨道数 Ki，再按顺序给出目标编号。N≤100。
 
-输入：
+自编输入：
 
 ```text
-4 4
-1 2 1
-1 3 0
-3 2 0
-2 4 1
+3 1 3
+2 2 3
+1 1
+0
 ```
 
-输出 `1`。1→3→2→4 的费用是 0+0+1；先看到 1→2 时得到的费用 1，可以被免费绕行改成 0。
+输出：
+
+```text
+1
+```
+
+### 先把思路讲清楚
+
+路口 1 默认去 2，费用 0；改去 3 的费用 1。虽然 1→2→1 可以免费走，但要到 3 仍需切换一次。
+
+将每份名单的第一个目标记成权 0，其余记成权 1，问题就变为 0/1 最短路。边有向，只在输入起点的名单追加。dist[v]>dist[u]+w 表示发现更便宜的方案，更新叫松弛。
+
+费用不增加的候选放双端队列前面，增加 1 的放后面，就能按距离层次处理。不能像普通 BFS 那样第一次看见就永久标记：某点先通过收费路线发现，后来还可能有更便宜的路线。代码只在距离严格变小时入队，也不会被零环无限重复更新。
 
 ### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
-
-struct Edge { int to, weight; };
+struct Edge {
+    int to, weight;
+};
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    int n, m;
-    cin >> n >> m;
+    int n, start, target;
+    cin >> n >> start >> target;
     vector<vector<Edge>> g(n + 1);
-    for (int i = 0, u, v, w; i < m; i++) {
-        cin >> u >> v >> w;
-        g[u].push_back({v, w});
+    for (int u = 1; u <= n; u++) {
+        int count;
+        cin >> count;
+        for (int i = 0; i < count; i++) {
+            int v;
+            cin >> v;
+            g[u].push_back({v, i == 0 ? 0 : 1});
+        }
     }
     const int INF = 1000000000;
     vector<int> dist(n + 1, INF);
-    deque<pair<int, int>> q;
-    dist[1] = 0;
-    q.push_front({0, 1});
+    deque<int> q;
+    dist[start] = 0;
+    q.push_front(start);
     while (!q.empty()) {
-        int distance = q.front().first, u = q.front().second;
+        int u = q.front();
         q.pop_front();
-        if (distance != dist[u]) continue;
-        for (const Edge &e : g[u]) {
-            int candidate = distance + e.weight;
-            if (candidate < dist[e.to]) {
-                dist[e.to] = candidate;
-                if (e.weight == 0) q.push_front({candidate, e.to});
-                else q.push_back({candidate, e.to});
+        for (Edge e : g[u]) {
+            if (dist[e.to] > dist[u] + e.weight) {
+                dist[e.to] = dist[u] + e.weight;
+                if (e.weight == 0) q.push_front(e.to);
+                else q.push_back(e.to);
             }
         }
     }
-    cout << (dist[n] == INF ? -1 : dist[n]) << '\n';
+    cout << (dist[target] == INF ? -1 : dist[target]) << '\n';
     return 0;
 }
 ```
 
-队列保存“当时的距离、结点”，若后来出现更优路线，旧记录弹出时直接跳过。只在严格变小时加入新记录，零权环不会造成反复加入相同距离。
-
-双端队列中候选距离保持不减，最小候选出队时已经确定，边被用于松弛的总次数为 O(m)，总时间 O(n+m)，存储 O(n+m)。这个顺序依赖边权只能是 0 或 1，不能把权 7 也简单当成“放后面”。
+设 M 为名单总长度，0/1 BFS 时间、空间 O(N+M)。起点等于终点时答案为 0，空名单不需补边。
 
 ## 练习：把处理顺序与边权连起来
 
-先**独立重做本例**，手算双端队列每次的内容，观察旧的结点 2 记录怎样被跳过。
+先**独立重做本例**，手算双端队列每次的内容，标出每次松弛的旧距离、新距离与入队端，检查免费环不会反复产生相同距离更新。
 
 ### 推荐必做
 
-1. **自编 · 全部边权为 1：** 用普通 BFS 和本节代码各求一次所有点距离，比较结果，说明为什么此时不需要队首插入。
-2. **自编 · 网格改向：** 每格给一个箭头，顺箭头走到相邻格费用 0，改方向费用 1，求左上角到右下角的最少改向次数。把格子作为点，现场生成四个邻居。
+1. [P4554 小明的游戏](https://www.luogu.com.cn/problem/P4554)：在两类字符组成的网格中行走，同类移动费用 0、异类费用 1，求指定起终点的最小费用。练习把格子展开为结点，并对多组数据运行 0/1 BFS。
 
 ### 选做巩固
 
-- **自编 · 恢复最低费用路线：** 更新 dist[v] 时同时记 parent[v]=u，从终点回溯；无解时不回溯。
-- **自编 · 先访问不等于最优：** 构造一个带权图，让按边数最少的路线比多走几条免费边更贵，分别输出两种目标的答案。
+- [P4667 · Switch the Lamp On](https://www.luogu.com.cn/problem/P4667)：旋转最少电路元件，使电源和灯连通。以网格交点为状态，判断沿对角线移动是否需要旋转。
+- [P1144 · 最短路计数](https://www.luogu.com.cn/problem/P1144)：在无权图中统计从 1 出发到各点的最短路径数。用普通 BFS 按层处理，比较与 0/1 边权的队列安排。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[最短路 #208](https://www.luogu.com.cn/training/208)。
 

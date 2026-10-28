@@ -31,127 +31,98 @@ long long step = 1LL << j; // 得到 2^j，本节 j 不超过 59
 
 1LL 表示 long long 类型的 1，先让运算在 64 位整数中进行；不能拿普通 int 的 1 去左移 40 位。后面读取二进制能力标记、使用 01 Trie 时，也会用到相同写法。
 
-## 例题精讲：自编 · 传送装置
+## 例题精讲：[CF702E Analysis of Pathes in Functional Graph](https://codeforces.com/problemset/problem/702/E)
 
-**题意简述：** n 个站点，每个站点 u 有唯一下一站 next[u]，允许形成环和自环。有 q 次询问：从 x 出发，经过 k 次传送后到哪里？n、q≤2×10^5，0≤k≤10^18。
+**题意简述：** 每个点恰有一条出边 u→f[u]，边权为 w[u]。对每个起点输出恰走 k 条边的权值和、最小边权，允许重复经过点和边。编号为 0…n−1，n≤10⁵、1≤k≤10¹⁰、0≤w≤10⁸。输入 n、k，再给 n 个后继及 n 个边权。
 
-输入：
+自编输入：
 
 ```text
-5 4
-2 3 4 5 3
-1 0
-1 3
-1 13
-5 4
+3 3
+1 2 1
+5 2 4
 ```
 
 输出：
 
 ```text
-1
-4
-5
-3
+11 2
+8 2
+10 2
 ```
 
-站点关系为 1→2→3→4→5→3→……，环不影响“走固定步数后到哪里”的定义。
+### 先把思路讲清楚
 
-## 先准备 2 的幂次跳跃
+先只想一个问题：从 u 连续走 2ʲ 步，最后在哪里？把这段拆成两段 2ʲ⁻¹ 步，先到 mid=to[j−1][u]，再到 to[j−1][mid]。于是 to[j][u] 由两份较小的跳跃组合出来。环不会影响它，重复经过同一条边仍算一次新的行走。
 
-定义 jump[j][u] 表示“从 u 出发走 2^j 步的终点”。注意第一层是幂次 j，第二层才是站点 u。
+### 同时记录这段路的信息
 
-- jump[0][u]=next[u]，因为 2^0=1。
-- 要走 2^j 步，先走 2^(j−1) 步到中间站，再从那里走同样多步。
+题目还问总和与最小值，就给每段跳跃再存 sum[j][u]、minimum[j][u]。合并两半时，总和相加，最小值取 min。第一层是一条边：目的地 f[u]、权值和 w[u]、最小值 w[u]。
 
-```text
-jump[j][u] = jump[j-1][jump[j-1][u]];
-                         └── 第一次跳跃的终点
-             └────────────── 从这个终点再跳一次
-```
+样例从 0 走三步的边权为 5、2、4，得到 11 和 2。从 1 出发则是 2、4、2，得到 8 和 2。手画箭头再数边，注意包含起点的出边，而非先走到下一个点才取权。
 
-手算前几层：
+### 按 k 的二进制拼接
 
-| 出发站 u | 1 步 | 2 步 | 4 步 | 8 步 |
-| --- | --- | --- | --- | --- |
-| 1 | 2 | 3 | 5 | 3 |
-| 2 | 3 | 4 | 3 | 4 |
-| 3 | 4 | 5 | 4 | 5 |
-| 4 | 5 | 3 | 5 | 3 |
-| 5 | 3 | 4 | 3 | 4 |
+k=13=1+4+8，按当前 u 先取 1 步，再取 4 步、8 步。每取一段，先合并该段的和与最小值，再把 u 更新为段末位置。代码中的三个表和三个更新，逐一对应“走到哪、累计多少、途中最小多少”。
 
-例如 jump[2][1]=jump[1][jump[1][1]]=jump[1][3]=5。代码里的两层下标，正好把“先到哪里，再从那里出发”写了出来。
-
-## 处理询问：把需要的跳跃接起来
-
-13 的二进制为 1101。从低位到高位看：第 0、2、3 位为 1，因此依次走 1、4、8 步。
-
-```text
-起点 1
-走 1 步：jump[0][1] = 2
-走 4 步：jump[2][2] = 3
-走 8 步：jump[3][3] = 5
-总计 1+4+8=13 步，停在 5
-```
-
-每次都从**目前所在的站**继续跳，不是把几次独立查询得到的站点编号相加。k=0 时没有为 1 的位，起点不变。
-
-## 完整代码
+### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
 
-const int N = 200000 + 5;
-const int LOG = 60;
-int jumpTo[LOG][N];
-
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    int n, q;
-    cin >> n >> q;
-    for (int u = 1; u <= n; u++) cin >> jumpTo[0][u];
+    int n;
+    long long k;
+    cin >> n >> k;
+    const int LOG = 34;
+    vector<vector<int>> to(LOG, vector<int>(n));
+    vector<vector<long long>> sum(LOG, vector<long long>(n));
+    vector<vector<int>> minimum(LOG, vector<int>(n));
+    for (int i = 0; i < n; i++) cin >> to[0][i];
+    for (int i = 0; i < n; i++) {
+        cin >> minimum[0][i];
+        sum[0][i] = minimum[0][i];
+    }
     for (int j = 1; j < LOG; j++) {
-        for (int u = 1; u <= n; u++) {
-            int middle = jumpTo[j-1][u];
-            jumpTo[j][u] = jumpTo[j-1][middle];
+        for (int u = 0; u < n; u++) {
+            int mid = to[j - 1][u];
+            to[j][u] = to[j - 1][mid];
+            sum[j][u] = sum[j - 1][u] + sum[j - 1][mid];
+            minimum[j][u] = min(minimum[j - 1][u], minimum[j - 1][mid]);
         }
     }
-    while (q--) {
-        int x;
-        long long k;
-        cin >> x >> k;
-        for (int j = 0; j < LOG; j++) {
-            if ((k >> j) & 1LL) x = jumpTo[j][x];
+    for (int start = 0; start < n; start++) {
+        int u = start, smallest = 1000000000;
+        long long total = 0;
+        for (int j = 0; j < LOG; j++) if ((k >> j) & 1LL) {
+            total += sum[j][u];
+            smallest = min(smallest, minimum[j][u]);
+            u = to[j][u];
         }
-        cout << x << '\n';
+        cout << total << ' ' << smallest << '\n';
     }
     return 0;
 }
 ```
 
-10^18<2^60，所以准备第 0 到 59 位共 60 层。预处理 O(n log K)，每次询问 O(log K)，K 为最大步数；本题最多约 60(n+q) 次表访问，空间 O(n log K)，int 跳表在最大 n 时约 48 MB。次数 k 用 long long，站点编号用 int 即可。
-
-## 同一个拆分思想，还能组合什么
-
-如果每条传送还带一个费用，可以同时预处理走 2^j 步的总费用：前半段费用加上从中间站出发的后半段费用。查询时既改变当前站点，也累计费用。
-
-快速幂也是类似的组合：预先将 a、a²、a⁴、a⁸ 不断平方，指数的某一位为 1 时，把对应的幂乘进答案。幂次跳跃是在组合“操作”，快速幂是在组合“乘积”。
+k<2³⁴，所以存 j=0…33。预处理、全部起点查询均为 O(n log k)，空间 O(n log k)。单个回答的和最多 10¹⁸，sum 使用 long long；k≥1，最小值总会被至少一段真实路径更新。
 
 ## 练习：先确定要组合的信息
 
-先**独立重做传送装置例题**，测试 k=0、自环、整圈绕回，以及超过 int 范围的 k。
+先**独立重做 CF702E**，手算从各个点走 k 条边的和与最小值，测试 k=1、自环、绕环多圈，以及超过 int 范围的 k。
 
 ### 推荐必做
 
 1. [P1226 · 快速幂](https://www.luogu.com.cn/problem/P1226)：计算 a^b mod p。每次乘法后取模，乘法在 long long 中完成，保留原 a、b、p 用于输出；按题目格式用 printf 输出 `a^b mod p=s`。练习二进制拆分与操作组合。
-2. **自编 · 传送累计费用：** 沿用例题，每个站点多一个出发费用 cost[u]（0 到 100），询问 k≤10^12 次传送的终点与总费用。每次出发收取当前位置费用，按这个步数范围准备 40 层终点表与费用表，费用用 long long。
+2. [AT_abc167_d · Teleporter](https://www.luogu.com.cn/problem/AT_abc167_d)：从 1 号城镇出发，经过 K 次传送后输出所在城镇。根据 K≤10^18 准备足够的倍增层数，练习按二进制组合跳转。
 
 ### 选做巩固
 
-- **自编 · 第 k 位祖先：** 输入一棵有根树每点的父亲，根的父亲记为 0，规定 0 的父亲仍为 0；查询 x 向上走 k≤10^18 步，走出树则输出 0。用同一个跳表表示父亲操作。
-- **自编 · 自动机重复操作：** 有 n 个状态，每个状态给一个唯一后继，输出从每个状态执行同一大次数 k 后的状态。把查询阶段从单个起点推广到全部起点，估算总复杂度。
+- [AT_abc241_e · Putting Candies](https://www.luogu.com.cn/problem/AT_abc241_e)：每次按当前糖数对 N 的余数决定加入的糖数，求 K 次后的总数。把余数当状态，倍增维护终点与累计数量。
+- [AT_abc179_e · Sequence Sum](https://www.luogu.com.cn/problem/AT_abc179_e)：数列下一项是当前值平方对 M 取模，求前 N 项的和。将数值视为状态，记录跳转及经过项之和，注意 64 位范围。
 
 ## 本节验收
 

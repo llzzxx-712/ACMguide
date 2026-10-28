@@ -121,12 +121,12 @@ int main() {
 ### 推荐必做
 
 1. [P4316 绿豆蛙的归宿](https://www.luogu.com.cn/problem/P4316)：在 DAG 每条出边等概率选择，求总路径长度期望；练习逆拓扑序计算剩余期望。
-2. **自编 · 独立成功次数：** 给 n 次各自成功率，求恰好 k 次成功的概率；令 f[i][j] 表示前 i 次恰好成功 j 次，转移时乘本次成功或失败的概率。
+2. [P2111 考场奇遇](https://www.luogu.com.cn/problem/P2111)：已知两人的判断题答案是否一致和一人的正确率，求另一人至少答对指定题数的概率。练习设计前 i 题答对 j 题的概率状态。
 
 ### 选做巩固
 
-- **自编 · 小规模换教室：** n≤6 时枚举提前申请的子集，再枚举全部成功结果，作为本例的独立校验。
-- **自编 · 随机向前走：** 从 0 每次等概率走 1 或 2，达到或超过 n 结束，倒序计算期望步数并设置两个终止状态。
+- [Codeforces 518D Ilya and Escalator](https://codeforces.com/problemset/problem/518/D)：每秒队首以给定概率进入电梯，求指定时间后电梯上的人数期望。练习先求人数分布，再计算期望。
+- [Codeforces 540D Bad Luck Island](https://codeforces.com/problemset/problem/540/D)：石头、剪刀、布随机相遇并按规则淘汰，求最终每种物种独存的概率。练习按三类剩余数量设计概率状态。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[概率与统计 #218](https://www.luogu.com.cn/training/218)。
 

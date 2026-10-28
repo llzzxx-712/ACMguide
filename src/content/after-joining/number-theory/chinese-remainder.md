@@ -23,11 +23,11 @@ description: 把多个余数要求逐个合并，理解互质 CRT 与不互质�
 
 当模数两两互质时，g 总是 1，这就是常见的 CRT。扩展合并则允许不互质，也会正确识别矛盾。
 
-## 例题精讲：自编 · 逐条合并日程
+## 例题精讲：[P4777 扩展中国剩余定理](https://www.luogu.com.cn/problem/P4777)
 
-**题意简述：** 输入 n≤30 条同余条件，每条为 m、r，表示 x mod m=r。1≤m≤10⁹，0≤r<m，保证所有模数的最小公倍数≤10¹⁸。输出最小非负解；无解输出 `NO`。
+**题意简述：** 输入 n 条同余条件，每行 m、r，表示 x≡r (mod m)，求最小非负解。n≤10⁵，m、r≤10¹²，m≥1；保证有解，所有模数最小公倍数≤10¹⁸。余数可能不小于模数，合并时统一规范。
 
-输入：
+自编输入：
 
 ```text
 2
@@ -58,7 +58,19 @@ long long normalize(long long x, long long mod) {
     return (x % mod + mod) % mod;
 }
 
+long long multiplyMod(long long a, long long b, long long mod) {
+    long long result = 0;
+    while (b > 0) {
+        if (b & 1) result = (result + a) % mod;
+        a = (a + a) % mod;
+        b >>= 1;
+    }
+    return result;
+}
+
 int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
     int n;
     cin >> n;
     long long R = 0, M = 1;
@@ -69,7 +81,7 @@ int main() {
         long long difference = r - R;
         if (difference % g != 0) { cout << "NO\n"; return 0; }
         long long q = m / g;
-        long long t = normalize(difference / g, q) * normalize(u, q) % q;
+        long long t = multiplyMod(normalize(difference / g, q), normalize(u, q), q);
         long long nextM = M * q;
         R = (R + M * t) % nextM;
         M = nextM;
@@ -81,7 +93,7 @@ int main() {
 
 从 R=0、M=1 开始，表示最初所有整数都允许。q=1 时两个规范化因子都为 0，合并仍然有效。
 
-本例单个 m≤10⁹，因此两个先取模的因子乘积<10¹⁸；又因为 t<q，R+M·t<2·nextM≤2×10¹⁸，均在 long long 约 9.22×10¹⁸ 的范围内。**不要把乘法移到取模之前，也不要删掉题目对周期的上界。** 每次合并用一次欧几里得算法，总时间 O(n log B)，B 为合并过程中最大的整数，额外空间 O(log B)。
+本题单个模数可达 10¹²，两项即使先取模，直接相乘也可能超过 long long。因此 multiplyMod 按二进制拆乘数，反复“加到答案、倍增并取模”，每步的和小于 2q≤2×10¹²。新的周期 M·q≤10¹⁸，而 t<q，使 R+M·t<2×10¹⁸，这两处可以直接用 long long。总时间 O(n log B)，额外空间 O(log B)，B 为计算中的最大整数。
 
 ## 练习：先列出两个周期
 
@@ -89,13 +101,13 @@ int main() {
 
 ### 推荐必做
 
-1. **自编 · 不互质但相容：** 合并模 4 余 1、模 6 余 3，求最小解与新周期；练习先除以 gcd 再求 t。
-2. **自编 · 矛盾与重复：** 测试重复条件、相同模数不同余数、模数为 1，说明每种情况对应哪一步判断。
+1. [P1495 曹冲养猪](https://www.luogu.com.cn/problem/P1495)：给出两两互质模数和余数，求满足所有条件的最小自然数。练习逐条合并并核对每一步的新周期。
+2. [P5656 二元一次不定方程](https://www.luogu.com.cn/problem/P5656)：分类输出方程 ax+by=c 的整数解和正整数解信息。练习整理解的周期与参数范围。
 
 ### 选做巩固
 
-- **自编 · 三个时钟：** 随机选一个 x，再构造三个余数，检查结果是否与 x 相差新周期的整数倍。
-- **自编 · 指定区间内的解：** 合并后统计 [L,U] 中有多少个解，把问题转回等差数列计数。
+- [P1082 同余方程](https://www.luogu.com.cn/problem/P1082)：求 ax≡1 (mod b) 的最小正整数解。练习用扩展欧几里得求合并时需要的逆元。
+- [P4549 裴蜀定理](https://www.luogu.com.cn/problem/P4549)：求整数序列的线性组合能得到的最小正值。练习判断多个系数共同的最大公约数。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[数论 #216](https://www.luogu.com.cn/training/216)。
 

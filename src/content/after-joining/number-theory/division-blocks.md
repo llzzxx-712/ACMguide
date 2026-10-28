@@ -27,33 +27,56 @@ n=10 时：
 
 这里只计算五段，合计 27。代码里的 l、r、q 正是表格中的三列，不需要逐个访问 6、7、8、9、10。
 
-## 例题精讲：自编 · 全部整除商之和
+## 例题精讲：[P3935 Calculating](https://www.luogu.com.cn/problem/P3935)
 
-**题意简述：** 输入 1≤n≤10¹²，求 Σ(i=1…n) floor(n/i)。例如 n=5 时各项为 5、2、1、1、1，输出 `10`。
+**题意简述：** 设 x 的质因数分解为 ∏pᵢ^kᵢ，f(x)=∏(kᵢ+1)，输入 l、r，求 Σ(x=l…r)f(x)，对 998244353 取模。端点用 long long 保存。
 
-这个和也等于 1…n 每个数的约数个数之和：交换“枚举数再找约数”和“枚举约数再统计它的倍数”的顺序，就能看到二者相同。
+自编输入：
+
+```text
+1 5
+```
+
+输出：
+
+```text
+10
+```
+
+### 先把思路讲清楚
+
+f(x) 就是约数个数：对每个质因子独立选指数 0…kᵢ，乘起来得到所有约数。因此本题求区间约数个数总和。
+
+设 F(n)=Σ(x=1…n)f(x)。换一个枚举方向：固定约数 d，它会贡献给 d、2d、3d…，共有 floor(n/d) 次，故 F(n)=Σ(d=1…n)floor(n/d)。答案就是 F(r)−F(l−1)。
+
+样例 1…5 的约数个数为 1、2、2、3、2，合计 10。prefix 按上面的表格跳过商不变的整段，每段一次加入 q×段长。计算过程中就取模，最后处理减法的负余数。
 
 ### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
+const long long MOD = 998244353;
 
-int main() {
-    long long n;
-    cin >> n;
+long long prefix(long long n) {
     long long answer = 0;
     for (long long l = 1, r; l <= n; l = r + 1) {
-        long long quotient = n / l;
-        r = n / quotient;
-        answer += quotient * (r - l + 1);
+        long long q = n / l;
+        r = n / q;
+        answer = (answer + (q % MOD) * ((r - l + 1) % MOD)) % MOD;
     }
-    cout << answer << '\n';
+    return answer;
+}
+
+int main() {
+    long long l, r;
+    cin >> l >> r;
+    cout << (prefix(r) - prefix(l - 1) + MOD) % MOD << '\n';
     return 0;
 }
 ```
 
-前 √n 个下标最多产生 √n 段；后面的商小于约 √n，最多再有 √n 种。因此时间 O(√n)，空间 O(1)。n=10¹² 时约两百万段。答案不超过 n(1+ln n)，约 2.9×10¹³，long long 足够。
+每个端点 O(√n) 个分块，额外空间 O(1)。q 与段长各自先取模，两个余数相乘小于约 10¹⁸，可用 long long；prefix(0)=0，循环不会发生除以 0。
 
 ## 与前缀和组合
 
@@ -63,17 +86,16 @@ int main() {
 
 ## 练习：先画出分段
 
-先**独立重做例题**，打印 n=20 每段的 l、r、q，确认没有漏项或重叠，再与逐项求和比较。
+先**独立重做例题**，手列 F(20) 的每段左端、右端和商，确认没有漏项或重叠；再枚举小区间每个数的约数，核对区间答案。
 
 ### 推荐必做
 
-1. **自编 · 两个商的乘积：** 求 Σ floor(n/i)·floor(m/i)，n,m≤10⁸；练习取两个右端点的较小者，答案用 long long。
-2. **自编 · 加权求和：** 给出 n≤10⁶ 的权值数组，求 Σw[i]·floor(n/i)；练习用前缀和替代段内枚举。
+1. [P2261 余数求和](https://www.luogu.com.cn/problem/P2261)：求 Σ(k mod i)，1≤i≤n。练习将余数写成 k−i·floor(k/i)，对商相同的连续区间求和。
 
 ### 选做巩固
 
-- **自编 · φ 加权：** 预处理 φ 前缀和，计算 Σφ(i)·floor(n/i)，用小数据逐项核对。
-- **自编 · 约数个数总和：** 分别用约数筛、逐项整除、整除分块实现同一目标，比较三种复杂度。
+- [P2398 GCD SUM](https://www.luogu.com.cn/problem/P2398)：求所有 1≤i,j≤n 的 gcd 之和。练习先推导按 φ 加权的求和式，再比较逐项求和和分块求和。
+- [P2568 GCD](https://www.luogu.com.cn/problem/P2568)：统计最大公约数为质数的有序数对。练习将整除商与 φ 前缀和结合，核对有序数对的计数。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[数论 #216](https://www.luogu.com.cn/training/216)。
 

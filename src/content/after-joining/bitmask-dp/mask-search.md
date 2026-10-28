@@ -11,63 +11,97 @@ description: 将已获得资源放进搜索状态，区分同一位置下不同�
 >
 > 为我讲解带钥匙状态的迷宫 BFS，手算同一格子的不同 mask，解释拿钥匙、过门和访问标记的顺序，并引导我提问。
 
-## 例题精讲：自编 · 钥匙与门
+## 例题精讲：[P4011 孤岛营救问题](https://www.luogu.com.cn/problem/P4011)
 
-**题意简述：** n×m 网格，S 为起点、T 为终点、# 为墙、. 为空地。小写 a…h 是钥匙，大写 A…H 是对应门，拿到钥匙后永久保留。每步走四邻格，求最少步数，不可达输出 −1。n,m≤30，钥匙种数 k≤8，仅使用前 k 种字母，S、T 各一个。
+**题意简述：** 在 N×M 网格从 (1,1) 到 (N,M)，走四邻格耗时 1。门和墙位于两格之间；0 表示墙，1…P 表示需要对应钥匙的门，未列出的相邻格可直通。N、M、P≤10。输入 N、M、P，再给 K 条门墙记录 x1 y1 x2 y2 G，再给 S 条钥匙位置 x y Q。求最短时间，不可达输出 −1。
 
-输入：
+自编输入：
 
 ```text
-1 4 1
-SaAT
+1 3 1
+1
+1 2 1 3 1
+1
+1 2 1
 ```
 
-输出 `3`。先拿 a，再通过 A，到达 T。
+输出：
 
-## 状态与转移逐项对应规则
+```text
+2
+```
 
-状态是 (x,y,mask)。尝试邻格：先检查边界和墙，再检查若是门，旧 mask 是否已有钥匙；若是钥匙，把对应位加入新 mask；最后检查这个新状态是否已到达。
+### 先把思路讲清楚
 
-普通 visited[x][y] 会把“还没有钥匙时走过”和“拿到钥匙后再次经过”混在一起，可能提前剪掉真正的路线。BFS 对整个状态图按步数分层，最早到达任意终点 mask 就是答案。
+必须先到 (1,2) 取得钥匙，再通过它与 (1,3) 之间的门，共走两步。这里门是边上的限制，不是把某个格子改成门字符。
+
+### 状态必须包含手上的钥匙
+
+状态为 (格子 u,mask)，mask 的第 t−1 位表示已有第 t 类钥匙。同一格子第一次到达可能没有钥匙，之后拿钥匙返回时有了新能力，不能仅用 visited[u] 剪掉它。
+
+先把每格多把钥匙按位或到 keys[u]。拿取无耗时、钥匙永久保留，且不会带来负面作用，所以一到格子就全部拿走。过门先检查旧 mask，再将目标格钥匙并入 nextMask，最后检查新状态是否访问过。起点钥匙也要在入队前拿到。
+
+### 把地图变成 vector 邻接表
+
+坐标编号为 (x−1)·M+y−1。gate 初值 −1 表示普通通道，0 表示墙，正数表示门的类型；只对真正相邻的格子建边。BFS 的所有移动耗时均为 1，第一次到达任意终点 mask 就给出最短时间。
 
 ### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
+struct Edge {
+    int to, gate;
+};
 
 int main() {
-    int n, m, k;
-    cin >> n >> m >> k;
-    vector<string> grid(n);
-    int start = -1;
-    for (int i = 0; i < n; i++) {
-        cin >> grid[i];
-        for (int j = 0; j < m; j++) if (grid[i][j] == 'S') start = i * m + j;
+    int n, m, p, k;
+    cin >> n >> m >> p >> k;
+    int cells = n * m, states = 1 << p;
+    auto id = [&](int x, int y) { return (x - 1) * m + y - 1; };
+    vector<vector<int>> gate(cells, vector<int>(cells, -1));
+    while (k--) {
+        int x1, y1, x2, y2, type;
+        cin >> x1 >> y1 >> x2 >> y2 >> type;
+        int a = id(x1, y1), b = id(x2, y2);
+        gate[a][b] = gate[b][a] = type;
     }
-    int states = 1 << k;
-    vector<int> distance(n * m * states, -1);
-    queue<int> q;
-    q.push(start * states);
-    distance[start * states] = 0;
+    vector<int> keys(cells);
+    int s;
+    cin >> s;
+    while (s--) {
+        int x, y, type;
+        cin >> x >> y >> type;
+        keys[id(x, y)] |= 1 << (type - 1);
+    }
+    vector<vector<Edge>> g(cells);
     const int dx[4] = {-1, 1, 0, 0}, dy[4] = {0, 0, -1, 1};
+    for (int x = 1; x <= n; x++) for (int y = 1; y <= m; y++) {
+        int u = id(x, y);
+        for (int d = 0; d < 4; d++) {
+            int nx = x + dx[d], ny = y + dy[d];
+            if (nx < 1 || nx > n || ny < 1 || ny > m) continue;
+            int v = id(nx, ny);
+            if (gate[u][v] != 0) g[u].push_back({v, gate[u][v]});
+        }
+    }
+    vector<vector<int>> dist(cells, vector<int>(states, -1));
+    queue<pair<int, int>> q;
+    dist[0][keys[0]] = 0;
+    q.push({0, keys[0]});
     while (!q.empty()) {
-        int id = q.front(); q.pop();
-        int mask = id % states, cell = id / states;
-        int x = cell / m, y = cell % m;
-        if (grid[x][y] == 'T') { cout << distance[id] << '\n'; return 0; }
-        for (int dir = 0; dir < 4; dir++) {
-            int nx = x + dx[dir], ny = y + dy[dir];
-            if (nx < 0 || nx >= n || ny < 0 || ny >= m || grid[nx][ny] == '#') continue;
-            char c = grid[nx][ny];
-            int nextMask = mask;
-            if (c >= 'A' && c <= 'H' && !((mask >> (c - 'A')) & 1)) continue;
-            if (c >= 'a' && c <= 'h') nextMask |= 1 << (c - 'a');
-            int next = (nx * m + ny) * states + nextMask;
-            if (distance[next] == -1) {
-                distance[next] = distance[id] + 1;
-                q.push(next);
-            }
+        int u = q.front().first, mask = q.front().second;
+        q.pop();
+        if (u == cells - 1) {
+            cout << dist[u][mask] << '\n';
+            return 0;
+        }
+        for (Edge e : g[u]) {
+            if (e.gate > 0 && !(mask & (1 << (e.gate - 1)))) continue;
+            int nextMask = mask | keys[e.to];
+            if (dist[e.to][nextMask] != -1) continue;
+            dist[e.to][nextMask] = dist[u][mask] + 1;
+            q.push({e.to, nextMask});
         }
     }
     cout << -1 << '\n';
@@ -75,9 +109,7 @@ int main() {
 }
 ```
 
-编号 `(x*m+y)*states+mask` 只是把三维表展开成一维。除以 states 得格子编号，取余得 mask，随后再分出行列；每种状态都有独立距离。
-
-总状态 O(nm2ᵏ)，每状态最多四次尝试，时间与空间都为 O(nm2ᵏ)。如果移动费用不全为 1，应按费用用 0/1 BFS 或 Dijkstra，状态定义保持不变。
+总状态 NM·2ᴾ，每个最多四条转移。BFS 时间、空间 O(NM2ᴾ)；门墙表另用 O((NM)²) 空间，NM≤100，只有一万格。
 
 ## 练习：让同一位置保留不同的后续能力
 
@@ -85,13 +117,12 @@ int main() {
 
 ### 推荐必做
 
-1. **自编 · 集齐钥匙：** 不指定终点，要求拿到全部 k 类钥匙，首次 mask=full 时返回步数。
-2. **自编 · 收费格：** 进入部分格子的费用为 0，其余为 1，用双端队列在相同状态图求最小费用。
+1. [P2622 关灯问题 II](https://www.luogu.com.cn/problem/P2622)：每个按钮分别将指定灯打开、关闭或保持不变，求全部关灯的最少按键次数。练习把灯的开关集合当作 BFS 状态。
 
 ### 选做巩固
 
-- **自编 · 一次性工具：** 某种工具使用后消失，转移中需要删除位，不能再假设 mask 只会增加。
-- **自编 · 恢复路线：** 保存前驱状态与方向，恢复包含重复经过同一格子的完整走法。
+- [P1126 机器人搬重物](https://www.luogu.com.cn/problem/P1126)：机器人有朝向，前进和转向都要花时间，求到终点的最短时间。练习同时记录位置和朝向，并检查机器人占用的空间。
+- [P3956 棋盘](https://www.luogu.com.cn/problem/P3956)：移动时颜色变化需要费用，魔法可以给无色格暂时着色但不能连续使用，求最小花费。练习记录当前位置的颜色和魔法状态，并在带权状态图上求最短路。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[状态压缩动态规划 #215](https://www.luogu.com.cn/training/215)。
 

@@ -30,11 +30,11 @@ A 为 r×s，B 为 s×t，乘积 C 为 r×t：C[i][j]=Σ(k=0…s−1)A[i][k]B[k]
 
 例如 [1,2] 乘 [5,7]ᵀ 得 1×5+2×7=19。单位矩阵主对角线为 1，其余为 0，相当于每个状态原样保留，是矩阵乘法中的“1”。
 
-## 例题精讲：自编 · 计算矩阵乘积
+## 例题精讲：[B2105 矩阵乘法](https://www.luogu.com.cn/problem/B2105)
 
-**题意简述：** 输入 r、s、t，均为 1…100；再输入 r×s 的 A 和 s×t 的 B，元素为 0…10⁹+6，输出 A·B，每项对 10⁹+7 取模。
+**题意简述：** 输入 r、s、t，均为 1…100；再输入 r×s 的 A 和 s×t 的 B，每个元素绝对值≤1000，输出 A·B，不取模。
 
-输入：
+自编输入：
 
 ```text
 2 2 2
@@ -58,7 +58,6 @@ A 为 r×s，B 为 s×t，乘积 C 为 r×t：C[i][j]=Σ(k=0…s−1)A[i][k]B[k]
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
-const long long MOD = 1000000007;
 
 int main() {
     ios::sync_with_stdio(false);
@@ -72,7 +71,7 @@ int main() {
     for (auto &row : b) for (auto &x : row) cin >> x;
     for (int i = 0; i < r; i++) {
         for (int k = 0; k < s; k++) {
-            for (int j = 0; j < t; j++) c[i][j] = (c[i][j] + a[i][k] * b[k][j]) % MOD;
+            for (int j = 0; j < t; j++) c[i][j] += a[i][k] * b[k][j];
         }
     }
     for (auto row : c) {
@@ -82,7 +81,7 @@ int main() {
 }
 ```
 
-循环按 i、k、j 排列，方便一段连续地访问 B 的第 k 行；含义与按 i、j、k 一样。每次乘加后取模，单个乘积加一个余数小于约 10¹⁸，long long 足够。时间 O(rst)，空间 O(rs+st+rt)。
+循环按 i、k、j 排列，方便一段连续地访问 B 的第 k 行；含义与按 i、j、k 一样。本题每项由至多 100 个乘积相加，绝对值至多 10⁸；代码使用 long long 保存乘积与总和。时间 O(rst)，空间 O(rs+st+rt)。
 
 ## 练习：先检查维度
 
@@ -90,13 +89,12 @@ int main() {
 
 ### 推荐必做
 
-1. **自编 · 单位矩阵：** 对方阵 A 验证 AI=IA=A，再用两个小矩阵找出 AB≠BA 的例子。
-2. **自编 · 向量变换：** 输入若干二维向量，应用本节的 x'=2x+y、y'=x−y，分别直接计算和用矩阵相乘。
+1. [P1962 斐波那契数列](https://www.luogu.com.cn/problem/P1962)：求大下标的斐波那契数，对 10⁹+7 取模。练习先写出一步的状态向量和 2×2 矩阵，再结合快速幂。
 
 ### 选做巩固
 
-- **自编 · 两次规则：** 先交换 x、y，再把第一项乘 2，写出整体矩阵，核对顺序。
-- **自编 · 固定长度走法：** 将有向图邻接矩阵的 A[u][v] 设为 u 到 v 的边数，解释 A²[u][v] 为什么统计恰好走两条边的方案。
+- [P3390 矩阵快速幂](https://www.luogu.com.cn/problem/P3390)：输入方阵和指数，输出矩阵的指定次幂。练习矩阵乘法、单位矩阵和快速幂的组合。
+- [P1939 矩阵加速（数列）](https://www.luogu.com.cn/problem/P1939)：求满足 aₙ=aₙ₋₁+aₙ₋₃ 的数列指定项。练习构造三维状态并检查矩阵乘一次的结果。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[基础线性代数 #219](https://www.luogu.com.cn/training/219)。
 

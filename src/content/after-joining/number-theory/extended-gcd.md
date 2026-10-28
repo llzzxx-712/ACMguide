@@ -29,11 +29,29 @@ description: 从整数配比问题出发，沿欧几里得算法反向找出系�
 
 递归先求 b·u+(a%b)·v=g，再用 a%b=a−(a/b)·b 展开，得到 a·v+b·(u−(a/b)·v)=g。因此本层的 x=v、y=u−(a/b)·v。到 b=0 时，a×1+0×0=a 就是起点。
 
-## 例题精讲：自编 · 找一组整数配比
+## 例题精讲：[P1082 同余方程](https://www.luogu.com.cn/problem/P1082)
 
-**题意简述：** 输入正整数 a、b≤10⁹，以及 |c|≤10⁹。求 ax+by=c 的一组整数解；无解输出 `NO`。为方便核对，有解时要求 0≤x<b/g，y 可以为负数。
+**题意简述：** 给 a、b，求 ax≡1 (mod b) 的最小正整数解，保证有解。2≤a,b≤2×10⁹；输入 a、b，输出 x。
 
-输入 `30 18 12`，输出 `1 -1`，因为 30−18=12。扩展欧几里得先给出 x=−2、y=4；把 x 对 b/g=3 取非负余数得到 1，再从原方程计算 y。
+自编输入：
+
+```text
+3 10
+```
+
+输出：
+
+```text
+7
+```
+
+### 先把思路讲清楚
+
+同余式表示 ax−1 是 b 的倍数，等价于 ax+by=1。保证有解说明 gcd(a,b)=1，扩展欧几里得就能找到一组整数系数。
+
+对 3、10，3×(−3)+10×1=1，所以一个 x 是 −3；所有解每隔 b=10 出现一次，规范到 [0,b−1] 得 7，验证 3×7 mod 10=1。因为 b≥2，这个余数不可能为 0，也就是最小正整数解。
+
+递归先求 b·u+(a mod b)·v=g，再用 a mod b=a−(a/b)·b 展开，得到 x=v、y=u−(a/b)·v。代码的回代来自这条等式。
 
 ### 完整代码
 
@@ -42,47 +60,41 @@ description: 从整数配比问题出发，沿欧几里得算法反向找出系�
 using namespace std;
 
 long long exgcd(long long a, long long b, long long &x, long long &y) {
-    if (b == 0) { x = 1; y = 0; return a; }
+    if (b == 0) {
+        x = 1;
+        y = 0;
+        return a;
+    }
     long long u, v;
     long long g = exgcd(b, a % b, u, v);
     x = v;
-    y = u - a / b * v;
+    y = u - (a / b) * v;
     return g;
 }
 
 int main() {
-    long long a, b, c, x, y;
-    cin >> a >> b >> c;
-    long long g = exgcd(a, b, x, y);
-    if (c % g != 0) { cout << "NO\n"; return 0; }
-    long long mod = b / g;
-    x = x * (c / g) % mod;
-    x = (x + mod) % mod;
-    y = (c - a * x) / b;
-    cout << x << ' ' << y << '\n';
+    long long a, b, x, y;
+    cin >> a >> b;
+    exgcd(a, b, x, y);
+    cout << (x % b + b) % b << '\n';
     return 0;
 }
 ```
 
-`(x+mod)%mod` 把 C++ 中可能为负的余数移到要求的区间。模数为 1 时 x=0，仍然有效。本例乘积绝对值在约 10¹⁸ 以内，使用 long long；复杂度 O(log min(a,b))，递归深度同阶。
-
-## 线性同余方程其实是同一个问题
-
-ax≡c (mod m) 意味着 ax−c 是 m 的倍数，也就是 ax+my=c 对某个整数 y 成立。因此 gcd(a,m)|c 时才有解；x 的不同解按 m/g 为周期。逆元就是 c=1 的特殊情况，下一节继续使用这个结论。
+时间、递归空间 O(log min(a,b))。输入能放进 int，但回代和乘法使用 long long。C++ 的负数余数可能为负，所以最后用 (x%b+b)%b。
 
 ## 练习：先把等式代回去
 
-先**独立重做例题**，手算 7x+5y=1 和 6x+10y=3，并把程序输出代回原式检查。
+先**独立重做例题**，手算 7x≡1 (mod 5) 与 3x≡1 (mod 10)，将输出代回验证，并检查它是否已规范为最小正解。
 
 ### 推荐必做
 
-1. **自编 · 求最小非负同余解：** 输入 a、m、c，求 ax≡c (mod m) 的最小非负解；练习从同余式转成整数方程。
-2. **自编 · 解的周期：** 对有解的输入，输出连续三组整数解并验证；理解为什么 x 每次增加 b/g。
+1. [P4549 裴蜀定理](https://www.luogu.com.cn/problem/P4549)：给定整数序列，求整数线性组合能得到的最小正值。练习把两个数的结论推广到多个数，并处理负数。
 
 ### 选做巩固
 
-- **自编 · 非负配比：** 在 ax+by=c 中增加 x、y≥0，利用参数 t 的上下界判断是否存在合法解。
-- **自编 · 系数回溯表：** 输出每层 a、b、x、y，用表格观察递归返回过程。
+- [P3951 小凯的疑惑](https://www.luogu.com.cn/problem/P3951)：给两种互质的正整数面值，求不能恰好支付的最大金额。练习研究非负整数配比和同余关系。
+- [P1495 曹冲养猪](https://www.luogu.com.cn/problem/P1495)：合并互质模数的同余条件，求最小自然数解。练习用扩展欧几里得求合并时的逆元。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[数论 #216](https://www.luogu.com.cn/training/216)。
 

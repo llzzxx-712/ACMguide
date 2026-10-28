@@ -34,52 +34,102 @@ description: 通过第一个元素的去向和第一个匹配位置划分方案�
 
 合法出入栈序列、以每个结点左右子树为空或非空来区分的二叉树形状，也可以按第一次匹配或根的两侧拆成同样的递推。
 
-## 例题精讲：自编 · 两个经典计数一起算
+## 例题精讲一：[P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
 
-**题意简述：** 输入 0≤n≤2000，输出 D[n] 和 C[n]，均对 10⁹+7 取模。输入 `3`，输出 `2 5`。
+**题意简述：** n 封不同的信装入 n 个信封，要求全部装错，求方案数。输入 n，1≤n≤20，输出精确整数。
+
+自编输入：
+
+```text
+3
+```
+
+输出：
+
+```text
+2
+```
+
+### 先把思路讲清楚
+
+对三封信，合法排列为 [2,3,1] 与 [3,1,2]。考虑第一封信放入 j 的信封，有 n−1 种 j；再按 j 的信是否回到第一个信封分类，分别变成 n−2 或 n−1 个元素的错排，得到 D[n]=(n−1)(D[n−1]+D[n−2])。
+
+边界 D[0]=1、D[1]=0，代码从 2 开始递推。本题 n≤20，最大 D[20]=895014631192902121，在 long long 范围内，不取模。
 
 ### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
-const long long MOD = 1000000007;
 
 int main() {
     int n;
     cin >> n;
-    vector<long long> derangement(n + 1), catalan(n + 1);
-    derangement[0] = catalan[0] = 1;
-    for (int i = 2; i <= n; i++) {
-        derangement[i] = (i - 1) * (derangement[i - 1] + derangement[i - 2]) % MOD;
-    }
-    for (int length = 1; length <= n; length++) {
-        for (int inside = 0; inside < length; inside++) {
-            catalan[length] = (catalan[length] + catalan[inside] * catalan[length - 1 - inside]) % MOD;
-        }
-    }
-    cout << derangement[n] << ' ' << catalan[n] << '\n';
+    vector<long long> d(max(n + 1, 2), 0);
+    d[0] = 1;
+    for (int i = 2; i <= n; i++) d[i] = (i - 1) * (d[i - 1] + d[i - 2]);
+    cout << d[n] << '\n';
     return 0;
 }
 ```
 
-数组初值使 D[1]=0；没有对 n=0 的数组越界赋值。时间 O(n²)，空间 O(n)，约两百万次卡特兰转移。每次乘积与加法均可放入 long long，且及时取模。
+时间 O(n)，空间 O(n)。
 
-卡特兰数也可写为 C(2n,n)−C(2n,n−1)，等价于 C(2n,n)/(n+1)。模意义下使用后一个式子，需要 n+1 可逆；用阶乘预处理还要求相应阶乘非零，不能直接照搬普通除法。本节用递推让计算过程与划分思路完全对应。
+## 例题精讲二：[P1044 栈](https://www.luogu.com.cn/problem/P1044)
+
+**题意简述：** 1…n 按顺序入栈，中途可随时弹出，求不同出栈序列数量。输入 1≤n≤18，输出整数。
+
+自编输入：
+
+```text
+3
+```
+
+输出：
+
+```text
+5
+```
+
+### 先把思路讲清楚
+
+把一次入栈看作左括号，出栈看作右括号；任意前缀出栈次数不超过入栈次数，最终两者相同，所以操作序列对应合法括号串。由于入栈次序固定，操作序列也决定出栈序列。
+
+与第一个左括号匹配的右括号，将剩下 n−1 对分成内侧 left 对和外侧 n−1−left 对，贡献 C[left]·C[n−1−left]，枚举 left 相加。边界 C[0]=1。n=3 得到 C[0]C[2]+C[1]C[1]+C[2]C[0]=2+1+2=5。
+
+### 完整代码
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    vector<long long> c(n + 1);
+    c[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int left = 0; left < i; left++) c[i] += c[left] * c[i - 1 - left];
+    }
+    cout << c[n] << '\n';
+    return 0;
+}
+```
+
+时间 O(n²)，空间 O(n)。两道题虽然都能递推，分类依据不同：一个看信件归属，一个看第一对括号。先说清不重不漏的分类，再写循环。
 
 ## 练习：先列举再归类
 
-先**独立重做例题**，枚举 n≤6 的排列和 n≤4 的括号串，核对两个结果。
+先**独立重做两道例题**，枚举 n≤6 的排列和 n≤4 的括号串，核对两个结果。
 
 ### 推荐必做
 
-1. [P1044 栈](https://www.luogu.com.cn/problem/P1044)：统计固定入栈顺序下的出栈序列数；解释每个合法出入栈操作序列与卡特兰结构的对应。
-2. **自编 · 恰好 k 人归位：** 从 n 人中选出归位的 k 人，再让剩下的人全部错排，推导 C(n,k)D[n−k]。
+1. [P4071 排列计数](https://www.luogu.com.cn/problem/P4071)：统计恰好 m 个位置不变的排列，对 10⁹+7 取模。练习选择固定位置，再让其余位置错排。
 
 ### 选做巩固
 
-- **自编 · 二叉树形状：** 不给结点贴编号，但区分左右孩子，统计 n 个结点的形状数；按左子树大小分类。
-- **自编 · 不越过对角线的路径：** 画出 n=3 的格点路径，寻找它与括号前缀平衡的对应。
+- [P1641 生成字符串](https://www.luogu.com.cn/problem/P1641)：用给定数量的 0、1 组成字符串，要求每个前缀的 1 不少于 0。练习将前缀条件与括号、格点路径联系起来。
+- [P1313 计算系数](https://www.luogu.com.cn/problem/P1313)：求二项式展开中的指定项系数。练习组合数和模运算，为卡特兰数的组合形式做准备。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[组合数学与计数 #217](https://www.luogu.com.cn/training/217)。
 

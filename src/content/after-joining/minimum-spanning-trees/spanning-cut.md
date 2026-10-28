@@ -19,77 +19,79 @@ n 个点全部保留，所选边连通且无环，就得到一棵生成树，边
 
 例如三角形中 1—2、1—3 权均为 2，2—3 权为 1。以 1 为源的最短路树会选择两条权 2 的边，总权 4；MST 选择一条权 2、一条权 1，总权 3。
 
-## 例题精讲：自编 · 检查给出的边是不是生成树
+## 例题精讲：[P3366 最小生成树](https://www.luogu.com.cn/problem/P3366)
 
-**题意简述：** 输入无向带权图 n、m，随后 m 行 u、v、w；再输入 k 与 k 个边编号，检查所选边是否构成生成树。若是，输出 YES 与总权，否则输出 NO。n,m≤10⁵，|w|≤10⁹，边编号合法，允许重边、自环及重复选择。
+**题意简述：** 输入 n 点 m 边的带权无向图，选出连接全部点的 n−1 条边，使总权最小；不连通输出小写 orz。n≤5000、m≤2×10⁵、边权≤10⁴。输入 n、m，再给每条边的两个端点和权值。
 
-输入：
+自编输入：
 
 ```text
 4 5
-1 2 1
-2 3 2
-3 4 3
-1 4 10
-1 3 4
-3
-1 2 3
+1 2 2
+1 3 3
+2 3 5
+2 4 4
+3 4 2
 ```
 
-输出 `YES 6`。若改选 1、2、5，三个点形成环，第 4 点没连上，即使边数是 n−1 也不能通过。
+输出：
 
-### 用并查集检查每条边能否合并两个块
+```text
+7
+```
 
-一开始每个点独立；若边两端已在同一集合，加入会成环。否则合并。最后检查边数与连通性。这个例题检查的是“是否为生成树”，最小性的选择规则在后面推导。
+### 先把思路讲清楚
+
+先看可行性：选出的边不能成环，且必须连接全部点。再考虑代价：从较小的边开始，只有当它连接两个不同连通块时才加入。样例先取 1—2 和 3—4，费用为 4；再取 1—3 连接两块，总费用为 7。
+
+并查集回答“两端是否已连通”。若已经连通，再加这条边就形成环；否则合并两个块。每选一条边，连通块数减少 1，从 n 块变成 1 块恰需 n−1 条边。下面是这条思路的完整实现，下一节会继续比较 Kruskal 与 Prim。
+
+### 完整代码
 
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
-
-struct DSU {
-    vector<int> parent, size;
-    DSU(int n) : parent(n + 1), size(n + 1, 1) { iota(parent.begin(), parent.end(), 0); }
-    int find(int x) {
-        while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x]; }
-        return x;
-    }
-    bool merge(int x, int y) {
-        x = find(x); y = find(y);
-        if (x == y) return false;
-        if (size[x] < size[y]) swap(x, y);
-        parent[y] = x; size[x] += size[y];
-        return true;
-    }
+struct Edge {
+    int u, v, weight;
 };
-
-struct Edge { int u, v; long long weight; };
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    int n, m, k;
+    int n, m;
     cin >> n >> m;
-    vector<Edge> edges(m + 1);
-    for (int i = 1; i <= m; i++) cin >> edges[i].u >> edges[i].v >> edges[i].weight;
-    cin >> k;
-    DSU dsu(n);
-    bool valid = (k == n - 1);
-    long long total = 0;
-    while (k--) {
-        int id;
-        cin >> id;
-        const Edge &e = edges[id];
-        if (!dsu.merge(e.u, e.v)) valid = false;
-        total += e.weight;
+    vector<Edge> edges(m);
+    for (Edge &e : edges) cin >> e.u >> e.v >> e.weight;
+    sort(edges.begin(), edges.end(), [](Edge a, Edge b) {
+        return a.weight < b.weight;
+    });
+    vector<int> parent(n + 1), size(n + 1, 1);
+    iota(parent.begin(), parent.end(), 0);
+    auto find = [&](int x) {
+        while (x != parent[x]) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    };
+    long long sum = 0;
+    int used = 0;
+    for (Edge e : edges) {
+        int a = find(e.u), b = find(e.v);
+        if (a == b) continue;
+        if (size[a] < size[b]) swap(a, b);
+        parent[b] = a;
+        size[a] += size[b];
+        sum += e.weight;
+        used++;
     }
-    for (int u = 1; u <= n; u++) if (dsu.find(u) != dsu.find(1)) valid = false;
-    if (valid) cout << "YES " << total << '\n';
-    else cout << "NO\n";
+    if (used == n - 1) cout << sum << '\n';
+    else cout << "orz\n";
     return 0;
 }
 ```
 
-图保存在 vector 边表中，因为我们按边编号检查，而不是逐点访问邻居。读图 O(n+m)，检查所选边与连通性约 O((n+k)α(n))，存储 O(n+m)。α(n) 是并查集的反阿克曼复杂度，在这些规模下可看作很小的常数。
+按权排序 O(m log m)，并查集合并的总开销接近线性，空间 O(n+m)。图的无向边在这里作为一份边表保存，排序时每条边只需一条记录；若要从点枚举邻居，则仍使用 vector 邻接表。
 
 ## 割：把所有点分成两边
 
@@ -103,17 +105,17 @@ int main() {
 
 ## 练习：同时检查连通与无环
 
-先**独立重做本例**，测试重复选边、自环、只连上部分点、n=1 且不选边。
+先**独立重做本例**，测试重边、自环、不连通图，以及只有一个点时总费用为 0；核对真正选入的是连接不同连通块的边。
 
 ### 推荐必做
 
-1. **自编 · 枚举小图的 MST：** n≤7、m≤12，枚举 n−1 条边的子集，调用生成树检查，再取最小总权，为下一节写一个独立对拍答案。
-2. **自编 · 列出一个割：** 输入 S 中的顶点，输出跨割最小边，手动验证任意生成树至少跨过一次这个割。
+1. [P1111 · 修复公路](https://www.luogu.com.cn/problem/P1111)：每条公路在指定时间修复完成，求所有村庄最早互相连通的时间，不可能则输出 −1。按时间加入边，用并查集跟踪连通块。
+2. [P1194 · 买礼物](https://www.luogu.com.cn/problem/P1194)：物品可以原价购买，也可在购买其他物品后享受指定优惠，求购买全部物品的最小费用。把购买方式转成边，考虑跨割的候选费用。
 
 ### 选做巩固
 
-- **自编 · MST 与最短路树不同：** 构造四点图，分别手算总权最小的树与某源点的最短路树。
-- **自编 · 相同权值：** 给所有边相同权值，说明为什么任意生成树的总权相同，但含环或不连通的边集仍然不合格。
+- [P2872 · Building Roads](https://www.luogu.com.cn/problem/P2872)：部分道路已存在，求连通所有点需要增加的最短道路总长。先确定已有连通块，再选择跨块的边。
+- [P1550 · Watering Hole](https://www.luogu.com.cn/problem/P1550)：通过打井和修建水道让所有田地获得水源，求最小费用。增加水源结点，思考新图中一棵生成树如何对应供水方案。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[最小生成树 #209](https://www.luogu.com.cn/training/209)。
 

@@ -19,11 +19,30 @@ description: 先决定直接数还是数反面，再通过重复计数的次数�
 
 另一条思路是**数反面**：至少一个相邻位置相同的序列，可以用所有序列减去所有相邻位置都不同的序列。先比较两边哪一边容易数，再决定是否需要容斥。
 
-## 例题精讲：自编 · 至少被一个数整除
+## 例题精讲：[P1450 硬币购物](https://www.luogu.com.cn/problem/P1450)
 
-**题意简述：** 输入 N≤10¹²、k≤15，再输入 k 个 2…10⁹ 的整数 d，统计 1…N 中至少被一个 d 整除的整数个数。d 不保证互质，也可能重复。
+**题意简述：** 有四种硬币，面值固定。每次购物给四类可用数量 d[i] 和目标金额 s，求付款方案数。输入四个面值与查询数，之后每行四个数量和金额；面值、数量、s≤10⁵，查询数≤1000。输出每次方案数。
 
-输入 `10 2`，下一行 `2 3`，输出 `7`：5+3−1。某个子集的交集表示“同时被这些数整除”，应取它们的**最小公倍数**，不能直接相乘；例如 4、6 的共同倍数以 12 为周期。
+自编输入：
+
+```text
+1 2 3 4 1
+1 1 1 1 5
+```
+
+输出：
+
+```text
+2
+```
+
+### 先把思路讲清楚
+
+样例只能用每种至多一枚，金额 5 的方案为 1+4、2+3。若逐次做有界背包，会重复处理相同面值。我们先忽略数量限制，完全背包预处理 ways[s]，再用容斥扣掉超量方案。
+
+设坏事件 E[i] 为第 i 类用了至少 d[i]+1 枚。指定一组坏事件同时发生时，先强制拿走各类的 d[i]+1 枚，剩余硬币数量都变成任意非负数，因此交集大小就是 ways[s−Σ(d[i]+1)c[i]]。负下标表示没有这样的方案。
+
+从全部无限制方案开始，减去单个坏事件，加回两事件交集，再减三事件交集、加四事件交集。mask 的 16 个取值正好枚举事件子集，偶数个事件加、奇数个减；空子集就是最初的全部方案。
 
 ### 完整代码
 
@@ -31,57 +50,59 @@ description: 先决定直接数还是数反面，再通过重复计数的次数�
 #include<bits/stdc++.h>
 using namespace std;
 
-long long gcdValue(long long a, long long b) {
-    while (b != 0) { long long r = a % b; a = b; b = r; }
-    return a;
-}
-
 int main() {
-    long long n;
-    int k;
-    cin >> n >> k;
-    vector<long long> d(k);
-    for (auto &x : d) cin >> x;
-    long long answer = 0;
-    for (int mask = 1; mask < (1 << k); mask++) {
-        long long multiple = 1;
-        int count = 0;
-        bool tooLarge = false;
-        for (int i = 0; i < k; i++) if (mask & (1 << i)) {
-            count++;
-            long long factor = d[i] / gcdValue(multiple, d[i]);
-            if (multiple > n / factor) { tooLarge = true; break; }
-            multiple *= factor;
-        }
-        if (tooLarge) continue;
-        if (count % 2 == 1) answer += n / multiple;
-        else answer -= n / multiple;
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int coin[4], queries;
+    for (int &x : coin) cin >> x;
+    cin >> queries;
+    const int LIMIT = 100000;
+    vector<long long> ways(LIMIT + 1);
+    ways[0] = 1;
+    for (int c : coin) {
+        for (int s = c; s <= LIMIT; s++) ways[s] += ways[s - c];
     }
-    cout << answer << '\n';
+    while (queries--) {
+        long long count[4];
+        for (long long &x : count) cin >> x;
+        int target;
+        cin >> target;
+        long long answer = 0;
+        for (int mask = 0; mask < 16; mask++) {
+            long long remain = target;
+            int selected = 0;
+            for (int i = 0; i < 4; i++) if ((mask >> i) & 1) {
+                remain -= (count[i] + 1) * coin[i];
+                selected++;
+            }
+            if (remain < 0) continue;
+            if (selected % 2 == 0) answer += ways[remain];
+            else answer -= ways[remain];
+        }
+        cout << answer << '\n';
+    }
     return 0;
 }
 ```
 
-“先除 gcd 再乘”仍可能溢出，所以在乘法前比较 `multiple>n/factor`。一旦最小公倍数超过 N，这个交集为空，后续再取 lcm 也不会变小，可以直接跳过。
-
-共 2ᵏ−1 个子集，每个最多处理 k 个数，含 gcd 的时间上界 O(k·2ᵏ·log N)，空间 O(k)。即使中间带符号累计量比最终答案大，本例也不超过约 2¹⁵N，long long 足够。
+预处理 O(4S)，每次查询 O(4·2⁴)，空间 O(S)，S=10⁵。计数和强制取走的金额都用 long long，避免 (d[i]+1)c[i] 溢出 int。
 
 ## 练习：先数直接枚举能验证的小范围
 
-先**独立重做例题**，加入 4、6、重复的 2，检查取 lcm 后是否仍与逐个枚举一致。
+先**独立重做例题**，直接枚举小金额时四类硬币的使用数量，检查恰好触及上限、金额不可达，以及多个超量事件重叠。
 
 ### 推荐必做
 
 1. [P3197 越狱](https://www.luogu.com.cn/problem/P3197)：统计至少一对相邻房间信仰相同的状态；练习用总数减去每对相邻都不同的状态。
-2. **自编 · 没被任何数整除：** 把本例改为统计一个条件也不满足的数，说明为什么用 N 减去并集大小即可。
+2. [P5505 分特产](https://www.luogu.com.cn/problem/P5505)：将多种特产分给同学，每个人至少分得一件。练习枚举未分得特产的同学集合，用容斥去掉空盒。
 
 ### 选做巩固
 
-- **自编 · 至少一个盒子为空：** 小 n 个不同球放入 k 个不同盒子，用容斥统计全部非空的方案。
-- **自编 · 集合次数表：** 对三个集合的八种归属情况列出容斥系数，验证每个并集内元素最终系数为 1。
+- [CF451E Devu and Flowers](https://codeforces.com/problemset/problem/451/E)：从 n 种花中恰选 s 朵，每种有数量上限，统计方案数。n≤20，金额维度很大，练习对超量事件容斥，再用隔板法计算剩余方案。组合数的下标可能很大，但需要相乘的项数仅为 n−1。
+- [P2567 幸运数字](https://www.luogu.com.cn/problem/P2567)：统计区间内至少是一个只含 6、8 的数的倍数的整数。练习去掉冗余条件，并以最小公倍数处理交集。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[组合数学与计数 #217](https://www.luogu.com.cn/training/217)。
 
 ## 本节验收
 
-能先选择直接计数或补集；能解释容斥的正负号；能把共同整除转成 lcm，并在乘法前检查范围。
+能先选择直接计数或补集；能解释容斥的正负号；能把超量条件转成预先取走的硬币，并在乘法前检查范围。

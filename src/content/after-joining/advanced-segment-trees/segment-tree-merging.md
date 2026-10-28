@@ -17,9 +17,9 @@ description: 先把子树频次树直接合并，再将多个值域计数树放�
 
 本节用**破坏式合并**：允许修改已有结点，旧的两棵树不再作为独立版本使用。它与上一节只复制、不破坏旧版本的可持久化有不同用途。
 
-## 例题精讲一：自编 · 每棵子树的最多颜色
+## 例题精讲一：[CF600E Lomsat gelral](https://codeforces.com/problemset/problem/600/E)
 
-**题意简述：** 输入 n≤10⁵ 的树，每点有 1…10⁹ 的颜色，根为 1。对每个点输出子树内出现最多的颜色及次数；并列取颜色较小者。输入 n、n 个颜色，再输入 n−1 条无向边。
+**题意简述：** 给以 1 为根的 n 点树，每点颜色 c[i]，1≤c[i]≤n、n≤10⁵。对每个结点，求子树中所有最高频颜色的编号之和。输入 n、n 个颜色及 n−1 条边；按结点顺序输出 n 个答案。
 
 自编输入：
 
@@ -35,14 +35,16 @@ description: 先把子树频次树直接合并，再将多个值域计数树放�
 输出：
 
 ```text
-1 3
-1 3
-2 1
-1 1
-1 1
+1 1 2 1 1
 ```
 
-每点先只有自身颜色的计数树。按孩子先于父亲的顺序，逐个合并孩子；父亲的树就代表完整子树。每个结点维护最大频次与对应最小颜色，合并后按左右答案比较即可，左边颜色更小，所以同频优先左边。
+### 先把思路讲清楚
+
+根的子树中颜色 1 出现三次，是唯一众数，所以答案为 1；结点 3 只有自身颜色 2，答案为 2。若某子树颜色 2、5 同样出现最多次，答案应为 2+5=7，不能只取更小颜色，也不能输出频次。
+
+每点先建立只含自身颜色的频次树，再按孩子先于父亲的 order 合并。叶子记录该颜色次数与真实颜色值；内部结点维护 maximum（最大次数）、sum（达到最大次数的颜色之和）。左右 maximum 不同，只取较大一侧的 sum；相同就把两侧 sum 相加。
+
+本代码先离散化颜色，叶子位置 l 代表 values[l−1]，加到 sum 的必须是真实颜色值。合并同色叶子时次数相加，颜色值仍只计一次。每棵子树合并结束就把答案复制到普通数组，父亲随后会破坏式修改共享的树，不能事后再拿旧 root 查询。
 
 ### 完整代码
 
@@ -50,19 +52,21 @@ description: 先把子树频次树直接合并，再将多个值域计数树放�
 #include<bits/stdc++.h>
 using namespace std;
 
-struct Node { int left = 0, right = 0, maximum = 0, best = 0; };
+struct Node { int left = 0, right = 0, maximum = 0; long long sum = 0; };
 vector<Node> tree(1);
+vector<int> values;
 
 void pull(int p) {
     int a = tree[p].left, b = tree[p].right;
-    int chosen = tree[a].maximum >= tree[b].maximum ? a : b;
-    tree[p].maximum = tree[chosen].maximum;
-    tree[p].best = tree[chosen].best;
+    tree[p].maximum = max(tree[a].maximum, tree[b].maximum);
+    tree[p].sum = 0;
+    if (tree[a].maximum == tree[p].maximum) tree[p].sum += tree[a].sum;
+    if (tree[b].maximum == tree[p].maximum) tree[p].sum += tree[b].sum;
 }
 
 int insert(int p, int l, int r, int value) {
     if (p == 0) { p = tree.size(); tree.push_back(Node()); }
-    if (l == r) { tree[p].maximum++; tree[p].best = l; return p; }
+    if (l == r) { tree[p].maximum++; tree[p].sum = values[l - 1]; return p; }
     int mid = l + (r - l) / 2;
     if (value <= mid) { int child = insert(tree[p].left, l, mid, value); tree[p].left = child; }
     else { int child = insert(tree[p].right, mid + 1, r, value); tree[p].right = child; }
@@ -85,7 +89,7 @@ int main() {
     cin.tie(nullptr);
     int n;
     cin >> n;
-    vector<int> color(n + 1), values;
+    vector<int> color(n + 1);
     for (int i = 1; i <= n; i++) { cin >> color[i]; values.push_back(color[i]); }
     sort(values.begin(), values.end());
     values.erase(unique(values.begin(), values.end()), values.end());
@@ -106,20 +110,18 @@ int main() {
         int rank = lower_bound(values.begin(), values.end(), color[u]) - values.begin() + 1;
         root[u] = insert(0, 1, size, rank);
     }
-    vector<pair<int, int>> answer(n + 1);
+    vector<long long> answer(n + 1);
     for (int i = n - 1; i >= 0; i--) {
         int u = order[i];
         for (int v : graph[u]) if (parent[v] == u) root[u] = mergeTrees(root[u], root[v], 1, size);
-        answer[u] = {values[tree[root[u]].best - 1], tree[root[u]].maximum};
+        answer[u] = tree[root[u]].sum;
     }
-    for (int u = 1; u <= n; u++) cout << answer[u].first << ' ' << answer[u].second << '\n';
+    for (int u = 1; u <= n; u++) cout << answer[u] << (u == n ? '\n' : ' ');
     return 0;
 }
 ```
 
-答案在子树合并完时立刻存成普通数值。之后父亲继续合并可能修改共享过来的结点，不能再拿旧的 root[u] 查询“当时的子树”。树的遍历用显式 order，链形树不会产生十万层 DFS 调用；值域递归只有 O(log σ) 层。
-
-初始建点 O(n log σ)。每次两个非空结点相遇后，其中一份被消耗、不再作为独立树参与，全部合并的总工作量与初始结点数同阶，合计 O(n log σ)，空间 O(n log σ)；排序另需 O(n log n)。
+建点及全部合并总计 O(n log σ)，空间 O(n log σ)，排序 O(n log n)。每次两个非空结点合并会消耗一份不再独立使用的结点，因此总合并工作量可按初始结点数累计。颜色和可能超过 int，使用 long long；树遍历用显式 order，值域递归深度只有 O(log σ)。
 
 ## 从两个前缀版本转向多个计数树
 
@@ -234,14 +236,14 @@ int main() {
 
 ### 推荐必做
 
-1. **自编 · 子树不同颜色数：** 将例题一的汇总信息改为非零叶子数量，合并时同色只算一次。
-2. **自编 · 带修改区间值计数：** 在例题二支持 [l,r] 中≤x 的数量，练习树状数组前缀差与值域前缀的组合。
+1. [P3224 永无乡](https://www.luogu.com.cn/problem/P3224)：动态连接岛屿，查询某连通块内按重要度排列的第 k 个岛。练习合并连通块对应的权值线段树。
+2. [P3605 Promotion Counting](https://www.luogu.com.cn/problem/P3605)：对每个结点统计能力值大于自己的下属数。练习按子树合并权值树，并查询值域后缀。
 
 ### 选做巩固
 
-- **自编 · 最小反例：** 对长度≤10 随机修改，查询时复制区间并 sort，与树套树结果核对。
-- **自编 · 三种根：** 比较“当前集合根”“前缀历史版本根”“树状数组区间根”分别代表什么，说明哪些可以破坏式修改。
-- **自编 · 内存账本：** 输出结点池实际大小到调试日志，比较全相同值与不断出现新值时的差别，提交前移除日志。
+- [P4556 雨天的尾巴](https://www.luogu.com.cn/problem/P4556)：多次沿树上路径发放物资，求每个点收到最多的物资种类。练习树上差分与线段树合并，同数目时按原题规则处理。
+- [P3380 树套树](https://www.luogu.com.cn/problem/P3380)：支持区间排名、第 k 小、前驱、后继和单点修改。练习组合位置区间与值域统计，注意原题的无前驱或后继输出。
+- [P5494 线段树分裂](https://www.luogu.com.cn/problem/P5494)：对多个可重集执行值域分裂、合并与查询。练习分清哪些根会被清空，哪些结点需要新建。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[线段树的进阶用法 #221](https://www.luogu.com.cn/training/221)。
 

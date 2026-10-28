@@ -19,33 +19,39 @@ description: 搜索仍是枚举，用不可能完成和不可能更优的理由�
 
 注意两者的区别：前者不能得到合法解；后者可能合法，但已经不可能带来更好答案。代码中的判断，要对应到其中一个明确的理由。
 
-## 例题精讲一：自编 · 预算内最大收益
+## 例题精讲一：[P1049 装箱问题](https://www.luogu.com.cn/problem/P1049)
 
-**题意简述：** n 项任务，每项给出费用 cost、收益 value，每项最多选一次，在总费用不超过 budget 时最大化收益，可以一项都不选。1≤n≤22，费用和收益都是 1 到 10^6 的整数，budget≤10^9。
+**题意简述：** 箱子容量 V≤20000，最多 30 件物品，各有正体积，每件最多选一次。选择总量不超过 V，使剩余空间最小。输入先给 V，再给 n，再给 n 个体积；输出最小剩余空间。
 
-输入：
+自编输入：
 
 ```text
-4 7
-4 6
-3 5
-5 8
-2 2
+10
+4
+8
+6
+4
+3
 ```
 
-输出为 `11`，选择费用 4、3 的两项任务。
+输出：
 
-### 先写出每层的两个选择
+```text
+0
+```
 
-dfs(pos,cost,gain) 表示：前 pos 项已经决定是否选取，当前费用和收益分别为 cost、gain，现在决定第 pos 项。
+### 先把思路讲清楚
 
-1. 费用允许，就尝试选当前任务。
-2. 尝试不选，继续处理下一项。
-3. 到末尾时得到一个完整方案。
+把“剩余最少”改成“已装总体积最大”。每层决定当前物品取或不取，这就是所有子集的暴力枚举。样例选 6 和 4 正好装满，剩余为 0。
 
-先按收益从大到小排序，优先尝试“选”，有机会较早找到较大的 best。排序只改变遍历方案的先后，不能独自证明某个分支不必搜索。
+### 每个剪枝都回答：为什么后面不可能更好
 
-预处理 suffix[pos] 为剩余所有任务的收益和。即使忽略预算限制，之后最多也只能增加这些收益，所以 gain+suffix[pos] 是一个乐观上界。上界都不大于 best 时，整棵子树可以剪掉。
+- 可行性：放入后超过容量的分支不用进入。
+- 最优性：就算把剩余物品全部放入，used+suffix[pos] 仍不超过 best，也不可能刷新答案。这里故意忽略容量限制，是一个乐观上界。
+- 等价状态：相同 pos、used 的后续选择完全相同，seen 使它只展开一次。这把最坏展开量限制为 O(nV)，避免只靠剪枝运气。
+- 搜索顺序：体积从大到小，先尝试装入，通常更早得到较好的 best。找到 best=V 后，没有更好的目标值，后续直接返回。
+
+排序不改变可选的子集，只改变枚举顺序。代码仍是思路的实现：先写“取/不取”两条递归，再逐项加入有依据的剪枝。
 
 ### 完整代码
 
@@ -53,45 +59,32 @@ dfs(pos,cost,gain) 表示：前 pos 项已经决定是否选取，当前费用�
 #include<bits/stdc++.h>
 using namespace std;
 
-struct Task { long long cost, value; };
-int n;
-long long budget, best = 0;
-vector<Task> tasks;
-vector<long long> suffix;
-
-void dfs(int pos, long long cost, long long gain) {
-    best = max(best, gain);
-    if (pos == n || gain + suffix[pos] <= best) return;
-    if (cost + tasks[pos].cost <= budget) {
-        dfs(pos + 1, cost + tasks[pos].cost, gain + tasks[pos].value);
-    }
-    dfs(pos + 1, cost, gain);
-}
-
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cin >> n >> budget;
-    tasks.resize(n);
-    for (int i = 0; i < n; i++) cin >> tasks[i].cost >> tasks[i].value;
-    sort(tasks.begin(), tasks.end(), [](const Task &a, const Task &b) {
-        return a.value > b.value;
-    });
-    suffix.resize(n + 1);
-    for (int i = n - 1; i >= 0; i--) suffix[i] = suffix[i+1] + tasks[i].value;
-    dfs(0, 0, 0);
-    cout << best << '\n';
+    int capacity, n;
+    cin >> capacity >> n;
+    vector<int> a(n);
+    for (int &x : a) cin >> x;
+    sort(a.rbegin(), a.rend());
+    vector<long long> suffix(n + 1);
+    for (int i = n - 1; i >= 0; i--) suffix[i] = suffix[i + 1] + a[i];
+    vector<vector<char>> seen(n + 1, vector<char>(capacity + 1));
+    int best = 0;
+    function<void(int, int)> dfs = [&](int pos, int used) {
+        best = max(best, used);
+        if (best == capacity || pos == n) return;
+        if (used + suffix[pos] <= best) return;
+        if (seen[pos][used]) return;
+        seen[pos][used] = true;
+        if (a[pos] <= capacity - used) dfs(pos + 1, used + a[pos]);
+        dfs(pos + 1, used);
+    };
+    dfs(0, 0);
+    cout << capacity - best << '\n';
     return 0;
 }
 ```
 
-当前已选任务本身就是一个合法方案，剩余任务可以全部不选，因此每层都能用 gain 更新 best。只在费用合法时进入选取分支，就不会把超预算收益记进答案。
-
-> **最优性剪枝要使用正确方向的界。**
->
-> 求最大收益时，需要一个不小于真实可达收益的上界。把“剩下可能拿到的收益”估小，会剪掉正确答案。本例把剩余收益全部加入，虽然可能根本装不下，却始终足够乐观，所以能用于判断“不可能更好”。
-
-不计剪枝时有 2^n 种选择，时间上界 O(2^n)，递归与辅助数组空间 O(n)。剪枝减少的是实际访问的结点；先通过数据范围估算基础枚举规模，再分析哪里可以少走。
+时间最坏 O(nV)，空间 O(nV)，递归深度 O(n)。与背包 DP 的状态含义相通：这里用搜索组织到达状态的顺序，seen 负责合并重复历史。
 
 ## 例题精讲二：P1120 · 小木棍
 
@@ -183,12 +176,12 @@ used 的恢复对应“撤销刚才这一段”，failedLength 只对当前这�
 ### 推荐必做
 
 1. [P1036 · 选数](https://www.luogu.com.cn/problem/P1036)：选出指定数量的数，使和为质数。只按下标递增选择；当“已选个数+剩余个数”不足时剪枝，练习不影响正确性的可行性判断。
-2. **自编 · 记录一种最优任务方案：** 沿用预算收益例题，除最大收益外输出任意一种达到最大收益的原始任务编号。排序前保存编号，搜索时维护选择路径，更新 best 时保存当前路径。
+2. [P1123 · 取数游戏](https://www.luogu.com.cn/problem/P1123)：在矩阵中选择互不相邻的数，最大化总和。逐格决定选或不选，检查八个方向的限制，并思考剩余值总和能否作为乐观上界。
 
 ### 选做巩固
 
 - [P1433 · 吃奶酪](https://www.luogu.com.cn/problem/P1433)：从原点出发访问所有点，最小化路程。先预处理两点距离，思考已走距离与剩余路径下界怎样帮助剪枝，再结合“访问集合、当前位置”复用重复状态。
-- **自编 · 统计最优方案个数：** 沿用任务例题，同时统计达到最大收益的不同选择方案数。若要保留同样最优的方案，乐观上界等于 best 时还能不能直接剪掉？重新设计终点计数，避免把同一个完整选择按多个中间状态重复统计。
+- [P10488 · Booksort](https://www.luogu.com.cn/problem/P10488)：每次移动一段书，求将排列排好序的最少次数，至少五次按题意输出。观察一次移动最多改变多少相邻关系，用它估计尚需操作次数并剪枝。
 
 ## 本节验收
 

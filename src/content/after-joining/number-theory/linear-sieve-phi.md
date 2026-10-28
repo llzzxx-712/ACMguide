@@ -28,24 +28,29 @@ description: 用最小质因子安排唯一一次筛除，并顺着同一过程�
 
 素数本身 φ(p)=p−1。这三个判断就是公式在代码中的实现。
 
-## 例题精讲：自编 · 多次查询互质个数
+## 例题精讲：[P2158 仪仗队](https://www.luogu.com.cn/problem/P2158)
 
-**题意简述：** 输入上界 n≤10⁶、查询数 q≤10⁵，再输入 q 个 1…n 中的数 x，每次输出 φ(x)。
+**题意简述：** 从 N×N 方阵的左后角观察学生，同一射线只看见最近的一人，求看见的人数。输入 N，1≤N≤40000；输出整数。把观察点设为 (0,0)，考察 0…N−1 的整点，原点不计。
 
-输入：
+自编输入：
 
 ```text
-12 3
-1 6 12
+3
 ```
 
 输出：
 
 ```text
-1
-2
-4
+5
 ```
+
+### 先把思路讲清楚
+
+若 x、y 都为正，gcd(x,y)>1 时，(x/g,y/g) 位于同一射线且更近，会挡住 (x,y)；互质时中间没有别的整点。两条坐标轴各只有最近一点可见。
+
+按较大坐标 i 分类，在 1≤j<i 的三角形里有 φ(i) 个与 i 互质的 j，对称后乘 2；还要单独计入 (1,1) 和两条轴。于是 N>1 时答案为 2·Σ(i=1…N−1)φ(i)+1，N=1 时为 0。
+
+N=3 时能看见 (1,0)、(0,1)、(1,1)、(1,2)、(2,1)，共 5 人。先用上面线性筛求 φ，再累计贡献，这使筛出的数字真正回答了一道几何计数题。
 
 ### 完整代码
 
@@ -54,17 +59,22 @@ description: 用最小质因子安排唯一一次筛除，并顺着同一过程�
 using namespace std;
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    int n, q;
-    cin >> n >> q;
-    vector<int> primes, phi(n + 1);
-    vector<bool> composite(n + 1, false);
+    int n;
+    cin >> n;
+    if (n == 1) {
+        cout << 0 << '\n';
+        return 0;
+    }
+    vector<int> primes, phi(n);
+    vector<bool> composite(n, false);
     phi[1] = 1;
-    for (int i = 2; i <= n; i++) {
-        if (!composite[i]) { primes.push_back(i); phi[i] = i - 1; }
+    for (int i = 2; i < n; i++) {
+        if (!composite[i]) {
+            primes.push_back(i);
+            phi[i] = i - 1;
+        }
         for (int p : primes) {
-            if (p > n / i) break;
+            if (p > (n - 1) / i) break;
             composite[i * p] = true;
             if (i % p == 0) {
                 phi[i * p] = phi[i] * p;
@@ -73,16 +83,14 @@ int main() {
             phi[i * p] = phi[i] * (p - 1);
         }
     }
-    while (q--) {
-        int x;
-        cin >> x;
-        cout << phi[x] << '\n';
-    }
+    long long answer = 1;
+    for (int i = 1; i < n; i++) answer += 2LL * phi[i];
+    cout << answer << '\n';
     return 0;
 }
 ```
 
-先判断 `p>n/i`，再做乘法，既保证下标不越界，也避开乘积溢出。φ(x)≤x≤n，所以本例 int 足够。预处理 O(n)，每次查询 O(1)，空间 O(n)。
+时间 O(N)，空间 O(N)。乘法前用 p>(N−1)/i 检查上界；累计答案用 long long。
 
 ## 欧拉定理怎样用于幂
 
@@ -92,17 +100,17 @@ int main() {
 
 ## 练习：先用 gcd 检验
 
-先**独立重做例题**，对 x≤100 逐个枚举 1…x，用 gcd 计数核对 φ。
+先**独立重做例题**，先对 x≤100 用 gcd 计数核对 φ，再枚举小方阵的互质坐标，核对可见点数量。
 
 ### 推荐必做
 
-1. **自编 · 单个大数的 φ：** 对 n≤10¹² 试除分解质因子，用 φ 公式计算；比较单次分解与整段筛的适用场景。
-2. **自编 · 验证欧拉定理：** 对小 m 枚举所有互质的 a，用快速幂验证 a^φ(m) mod m。
+1. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)：求 1…N 中素数的数量。练习线性筛，并按原题大范围安排数组和输入输出。
+2. [P2568 GCD](https://www.luogu.com.cn/problem/P2568)：统计 1≤x,y≤n 且 gcd(x,y) 为质数的有序数对。练习枚举质数并用 φ 前缀和统计缩小后的互质数对。
 
 ### 选做巩固
 
-- **自编 · 互质数对：** 统计 1≤a≤b≤n 且 gcd(a,b)=1 的对数，尝试把答案写成 φ 的前缀和。
-- **自编 · 最小质因子：** 在线性筛中记录每个数的最小质因子，用它快速分解多次查询。
+- [P2398 GCD SUM](https://www.luogu.com.cn/problem/P2398)：求 1≤i,j≤n 的 gcd(i,j) 总和。练习推导 gcd 的 φ 求和关系，按贡献统计。
+- [P3601 签到题](https://www.luogu.com.cn/problem/P3601)：求区间中每个数的不互质数个数之和并取模。练习由 x−φ(x) 转化，并对大端点、短区间用区间筛处理。
 
 对应题单：[自编入门题单](https://www.luogu.com.cn/training/1126196)、[数论 #216](https://www.luogu.com.cn/training/216)。
 
