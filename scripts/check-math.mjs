@@ -25,6 +25,8 @@ assert.ok(probe.code.includes('<code>$x$</code>'));
 assert.ok(!probe.code.includes('data-mjx-error'));
 const invalidProbe=await renderer.render(String.raw`$\invalidMathCommand$`);
 assert.ok(invalidProbe.code.includes('data-mjx-error='),'Invalid TeX must remain detectable by the build check');
+const headingProbe=await renderer.render(String.raw`## 闭区间与 $\mathrm{ans}$：在 $n^2$ 内完成`);
+assert.equal(headingProbe.metadata.headings[0].text,'闭区间与 ans：在 n^2 内完成','Navigation labels must retain variables from mathematical headings');
 
 async function walk(dir){return(await Promise.all((await readdir(dir,{withFileTypes:true})).map(e=>e.isDirectory()?walk(path.join(dir,e.name)):path.join(dir,e.name)))).flat();}
 const root=path.resolve('dist'), files=await walk(root);
@@ -51,13 +53,14 @@ assert.ok(displayFormulas>=10,'Long derivations must retain display-math layout'
 const factorial=await readFile(path.join(root,'after-joining/learn/factorial-combinations/index.html'),'utf8');
 assert.ok(factorial.includes('display="true"'),'Factorial derivation must use display-math layout');
 assert.ok(factorial.includes('data-math-source="\\dbinom{n}{k}"'),'Inline binomial coefficients must retain readable full height');
-for(const file of(await walk('src/content')).filter(p=>p.endsWith('.md')&&!p.endsWith(path.join('language','arrays.md')))){
+for(const file of(await walk('src/content')).filter(p=>p.endsWith('.md'))){
     const source=(await readFile(file,'utf8')).replace(/```[\s\S]*?```/g,'');
     assert.ok(!/^\s*\$\s*$/m.test(source),`Standalone formulas need paired double-dollar delimiters: ${file}`);
 }
 const reconstruction=await readFile(path.join(root,'after-joining/learn/tree-reconstruction/index.html'),'utf8');
 assert.ok(reconstruction.includes('<code>solve(inLe, inRi, postLe, postRi)</code>'));
-assert.ok(reconstruction.includes('<code>[postLe, postLe + leftSize - 1]</code>'));
+const intervalTable=reconstruction.match(/<table\b[\s\S]*?<\/table>/)?.[0];
+assert.ok(intervalTable?.includes('<mjx-container')&&intervalTable.includes('postLe')&&intervalTable.includes('leftSize'),'Subtree intervals must render as complete mathematical expressions');
 const dsu=await readFile(path.join(root,'after-joining/learn/dsu/index.html'),'utf8');
 assert.ok(dsu.includes('<code>fx = find(x)</code>')&&dsu.includes('<code>f[fx] = fy</code>'));
 const styles=await readFile('src/styles/global.css','utf8');
